@@ -25,7 +25,7 @@ module astro
     end
 
     function naivecorr(x, y; metric=euclidean)
-        return 0
+        return mean([metric(x[i], y[j]) for i in 1:length(x), j in 1:length(y)])
     end
 
     #=
