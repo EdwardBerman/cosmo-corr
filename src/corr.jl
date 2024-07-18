@@ -96,25 +96,61 @@ module astrocorr
 
         return ψ_θ
     end
-    # parallelize ξ (θ) for different θ bins
+    # parallelize ξ (θ) for different θ bins 
 
     #=
     Correlators: TreeCorr, Heirarchical Clustering, etc.
     =#
 
-    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Vector{Float64}}, y::Vector{Float64}, θ_min::Float64, number_bins::Int64, θ_max::Float64; spacing=log, metric=Euclidean(), correlator=treecorr)
+    function corr(ra::Vector{Float64},
+            dec::Vector{Float64}, 
+            x::Vector{Vector{Float64}}, 
+            y::Vector{Float64}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            spacing=log, 
+            metric=Euclidean(), 
+            correlator=treecorr)
         return correlator(x, y)
     end
     
-    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Float64}, y::Vector{Vector{Float64}}, θ_min::Float64, number_bins::Int64, θ_max::Float64; spacing=log, metric=Euclidean(), correlator=treecorr)
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Float64}, 
+            y::Vector{Vector{Float64}}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            spacing=log, 
+            metric=Euclidean(), 
+            correlator=treecorr)
         return correlator(x, y)
     end
 
-    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Vector{Complex{Float64}}}, y::Vector{Float64}, θ_min::Float64, number_bins::Int64, θ_max::Float64; spacing=log, metric=Euclidean(), correlator=treecorr)
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Vector{Complex{Float64}}}, 
+            y::Vector{Float64}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            spacing=log, 
+            metric=Euclidean(), 
+            correlator=treecorr)
         return correlator(x, y)
     end
     
-    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Float64}, y::Vector{Vector{Float64}}, θ_min::Float64, number_bins::Int64, θ_max::Float64; spacing=log, metric=Euclidean(), correlator=treecorr)
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Float64}, 
+            y::Vector{Vector{Float64}}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            spacing=log, 
+            metric=Euclidean(), 
+            correlator=treecorr)
         return correlator(x, y)
     end
     #=
