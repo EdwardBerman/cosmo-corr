@@ -14,13 +14,15 @@ module astro
     
     function treecorr()
         #initialize partition sizes and positions of 2 cells
+        # Naively separate into line above some y axis and below some y axis, if the split is lopsided, rotate the axis
         return 0
     end
     
     
-    #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info
-    function clustercorr(x, y; metric=euclidean)
+    #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info. The disadvantage is that you don't have a bound on the binning error.
+    function clustercorr(x, y; spacing=log, metric=euclidean)
         distance_matrix = build_distance_matrix(x, y, metric=metric)
+        # log scale all entries
         hclusters = hclust(distance_matrix)
     end
 
