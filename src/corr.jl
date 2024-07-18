@@ -32,7 +32,7 @@ module astrocorr
     function clustercorr(ra, dec, corr1, corr2; spacing=log, metric=Euclidean())
         distance_matrix = build_distance_matrix(x, y, metric=metric)
         distance_matrix = spacing.(distance_matrix)
-        distance_vector = reshape(distance_matrix, :, 1) # probably don't do this actually
+        distance_vector = reshape(distance_matrix, :, 1) # probably don't do this actually. 2 x ? matrix
         hclusters = hclust(distance_matrix)
         θ_bin_assigments = cutree(hclusters, k=number_bins)
         #df = |min theta in bin _i | max theta in bin _i | index of bin _i | number of points in bin _i
