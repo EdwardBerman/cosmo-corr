@@ -17,8 +17,14 @@ module astro
         return 0
     end
     
+    
+    #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info
+    function clustercorr(x, y; metric=euclidean)
+        distance_matrix = build_distance_matrix(x, y, metric=metric)
+        hclusters = hclust(distance_matrix)
+    end
 
-    function clustercorr(;metric=euclidean)
+    function naivecorr(x, y; metric=euclidean)
         return 0
     end
 
