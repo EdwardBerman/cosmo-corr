@@ -1,9 +1,9 @@
 #euclidean
 
 
-function build_distance_matrix(x,y, metric=euclidean)
+function build_distance_matrix(x,y, metric=Euclidean())
     distance_matrix = zeros(length(x), length(y))
-    for i in 1:length(x)
+    @threads for i in 1:length(x)
         for j in 1:length(y)
             distance_matrix[i,j] = metric(x[i], y[j])
         end
