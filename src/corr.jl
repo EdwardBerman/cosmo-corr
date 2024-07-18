@@ -9,6 +9,12 @@ module astro
     include("metrics.jl")
     # Vector of vectors, vector of floats,
     
+    struct galaxy_catalog
+        ra::Vector{Float64}
+        dec::Vector{Float64}
+        corr1::Any
+        corr2::Any
+    end
 
     #Heirarchical Clustering from Julia
     
@@ -34,25 +40,29 @@ module astro
     Correlators: TreeCorr, Heirarchical Clustering, etc.
     =#
 
-    function corr(x::Vector{Vector{Float64}}, y::Vector{Float64} ;spacing=log, metric=euclidean, correlator=treecorr)
+    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Vector{Float64}}, y::Vector{Float64} ;spacing=log, metric=euclidean, correlator=treecorr)
         return correlator(x, y)
     end
     
-    function corr(x::Vector{Float64}, y::Vector{Vector{Float64}} ;spacing=log, metric=euclidean, correlator=treecorr)
+    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Float64}, y::Vector{Vector{Float64}} ;spacing=log, metric=euclidean, correlator=treecorr)
         return correlator(x, y)
     end
 
-    function corr(x::Vector{Vector{Complex{Float64}}}, y::Vector{Float64} ;spacing=log, metric=euclidean, correlator=treecorr)
+    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Vector{Complex{Float64}}}, y::Vector{Float64} ;spacing=log, metric=euclidean, correlator=treecorr)
         return correlator(x, y)
     end
     
-    function corr(x::Vector{Float64}, y::Vector{Vector{Float64}} ;spacing=log, metric=euclidean, correlator=treecorr)
+    function corr(ra::Vector{Float64}, dec::Vector{Float64}, x::Vector{Float64}, y::Vector{Vector{Float64}} ;spacing=log, metric=euclidean, correlator=treecorr)
         return correlator(x, y)
     end
     #=
     Rest of corr functions here, multiple dispatch!
     =#
-
-
+    
+    #=
+    #example
+    #gal_cal = galaxy_catalog([1,2,3,4,5], [1,2,3,4,5], [1,2,3,4,5], [1,2,3,4,5])
+    #cor(θ) = corr(gal_cal.ra, gal_cal.dec, gal_cal.corr1, gal_cal.corr2)
+    =#
 
 end
