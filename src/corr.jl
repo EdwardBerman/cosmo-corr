@@ -50,6 +50,7 @@ module astrocorr
         distance_matrix = build_distance_matrix(ra, dec, metric=metric)
         distance_matrix = spacing.(distance_matrix)
         distance_vector = reshape(distance_matrix, :, 1)
+        distance_vector = filter(!isnan, distance_vector)
         
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
 

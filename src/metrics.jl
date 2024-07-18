@@ -1,11 +1,15 @@
 #euclidean
 
 
-function build_distance_matrix(x,y, metric=Euclidean())
-    distance_matrix = zeros(length(x), length(y))
-    @threads for i in 1:length(x)
-        for j in 1:length(y)
-            distance_matrix[i,j] = metric(x[i], y[j])
+function build_distance_matrix(ra, dec, metric=Euclidean())
+    distance_matrix = zeros(length(ra), length(dec))
+    @threads for i in 1:length(ra)
+        for j in 1:length(dec)
+            if j > i
+                distance_matrix[i, j] = NaN
+            else
+                distance_matrix[i,j] = metric(ra[i], dec[j])
+            end
         end
     end
     return distance_matrix
