@@ -49,7 +49,12 @@ module astrocorr
     function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, metric=Euclidean())
         distance_matrix = build_distance_matrix(ra, dec, metric=metric)
         distance_matrix = spacing.(distance_matrix)
-        distance_vector = reshape(distance_matrix, :, 1)
+        
+        @assert length(ra) == length(dec) == length(corr1) == length(corr2)
+
+        n = length(ra)
+        indices = [(i, j) for i in 1:n, j in 1:n if j < i]  
+        distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         distance_vector = filter(!=(0), distance_vector)
         
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
@@ -64,24 +69,21 @@ module astrocorr
             end
         end
 
-        θ_bin_means = zeros(number_bins)
-        for i in 1:number_bins
-            bin = findall(θ_bin_assignments .== i)
-            mean_theta = mean(distance_vector[bin])
-        end
-        
         df = DataFrame(bin_number=Int[], min_distance=Float64[], max_distance=Float64[], count=Int[], mean_distance=Float64[], corr1=Vector{Float64}[], corr2=Vector{Float64}[])
         
         for i in 1:number_bins
-            bin = findall(θ_bin_assignments .== i)
-            min_distance = minimum(distance_vector[bin])
-            max_distance = maximum(distance_vector[bin])
-            count = length(bin)
-            mean_distance = mean(distance_vector[bin])
-            corr1_values = corr1[bin]
-            corr2_values = corr2[bin]
+            if !isempty(bin)
+                bin = findall(θ_bin_assignments .== i)
+                min_distance = minimum(distance_vector[bin])
+                max_distance = maximum(distance_vector[bin])
+                count = length(bin)
+                mean_distance = mean(distance_vector[bin])
+                bin_indices = [indices[k] for k in bin]
+                corr1_values = [corr1[i] for (i, j) in bin_indices]
+                corr2_values = [corr2[i] for (i, j) in bin_indices]
 
-            push!(df, (bin_number=i, min_distance=min_distance, max_distance=max_distance, count=count, mean_distance=mean_distance, corr1=corr1_values, corr2=corr2_values))
+                push!(df, (bin_number=i, min_distance=min_distance, max_distance=max_distance, count=count, mean_distance=mean_distance, corr1=corr1_values, corr2=corr2_values))
+            end
         end
 
         if verbose
@@ -89,7 +91,7 @@ module astrocorr
         end
         
         ψ_θ = zeros(2, number_bins) 
-        @threads for i in 1:number_bins
+        @threads for i in 1:nrow(df)
             ψ_θ[1,i] = df[i, :mean_distance]
             ψ_θ[2,i] = mean(metric(df[i, :corr1], df[i, :corr2]))
         end
