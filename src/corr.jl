@@ -54,7 +54,6 @@ module astrocorr
         n = length(ra)
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]  
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
-        distance_vector = filter(!=(0), distance_vector)
         
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
 
