@@ -46,9 +46,9 @@ module astrocorr
         end
     end
 
-    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, metric=Euclidean())
+    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Euclidean(), correlation_metric=Euclidean())
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
-        distance_matrix = build_distance_matrix(ra, dec, metric=metric)
+        distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
         distance_matrix = spacing.(distance_matrix)
 
         n = length(ra)
@@ -91,7 +91,7 @@ module astrocorr
         ψ_θ = zeros(2, number_bins) 
         @threads for i in 1:nrow(df)
             ψ_θ[1,i] = df[i, :mean_distance]
-            ψ_θ[2,i] = mean(metric(df[i, :corr1], df[i, :corr2]))
+            ψ_θ[2,i] = mean(correlation_metric(df[i, :corr1], df[i, :corr2]))
         end
 
         return ψ_θ
@@ -110,8 +110,10 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            metric=Euclidean(), 
-            correlator=treecorr)
+            sky_metric=Euclidean(), 
+            correlation_metric=Euclidean(),
+            correlator=treecorr,
+            verbose=true)
         return correlator(x, y)
     end
     
@@ -123,8 +125,10 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            metric=Euclidean(), 
-            correlator=treecorr)
+            sky_metric=Euclidean(), 
+            correlation_metric=Euclidean(),
+            correlator=treecorr,
+            verbose=true)
         return correlator(x, y)
     end
 
@@ -136,8 +140,10 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            metric=Euclidean(), 
-            correlator=treecorr)
+            sky_metric=Euclidean(), 
+            correlation_metric=Euclidean(),
+            correlator=treecorr, 
+            verbose=true)
         return correlator(x, y)
     end
     
@@ -149,8 +155,10 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            metric=Euclidean(), 
-            correlator=treecorr)
+            sky_metric=Euclidean(), 
+            correlation_metric=Euclidean(),
+            correlator=treecorr,
+            verbose=true)
         return correlator(x, y)
     end
     #=
