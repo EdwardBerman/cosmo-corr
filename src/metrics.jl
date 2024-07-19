@@ -2,12 +2,12 @@
 
 
 function build_distance_matrix(ra, dec; metric=Euclidean())
-    distance_matrix = zeros(length(ra), length(dec))
-    @threads for i in 1:length(ra)
-        for j in 1:length(dec)
-            if j < i
-                distance_matrix[i,j] = metric(ra[i], dec[j])
-            end
+    n = length(ra)
+    coords = [(ra[i], dec[i]) for i in 1:n]
+    distance_matrix = zeros(n, n)
+    @threads for i in 1:n
+        for j in 1:i-1
+            distance_matrix[i,j] = metric(coords[i], coords[j])
         end
     end
     return distance_matrix

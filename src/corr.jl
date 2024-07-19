@@ -47,10 +47,9 @@ module astrocorr
     end
 
     function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, metric=Euclidean())
+        @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=metric)
         distance_matrix = spacing.(distance_matrix)
-        
-        @assert length(ra) == length(dec) == length(corr1) == length(corr2)
 
         n = length(ra)
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]  
@@ -72,15 +71,15 @@ module astrocorr
         df = DataFrame(bin_number=Int[], min_distance=Float64[], max_distance=Float64[], count=Int[], mean_distance=Float64[], corr1=Vector{Float64}[], corr2=Vector{Float64}[])
         
         for i in 1:number_bins
+            bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
-                bin = findall(θ_bin_assignments .== i)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
                 count = length(bin)
                 mean_distance = mean(distance_vector[bin])
                 bin_indices = [indices[k] for k in bin]
                 corr1_values = [corr1[i] for (i, j) in bin_indices]
-                corr2_values = [corr2[i] for (i, j) in bin_indices]
+                corr2_values = [corr2[j] for (i, j) in bin_indices]
 
                 push!(df, (bin_number=i, min_distance=min_distance, max_distance=max_distance, count=count, mean_distance=mean_distance, corr1=corr1_values, corr2=corr2_values))
             end
