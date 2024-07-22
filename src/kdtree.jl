@@ -3,7 +3,7 @@ module kdtree
 include("metrics.jl")
 using .metrics
 
-export KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, insert!
+export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, insert!
 
 using AbstractTrees
 
@@ -42,7 +42,8 @@ function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     end
 end
 
-function initialize_circles()
+function initialize_circles(galaxies::Vector{Galaxy})
+    # divide either RA or DEC into 2 groups, then enclose them in non overlapping circles
     return Galaxy_Circle{Float64, Float64, Galaxy}[], Galaxy_Circle{Float64, Float64, Galaxy}[]
 end
 
@@ -51,7 +52,7 @@ function split_cirlces(galaxy_circles::Vector{Galaxy_Circle})
 end
 
 function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy})
-    initial_circles = initialize_circles()
+    initial_circles = initialize_circles(galaxies)
     for Galaxy_Circle in initial_circles 
         insert!(tree, Galaxy_Circle)
     end
