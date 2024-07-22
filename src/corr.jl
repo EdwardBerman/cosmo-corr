@@ -13,9 +13,16 @@ module astrocorr
     include("kdtree.jl")
     # Vector of vectors, vector of floats,
     
-    struct galaxy_catalog
+    struct Galaxy_Catalog
         ra::Vector{Float64}
         dec::Vector{Float64}
+        corr1::Vector{Any}
+        corr2::Vector{Any}
+    end
+
+    struct Galaxy 
+        ra::Float64
+        dec::Float64
         corr1::Any
         corr2::Any
     end
