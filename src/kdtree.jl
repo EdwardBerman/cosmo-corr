@@ -1,18 +1,25 @@
+module kdtree 
+
+include("metrics.jl")
+using .metrics
+
+export KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, insert!
+
 using AbstractTrees
 
-mutable struct KD_Galaxy_Tree
-    root::Galaxy
-    left::Union{KD_Galaxy_Tree, Nothing}
-    right::Union{KD_Galaxy_Tree, Nothing}
-end
-
-mutable struct Galaxy_Circle{T, r, g}
+struct Galaxy_Circle{T, r, g}
     center::Vector{T}
     radius::r
     galaxies::Vector{g}
 end
 
-function append_left!(tree::KD_Galaxy_Tree, node::Galaxy)
+mutable struct KD_Galaxy_Tree
+    root::Galaxy_Circle
+    left::Union{KD_Galaxy_Tree, Nothing}
+    right::Union{KD_Galaxy_Tree, Nothing}
+end
+
+function append_left!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     if tree.root == KD_Galaxy_Tree(node, nothing, nothing)
         tree.root = node
     else
@@ -20,7 +27,7 @@ function append_left!(tree::KD_Galaxy_Tree, node::Galaxy)
     end
 end
 
-function append_right!(tree::KD_Galaxy_Tree, node::Galaxy)
+function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     if tree.root == nothing
         tree.root = KD_Galaxy_Tree(node, nothing, nothing)
     else
@@ -29,21 +36,23 @@ function append_right!(tree::KD_Galaxy_Tree, node::Galaxy)
 end
 
 function initialize_circles()
-    return centers, radii
+    return Galaxy_Circle{Float64, Float64, Galaxy}[], Galaxy_Circle{Float64, Float64, Galaxy}[]
 end
 
-function split_cirlces(galaxy_circles::Vector{galaxy_circle})
+function split_cirlces(galaxy_circles::Vector{Galaxy_Circle})
     return left_circles, right_circles
 end
 
 function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy})
-    centers, radii = initialize_circles()
-    for galaxy in galaxies
-        insert!(tree, galaxy)
+    initial_circles = initialize_circles()
+    for Galaxy_Circle in initial_circles 
+        insert!(tree, Galaxy_Circle)
     end
 end
 
-function insert!(tree::KD_Galaxy_Tree, galaxy::Galaxy)
+function insert!(tree::KD_Galaxy_Tree, galaxy_circle::Galaxy_Circle)
+    distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
+    distance_matrix = spacing.(distance_matrix)
     if galaxy.ra < tree.root.ra
         if tree.left == nothing
             tree.left = KD_Galaxy_Tree(galaxy, nothing, nothing)
@@ -57,4 +66,6 @@ function insert!(tree::KD_Galaxy_Tree, galaxy::Galaxy)
             insert!(tree.right, galaxy)
         end
     end
+end
+
 end

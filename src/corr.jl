@@ -1,4 +1,10 @@
 module astrocorr
+    include("metrics.jl")
+    include("kdtree.jl")
+
+    using .metrics
+    using .kdtree
+
     export corr
     using LinearAlgebra
     using Base.Threads
@@ -9,8 +15,6 @@ module astrocorr
     using Base.Iterators: product
     using Base.Iterators: partition
 
-    include("metrics.jl")
-    include("kdtree.jl")
     # Vector of vectors, vector of floats,
     
     struct Galaxy_Catalog
