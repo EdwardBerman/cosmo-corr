@@ -2,6 +2,9 @@
 module metrics
 export build_distance_matrix
 
+using Base.Threads
+
+
 function build_distance_matrix(ra, dec; metric=Euclidean())
     n = length(ra)
     coords = [(ra[i], dec[i]) for i in 1:n]
