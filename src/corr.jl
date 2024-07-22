@@ -10,6 +10,7 @@ module astrocorr
     using Base.Iterators: partition
 
     include("metrics.jl")
+    include("kdtree.jl")
     # Vector of vectors, vector of floats,
     
     struct galaxy_catalog
