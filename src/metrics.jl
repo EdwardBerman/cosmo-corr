@@ -1,5 +1,6 @@
 #euclidean
-
+module metrics
+export build_distance_matrix
 
 function build_distance_matrix(ra, dec; metric=Euclidean())
     n = length(ra)
@@ -13,3 +14,4 @@ function build_distance_matrix(ra, dec; metric=Euclidean())
     return distance_matrix
 end
 
+end
