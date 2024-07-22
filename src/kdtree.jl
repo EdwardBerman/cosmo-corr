@@ -7,6 +7,13 @@ export KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_ci
 
 using AbstractTrees
 
+struct Galaxy 
+    ra::Float64
+    dec::Float64
+    corr1::Any
+    corr2::Any
+end
+
 struct Galaxy_Circle{T, r, g}
     center::Vector{T}
     radius::r

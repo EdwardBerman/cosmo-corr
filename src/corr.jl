@@ -24,12 +24,6 @@ module astrocorr
         corr2::Vector{Any}
     end
 
-    struct Galaxy 
-        ra::Float64
-        dec::Float64
-        corr1::Any
-        corr2::Any
-    end
 
     #Heirarchical Clustering from Julia
     
