@@ -18,6 +18,8 @@ struct Galaxy_Circle{T, r, g}
     center::Vector{T}
     radius::r
     galaxies::Vector{g}
+    index::Int
+    split::Bool
 end
 
 mutable struct KD_Galaxy_Tree
@@ -43,19 +45,45 @@ function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
 end
 
 function initialize_circles(galaxies::Vector{Galaxy})
+    # root is a circle with all galaxies, then split into left and right groups
     # divide either RA or DEC into 2 groups, then enclose them in non overlapping circles
-    return Galaxy_Circle{Float64, Float64, Galaxy}[], Galaxy_Circle{Float64, Float64, Galaxy}[]
+    ra_list = [galaxy.ra for galaxy in galaxies]
+    dec_list = [galaxy.dec for galaxy in galaxies]
+    # return a vector of galaxy circles 
+    return Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 1, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 2, false}[]
 end
 
-function split_cirlces(galaxy_circles::Vector{Galaxy_Circle})
-    return left_circles, right_circles
+function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circle})
+    circle_ra = [circle.center[1] for circle in galaxy_circles]
+    circle_dec = [circle.center[2] for circle in galaxy_circles]
+    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=euclidean_metric) # place holder metric
+    distance_matrix = spacing.(distance_matrix)
+    for i in 1:length(galaxy_circles)
+        for j in 1:length(galaxy_circles)
+            if (galaxy_circles[i].radius + galaxy_circles[j].radius)/ distance_matrix[i, j] < b # b = Δ ln d
+                galaxy_circles[i].split = true
+                galaxy_circles[j].split = true
+                # split the circle, append left and right to tree
+            end
+        end
+    end
 end
 
 function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy})
     initial_circles = initialize_circles(galaxies)
+    i = 3
     for Galaxy_Circle in initial_circles 
         insert!(tree, Galaxy_Circle)
     end
+    count = 0
+    while # splitting condition (function to check the splitting condition)
+        if count == 0
+            split_circles!(tree, initial_circles)
+            count += 1
+        else 
+            circles_to_split = # get circles to split
+            split_circles!(tree, initial_circles)
+        end
 end
 
 function insert!(tree::KD_Galaxy_Tree, galaxy_circle::Galaxy_Circle)
