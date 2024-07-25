@@ -56,11 +56,11 @@ end
 function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circle}, sky_metric=Euclidean())
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
-    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=Euclidean()) # place holder metric
+    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=Euclidean()) 
     distance_matrix = spacing.(distance_matrix)
     for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
-            if (galaxy_circles[i].radius + galaxy_circles[j].radius)/ distance_matrix[i, j] < b # b = Δ ln d
+            if i < j && (galaxy_circles[i].radius + galaxy_circles[j].radius)/ distance_matrix[i, j] < b # b = Δ ln d
                 galaxy_circles[i].split = true
                 galaxy_circles[j].split = true
             end
