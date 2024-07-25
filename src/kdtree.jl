@@ -50,39 +50,52 @@ function initialize_circles(galaxies::Vector{Galaxy})
     ra_list = [galaxy.ra for galaxy in galaxies]
     dec_list = [galaxy.dec for galaxy in galaxies]
     # return a vector of galaxy circles 
-    return Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 1, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 2, false}[]
+    return [Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 0, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 1, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 2, false}[]]
 end
 
-function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circle})
+function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circle}, sky_metric=Euclidean())
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
-    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=euclidean_metric) # place holder metric
+    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=Euclidean()) # place holder metric
     distance_matrix = spacing.(distance_matrix)
     for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
             if (galaxy_circles[i].radius + galaxy_circles[j].radius)/ distance_matrix[i, j] < b # b = Δ ln d
                 galaxy_circles[i].split = true
                 galaxy_circles[j].split = true
-                # split the circle, append left and right to tree
             end
         end
     end
+    # search KD tree by index and split where true 
+    leaves = collect(Leaves(tree))
+    if sum([circle.split for circle in galaxy_circles]) == 0
+        return 0
+    end
+
+    for leaf in leaves
+        if leaf.index in [circle.index for circle in galaxy_circles if circle.split == true]
+            # split the circle, append left and right to tree
+        end
+    end
+    return 1
 end
 
-function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy})
+function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy}, sky_metric=Euclidean())
     initial_circles = initialize_circles(galaxies)
-    i = 3
-    for Galaxy_Circle in initial_circles 
-        insert!(tree, Galaxy_Circle)
-    end
+    circle_node = initial_circles[1]
+    tree = KD_Galaxy_Tree(circle_node, nothing, nothing)
+    tree.append_left!(tree, initial_circles[2])
+    tree.append_right!(tree, initial_circles[3])
+    
     count = 0
-    while # splitting condition (function to check the splitting condition)
+    split_number = 1
+    continue_splitting = (split_number != 0)
+    while continue_splitting # splitting condition (function to check the splitting condition)
         if count == 0
-            split_circles!(tree, initial_circles)
+            split_number = split_circles!(tree, initial_circles,sky_metric)
             count += 1
         else 
-            circles_to_split = # get circles to split
-            split_circles!(tree, initial_circles)
+            split_number = split_circles!(tree, initial_circles, sky_metric)
         end
 end
 
