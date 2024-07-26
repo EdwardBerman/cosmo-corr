@@ -14,7 +14,7 @@ struct Galaxy
     corr2::Any
 end
 
-struct Galaxy_Circle{T, r, g}
+mutable struct Galaxy_Circle{T, r, g}
     center::Vector{T}
     radius::r
     galaxies::Vector{g}
@@ -90,7 +90,7 @@ function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circ
     end
 
     for leaf in leaves
-        if leaf.index in [circle.index for circle in galaxy_circles if circle.split == true]
+        if leaf.root.split == true
             circle = leaf.root
             # append left and right to circle
             # split the circle, append left and right to tree
@@ -110,9 +110,9 @@ function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy}, sky_metric=Eu
     continue_splitting = (split_number != 0)
     leaves = get_leaves(tree)
     galaxy_circles = [leaf.root for leaf in leaves]
-    while continue_splitting # splitting condition (function to check the splitting condition)
-            split_number = split_circles!(tree, galaxy_circles,sky_metric)
-        end
+    while continue_splitting 
+            split_number = split_circles!(tree, galaxy_circles, sky_metric)
+    end
 end
 
 function insert!(tree::KD_Galaxy_Tree, galaxy_circle::Galaxy_Circle)
