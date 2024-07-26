@@ -1,6 +1,6 @@
 #euclidean
 module metrics
-export build_distance_matrix
+export build_distance_matrix, metric_dict
 
 using Base.Threads
 
@@ -16,5 +16,10 @@ function build_distance_matrix(ra, dec; metric=Euclidean())
     end
     return distance_matrix
 end
+
+metric_dict = Dict(
+    "euclidean" => Euclidean(),
+    "log" => Log(),
+)
 
 end
