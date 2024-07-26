@@ -106,15 +106,12 @@ function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy}, sky_metric=Eu
     tree.append_left!(tree, initial_circles[2])
     tree.append_right!(tree, initial_circles[3])
     
-    count = 0
     split_number = 1
     continue_splitting = (split_number != 0)
+    leaves = get_leaves(tree)
+    galaxy_circles = [leaf.root for leaf in leaves]
     while continue_splitting # splitting condition (function to check the splitting condition)
-        if count == 0
-            split_number = split_circles!(tree, initial_circles,sky_metric)
-            count += 1
-        else 
-            split_number = split_circles!(tree, initial_circles, sky_metric)
+            split_number = split_circles!(tree, galaxy_circles,sky_metric)
         end
 end
 
