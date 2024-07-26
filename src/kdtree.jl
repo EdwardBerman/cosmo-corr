@@ -74,6 +74,8 @@ function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circ
 
     for leaf in leaves
         if leaf.index in [circle.index for circle in galaxy_circles if circle.split == true]
+            circle = leaf.root
+            # append left and right to circle
             # split the circle, append left and right to tree
         end
     end
