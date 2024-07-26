@@ -36,6 +36,23 @@ function append_left!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     end
 end
 
+function get_leaves(node::TreeNode)
+    leaves = []
+    collect_leaves(node, leaves)
+    return leaves
+end
+
+function collect_leaves(node::Union{TreeNode, Nothing, Nothing}, leaves::Vector{Any})
+    if node === nothing
+        return
+    elseif node.left === nothing && node.right === nothing
+        push!(leaves, node)
+    else
+        collect_leaves(node.left, leaves)
+        collect_leaves(node.right, leaves)
+    end
+end
+
 function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     if tree.root == nothing
         tree.root = KD_Galaxy_Tree(node, nothing, nothing)
@@ -67,7 +84,7 @@ function split_cirlces!(tree::KD_Galaxy_Tree, galaxy_circles::Vector{Galaxy_Circ
         end
     end
     # search KD tree by index and split where true 
-    leaves = collect(Leaves(tree))
+    leaves = get_leaves(tree)
     if sum([circle.split for circle in galaxy_circles]) == 0
         return 0
     end
