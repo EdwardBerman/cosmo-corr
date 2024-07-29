@@ -55,6 +55,7 @@ module astrocorr
     function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Euclidean(), correlation_metric=Euclidean())
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
+        distance_matrix *= 3600
         distance_matrix = spacing.(distance_matrix)
 
         n = length(ra)
