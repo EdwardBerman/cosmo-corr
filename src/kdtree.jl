@@ -93,8 +93,39 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metr
     for leaf in leaves
         if leaf.root.split == true
             circle = leaf.root
-            # append left and right to circle
-            # split the circle, append left and right to tree
+            ra_list = [galaxy.ra for galaxy in circle.galaxies]
+            dec_list = [galaxy.dec for galaxy in circle.galaxies]
+            ra_extent = maximum(ra_list) - minimum(ra_list)
+            dec_extent = maximum(dec_list) - minimum(dec_list)
+            if ra_extent > dec_extent
+                ra_median = median(ra_list)
+                left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
+                right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
+                left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+                left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+                right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+                right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+                max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+                max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+                left_circle = Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, 0, false)
+                right_circle = Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, 0, false)
+                append_left!(leaf, left_circle)
+                append_right!(leaf, right_circle)
+            else
+                dec_median = median(dec_list)
+                left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec < dec_median]
+                right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec >= dec_median]
+                left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+                left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+                right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+                right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+                max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+                max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+                left_circle = Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, 0, false)
+                right_circle = Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, 0, false)
+                append_left!(leaf, left_circle)
+                append_right!(leaf, right_circle)
+            end
         end
     end
     return 1
