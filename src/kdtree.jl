@@ -3,7 +3,7 @@ module kdtree
 include("metrics.jl")
 using .metrics
 
-export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, insert!
+export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate! 
 
 using AbstractTrees
 
@@ -61,13 +61,43 @@ function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     end
 end
 
-function initialize_circles(galaxies::Vector{Galaxy})
-    # root is a circle with all galaxies, then split into left and right groups
-    # divide either RA or DEC into 2 groups, then enclose them in non overlapping circles
+function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Euclidean())
     ra_list = [galaxy.ra for galaxy in galaxies]
     dec_list = [galaxy.dec for galaxy in galaxies]
-    # return a vector of galaxy circles 
-    return [Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 0, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 1, false}[], Galaxy_Circle{Vector{Float64}, Float64, Galaxy, 2, false}[]]
+    ra_extent = maximum(ra_list) - minimum(ra_list)
+    dec_extent = maximum(dec_list) - minimum(dec_list)
+    if ra_extent > dec_extent
+        ra_median = median(ra_list)
+        left_galaxies = [galaxy for galaxy in galaxies if galaxy.ra < ra_median]
+        right_galaxies = [galaxy for galaxy in galaxies if galaxy.ra >= ra_median]
+        left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+        left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+        right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+        right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+        max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+        max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+        left_circle = Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, 0, false)
+        right_circle = Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, 0, false)
+    else
+        dec_median = median(dec_list)
+        left_galaxies = [galaxy for galaxy in galaxies if galaxy.dec < dec_median]
+        right_galaxies = [galaxy for galaxy in galaxies if galaxy.dec >= dec_median]
+        left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+        left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+        right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+        right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+        max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+        max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+        left_circle = Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, 0, false)
+        right_circle = Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, 0, false)
+    end
+    inititial_ra = mean(ra_list)
+    inititial_dec = mean(dec_list)
+    initial_radius = maximum([sky_metric([inititial_ra, inititial_dec], [galaxy.ra, galaxy.dec]) for galaxy in galaxies])
+    initial_circle = Galaxy_Circle([inititial_ra, inititial_dec], initial_radius, galaxies, 0, false)
+
+    galaxy_circles = [initial_circle, left_circle, right_circle]
+    return galaxy_circles
 end
 
 function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metric=Euclidean())
@@ -84,7 +114,7 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metr
             end
         end
     end
-    # search KD tree by index and split where true 
+
     leaves = get_leaves(tree)
     if sum([circle.split for circle in galaxy_circles]) == 0
         return 0
@@ -146,22 +176,5 @@ function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy}, sky_metric=Eu
     end
 end
 
-function insert!(tree::KD_Galaxy_Tree, galaxy_circle::Galaxy_Circle)
-    distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
-    distance_matrix = spacing.(distance_matrix)
-    if galaxy.ra < tree.root.ra
-        if tree.left == nothing
-            tree.left = KD_Galaxy_Tree(galaxy, nothing, nothing)
-        else
-            insert!(tree.left, galaxy)
-        end
-    else
-        if tree.right == nothing
-            tree.right = KD_Galaxy_Tree(galaxy, nothing, nothing)
-        else
-            insert!(tree.right, galaxy)
-        end
-    end
-end
 
 end
