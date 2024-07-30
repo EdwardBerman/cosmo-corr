@@ -12,7 +12,6 @@ module astrocorr
     using Clustering
     using Distances
     using DataFrames
-    using DSP
     using Base.Iterators: product
     using Base.Iterators: partition
 
@@ -118,8 +117,7 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            sky_metric=Euclidean(), 
-            correlation_metric=Euclidean(),
+            sky_metric=Vincenty_Formula(),
             correlator=treecorr,
             verbose=true)
         return correlator(x, y)
@@ -133,8 +131,7 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            sky_metric=Euclidean(), 
-            correlation_metric=Euclidean(),
+            sky_metric=Vincenty_Formula(),
             correlator=treecorr,
             verbose=true)
         return correlator(x, y)
@@ -148,8 +145,7 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            sky_metric=Euclidean(), 
-            correlation_metric=Euclidean(),
+            sky_metric=Vincenty_Formula(),
             correlator=treecorr, 
             verbose=true)
         return correlator(x, y)
@@ -163,8 +159,7 @@ module astrocorr
             number_bins::Int64, 
             θ_max::Float64; 
             spacing=log, 
-            sky_metric=Euclidean(), 
-            correlation_metric=Euclidean(),
+            sky_metric=Vincenty_Formula(),
             correlator=treecorr,
             verbose=true)
         return correlator(x, y)
