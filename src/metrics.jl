@@ -24,9 +24,9 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     c1 = (cos(ϕ2)*sin(Δλ))^2
     c2 = (cos(ϕ1)*sin(ϕ2) - sin(ϕ1)*cos(ϕ2)*cos(Δλ))^2
     c3 = sin(ϕ1)*sin(ϕ2) + cos(ϕ1)*cos(ϕ2)*cos(Δλ)
-    numerator = sqrt(c1 + c2)
-    denominator = c3
-    Δσ = atan(numerator, denominator)
+    y = sqrt(c1 + c2)
+    x = c3
+    Δσ = atan(y, x)
     return Δσ
 end
 
