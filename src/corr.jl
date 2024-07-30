@@ -12,6 +12,7 @@ module astrocorr
     using Clustering
     using Distances
     using DataFrames
+    using DSP
     using Base.Iterators: product
     using Base.Iterators: partition
 
@@ -35,7 +36,7 @@ module astrocorr
     
     
     #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info. The disadvantage is that you don't have a bound on the binning error.
-    function clustercorr(ra, dec, corr1, corr2; spacing=log, metric=Euclidean())
+    function clustercorr(ra, dec, corr1, corr2; spacing=log, metric=Vincenty_Formula)
         distance_matrix = build_distance_matrix(x, y, metric=metric)
         distance_matrix = spacing.(distance_matrix)
         distance_vector = reshape(distance_matrix, :, 1) # probably don't do this actually. 2 x ? matrix
@@ -52,7 +53,7 @@ module astrocorr
         end
     end
 
-    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Euclidean(), correlation_metric=Euclidean())
+    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, correlation_metric=Euclidean())
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
         distance_matrix *= 3600
@@ -98,7 +99,7 @@ module astrocorr
         ψ_θ = zeros(2, number_bins) 
         @threads for i in 1:nrow(df)
             ψ_θ[1,i] = df[i, :mean_distance]
-            ψ_θ[2,i] = mean(correlation_metric(df[i, :corr1], df[i, :corr2]))
+            ψ_θ[2,i] = mean(df[i, :corr1] * df[i, :corr2]')
         end
 
         return ψ_θ
