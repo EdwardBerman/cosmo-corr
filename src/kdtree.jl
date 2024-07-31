@@ -100,11 +100,11 @@ function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formul
     return initial_circle
 end
 
-function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{KD_Galaxy_Tree}, b::Float64; sky_metric=Vincenty_Formula)
+function split_cirlces!(leaves::Vector{KD_Galaxy_Tree}, b::Float64; sky_metric=Vincenty_Formula, spacing=log)
     galaxy_circles = [leaf.root for leaf in leaves]
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
-    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=Euclidean()) 
+    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
     distance_matrix = spacing.(distance_matrix)
     for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
@@ -115,7 +115,6 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{KD_Galaxy_Tree}, b:
         end
     end
 
-    leaves = get_leaves(tree)
     if sum([circle.split for circle in galaxy_circles]) == 0
         return 0
     end
@@ -161,14 +160,14 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{KD_Galaxy_Tree}, b:
     return 1
 end
 
-function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula)
+function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, spacing=log)
     tree = initialize_circles(galaxies)
     
     split_number = 1
     continue_splitting = (split_number != 0)
-    leaves = get_leaves(tree)
     while continue_splitting 
-            split_number = split_circles!(tree, leaves, b, sky_metric=sky_metric)
+        leaves = get_leaves(tree)
+        split_number = split_circles!(leaves, b, sky_metric=sky_metric, spacing=spacing)
     end
     return tree
 end
