@@ -31,8 +31,8 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
 end
 
 metric_dict = Dict(
-    "angular_separation" => Vincenty_Formula(),
-    "log" => Log(),
+    "angular_separation" => Vincenty_Formula,
+    "log" => log,
 )
 
 # go from radians to arcmins?
