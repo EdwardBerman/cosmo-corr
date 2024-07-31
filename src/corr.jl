@@ -1,4 +1,4 @@
-module astrocorr
+module corr
     include("metrics.jl")
     include("kdtree.jl")
 
@@ -29,7 +29,7 @@ module astrocorr
     
     function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, verbose=true)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
-        sky_metric = Vincenty_Formula()
+        sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         
         b = Δ_ln_d = (log(θ_max) - log(θ_min) )/ number_bins
@@ -147,13 +147,16 @@ module astrocorr
     function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, verbose=true)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
-        distance_matrix = spacing.(distance_matrix)
 
         n = length(ra)
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]  
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
+        
+        if spacing == log
+            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+        end
 
         θ_bin_assignments = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
