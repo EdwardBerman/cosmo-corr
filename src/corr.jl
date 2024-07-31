@@ -31,7 +31,11 @@ module astrocorr
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         sky_metric = Vincenty_Formula()
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
-        tree = populate(galaxies, metric=sky_metric)
+        
+        bin_size = (θ_max - θ_min) / number_bins
+        bin_size = spacing(bin_size)
+
+        tree = populate(galaxies, metric=sky_metric, b = bin_size) # b = Δ (ln d) 
         leafs = get_leaves(tree)
         ra_circles = [leaf.root.center[1] for leaf in leafs]
         dec_circles = [leaf.root.center[2] for leaf in leafs]

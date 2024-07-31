@@ -28,13 +28,22 @@ mutable struct KD_Galaxy_Tree
     right::Union{KD_Galaxy_Tree, Nothing}
 end
 
-function append_left!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
-    if tree.root == KD_Galaxy_Tree(node, nothing, nothing)
+function append_left!(tree::KD_Galaxy_Tree, node::KD_Galaxy_Tree)
+    if tree.root == nothing
         tree.root = node
     else
         append_left!(tree.root, node)
     end
 end
+
+function append_right!(tree::KD_Galaxy_Tree, node::KD_Galaxy_Tree)
+    if tree.root == nothing
+        tree.root = KD_Galaxy_Tree(node, nothing, nothing)
+    else
+        append_right!(tree.root, node)
+    end
+end
+
 
 function get_leaves(node::KD_Galaxy_Tree)
     leaves = []
@@ -42,7 +51,7 @@ function get_leaves(node::KD_Galaxy_Tree)
     return leaves
 end
 
-function collect_leaves(node::Union{TreeNode, Nothing, Nothing}, leaves::Vector{Any})
+function collect_leaves(node::Union{KD_Galaxy_Tree, Nothing}, leaves::Vector{Any})
     if node === nothing
         return
     elseif node.left === nothing && node.right === nothing
@@ -50,14 +59,6 @@ function collect_leaves(node::Union{TreeNode, Nothing, Nothing}, leaves::Vector{
     else
         collect_leaves(node.left, leaves)
         collect_leaves(node.right, leaves)
-    end
-end
-
-function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
-    if tree.root == nothing
-        tree.root = KD_Galaxy_Tree(node, nothing, nothing)
-    else
-        append_right!(tree.root, node)
     end
 end
 
@@ -100,7 +101,7 @@ function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formul
     return galaxy_circles
 end
 
-function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metric=Vincenty_Formula)
+function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{KD_Galaxy_Tree}, b::Float64; sky_metric=Vincenty_Formula)
     galaxy_circles = [leaf.root for leaf in leaves]
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
@@ -161,7 +162,7 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metr
     return 1
 end
 
-function populate(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formula)
+function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula)
     initial_circles = initialize_circles(galaxies)
     circle_node = initial_circles[1]
     tree = KD_Galaxy_Tree(circle_node, nothing, nothing)
@@ -172,7 +173,7 @@ function populate(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formula)
     continue_splitting = (split_number != 0)
     leaves = get_leaves(tree)
     while continue_splitting 
-            split_number = split_circles!(tree, leaves, sky_metric)
+            split_number = split_circles!(tree, leaves, b, sky_metric=sky_metric)
     end
     return tree
 end
