@@ -35,7 +35,7 @@ module astrocorr
         bin_size = (θ_max - θ_min) / number_bins
         bin_size = spacing(bin_size)
 
-        tree = populate(galaxies, bin_size, metric=sky_metric, spacing = spacing) # b = Δ (ln d) 
+        tree = populate(galaxies, bin_size, metric=sky_metric) # b = Δ (ln d) 
         leafs = get_leaves(tree)
         ra_circles = [leaf.root.center[1] for leaf in leafs]
         dec_circles = [leaf.root.center[2] for leaf in leafs]
