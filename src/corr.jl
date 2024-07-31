@@ -32,8 +32,7 @@ module astrocorr
         sky_metric = Vincenty_Formula()
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         
-        Δd = range(θ_min, stop=θ_max, length=number_bins)[2] - range(θ_min, stop=θ_max, length=number_bins)[1]
-        b = log(Δd)
+        b = Δ_ln_d = (log(θ_max) - log(θ_min) )/ number_bins
         bin_size = b
 
         tree = populate(galaxies, bin_size, metric=sky_metric) # b = Δ (ln d) 
