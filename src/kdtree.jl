@@ -61,7 +61,7 @@ function append_right!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     end
 end
 
-function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Euclidean())
+function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formula)
     ra_list = [galaxy.ra for galaxy in galaxies]
     dec_list = [galaxy.dec for galaxy in galaxies]
     ra_extent = maximum(ra_list) - minimum(ra_list)
@@ -100,7 +100,7 @@ function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Euclidean())
     return galaxy_circles
 end
 
-function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metric=Euclidean())
+function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metric=Vincenty_Formula)
     galaxy_circles = [leaf.root for leaf in leaves]
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
@@ -161,7 +161,7 @@ function split_cirlces!(tree::KD_Galaxy_Tree, leaves::Vector{TreeNode}, sky_metr
     return 1
 end
 
-function populate!(tree::KD_Galaxy_Tree, galaxies::Vector{Galaxy}, sky_metric=Euclidean())
+function populate!(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formula)
     initial_circles = initialize_circles(galaxies)
     circle_node = initial_circles[1]
     tree = KD_Galaxy_Tree(circle_node, nothing, nothing)
