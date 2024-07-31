@@ -117,6 +117,7 @@ module astrocorr
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
             ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4')) # mean of the two outer products
+            ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
 
@@ -211,6 +212,7 @@ module astrocorr
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
             ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4')) # mean of the two outer products
+            ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
     end
