@@ -1,1 +1,3 @@
-b = \delta ln d = const. (where d is the spacing in linear space)
+Publication venue --
+
+Probably ApJ and JOSS Companion Papers
