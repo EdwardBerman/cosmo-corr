@@ -1,4 +1,4 @@
-module corr
+module astrocorr
     include("metrics.jl")
     include("kdtree.jl")
 
