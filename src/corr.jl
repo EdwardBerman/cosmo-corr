@@ -32,21 +32,25 @@ module astrocorr
         sky_metric = Vincenty_Formula()
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         
-        bin_size = (θ_max - θ_min) / number_bins
-        bin_size = spacing(bin_size)
+        Δd = range(θ_min, stop=θ_max, length=number_bins)[2] - range(θ_min, stop=θ_max, length=number_bins)[1]
+        b = log(Δd)
+        bin_size = b
 
         tree = populate(galaxies, bin_size, metric=sky_metric) # b = Δ (ln d) 
         leafs = get_leaves(tree)
         ra_circles = [leaf.root.center[1] for leaf in leafs]
         dec_circles = [leaf.root.center[2] for leaf in leafs]
         distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
-        distance_matrix = spacing.(distance_matrix)
 
         n = length(ra_circles)
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
+        
+        if spacing == log
+            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+        end
 
         θ_bin_assignments = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
