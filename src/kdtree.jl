@@ -36,7 +36,7 @@ function append_left!(tree::KD_Galaxy_Tree, node::Galaxy_Circle)
     end
 end
 
-function get_leaves(node::TreeNode)
+function get_leaves(node::KD_Galaxy_Tree)
     leaves = []
     collect_leaves(node, leaves)
     return leaves
