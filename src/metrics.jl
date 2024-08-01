@@ -31,6 +31,7 @@ function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
             distance_matrix[i,j] = metric(coords[i], coords[j])
         end
     end
+    distance_matrix .*= 60 # convert to arcmins
     return distance_matrix
 end
 # go from radians to arcmins?
