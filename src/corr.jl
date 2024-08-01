@@ -44,6 +44,9 @@ module astrocorr
         distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
 
         n = length(ra_circles)
+        if verbose
+            println("Number of circles: ", n)
+        end
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         
