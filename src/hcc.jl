@@ -48,11 +48,13 @@ function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Form
         push!(galaxy_circles, initial_circle)
     end
 
-    for circle in galaxy_circles
-        println("Cluster index $(circle.index):")
-        println("  Center: $(circle.center)")
-        println("  Radius: $(circle.radius)")
-        println("  Galaxies: $(circle.galaxies)")
+    if verbose
+        for circle in galaxy_circles
+            println("Cluster index $(circle.index):")
+            println("  Center: $(circle.center)")
+            println("  Radius: $(circle.radius)")
+            println("  Galaxies: $(circle.galaxies)")
+        end
     end
     return galaxy_circles
 end
