@@ -29,7 +29,7 @@ module astrocorr
 
     #Heirarchical Clustering from Julia
     
-    function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
+    function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; clusters=20, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
@@ -56,11 +56,11 @@ module astrocorr
             θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
         end
 
-        θ_bin_assignments_data = zeros(length(distance_vector))
+        θ_bin_assignments = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
             for j in 1:length(θ_bins)
                 if distance_vector[i] < θ_bins[j] && distance_vector[i] > θ_min
-                    θ_bin_assignments_data[i] = j
+                    θ_bin_assignments[i] = j
                     break
                 end
             end
@@ -77,7 +77,7 @@ module astrocorr
                        corr2_reverse=Vector{Any}[])
 
         for i in 1:number_bins
-            bin = findall(θ_bin_assignments_data .== i)
+            bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
@@ -132,26 +132,100 @@ module astrocorr
     end
     
     
-    #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info. The disadvantage is that you don't have a bound on the binning error.
-    function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
+    function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; clusters=20, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
-        distance_matrix = build_distance_matrix(x, y, metric=metric)
-        distance_matrix = spacing.(distance_matrix)
-        distance_vector = reshape(distance_matrix, :, 1) # probably don't do this actually. 2 x ? matrix
-        hclusters = hclust(distance_matrix)
-        θ_bin_assigments = cutree(hclusters, k=number_bins)
-        #df = |min theta in bin _i | max theta in bin _i | index of bin _i | number of points in bin _i
-        df = DataFrame()
-        for i in 1:number_bins
-            bin = findall(θ_bin_assigments .== i)
-            push!(df, [minimum(distance_vector[bin]), maximum(distance_vector[bin]), i, length(bin)])
+        sky_metric = sky_metric
+        galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
+        circles = hcc(galaxies, clusters, sky_metric=sky_metric, verbose=verbose)
+        ra_circles = [circle.center[1] for circle in circles]
+        dec_circles = [circle.center[2] for circle in circles]
+        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
+
+        n = length(ra_circles)
+        if verbose
+            println("Number of circles: ", n)
         end
+        indices = [(i, j) for i in 1:n, j in 1:n if j < i]
+        distance_vector = [distance_matrix[i, j] for (i, j) in indices]
+        
+        θ_bins = range(θ_min, stop=θ_max, length=number_bins)
+        
+        if spacing == log
+            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+        end
+
+        θ_bin_assignments = zeros(length(distance_vector))
+        for i in 1:length(distance_vector)
+            for j in 1:length(θ_bins)
+                if distance_vector[i] < θ_bins[j] && distance_vector[i] > θ_min
+                    θ_bin_assignments[i] = j
+                    break
+                end
+            end
+        end
+
+        df = DataFrame(bin_number=Int[], 
+                       min_distance=Float64[], 
+                       max_distance=Float64[], 
+                       count=Int[], 
+                       mean_distance=Float64[], 
+                       corr1=Vector{Any}[], 
+                       corr2=Vector{Any}[], 
+                       corr1_reverse=Vector{Any}[], 
+                       corr2_reverse=Vector{Any}[])
+
+        for i in 1:number_bins
+            bin = findall(θ_bin_assignments .== i)
+            if !isempty(bin)
+                min_distance = minimum(distance_vector[bin])
+                max_distance = maximum(distance_vector[bin])
+                count = length(bin)
+                mean_distance = mean(distance_vector[bin])
+                bin_indices = [indices[k] for k in bin]
+
+                corr1_values = []
+                corr2_values = []
+
+                corr1_reverse_values = []
+                corr2_reverse_values = []
+
+                for (i, j) in bin_indices
+                    append!(corr1_values, [galaxies[k].corr1 for k in leafs[i].root.galaxies])
+                    append!(corr2_values, [galaxies[k].corr2 for k in leafs[j].root.galaxies])
+                    append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
+                    append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
+                end
+
+                push!(df, (bin_number=i, 
+                           min_distance=min_distance, 
+                           max_distance=max_distance, 
+                           count=count, 
+                           mean_distance=mean_distance, 
+                           corr1=corr1_values, 
+                           corr2=corr2_values, 
+                           corr1_reverse=corr1_reverse_values, 
+                           corr2_reverse=corr2_reverse_values))
+            end
+        end
+        
         if verbose
             println(df)
         end
+        
+        ψ_θ = zeros(2, number_bins) 
+        @threads for i in 1:nrow(df)
+            ψ_θ[1,i] = df[i, :mean_distance]
+            c1 = df[i, :corr1]
+            c2 = df[i, :corr2]
+            c3 = df[i, :corr1_reverse]
+            c4 = df[i, :corr2_reverse]
+            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
+            ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
+        end
+        return ψ_θ
     end
 
-    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
+    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; clusters=20, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
 
@@ -242,6 +316,7 @@ module astrocorr
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
+            clusters=20,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default,
@@ -257,6 +332,7 @@ module astrocorr
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
+            clusters=20,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default,
@@ -272,6 +348,7 @@ module astrocorr
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
+            clusters=20,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default,
@@ -287,6 +364,7 @@ module astrocorr
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
+            clusters=20,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default,
@@ -302,6 +380,7 @@ module astrocorr
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
+            clusters=20,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default_point_point,
