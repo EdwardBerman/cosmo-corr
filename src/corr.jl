@@ -123,6 +123,8 @@ module astrocorr
         end
         return ψ_θ
 
+        # replace with estimator?
+
         return 0
     end
     
