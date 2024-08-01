@@ -29,7 +29,7 @@ module astrocorr
 
     #Heirarchical Clustering from Julia
     
-    function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, verbose=true)
+    function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=true)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
@@ -118,7 +118,7 @@ module astrocorr
             c2 = df[i, :corr2]
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
-            ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4')) # mean of the two outer products
+            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
@@ -130,7 +130,7 @@ module astrocorr
     
     
     #Advantage of cluster corr is that you can specify the exact number of bins you want, where as in treecorr, you can't. Bin at granularity that loses info. The disadvantage is that you don't have a bound on the binning error.
-    function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, verbose=true)
+    function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=true)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(x, y, metric=metric)
         distance_matrix = spacing.(distance_matrix)
@@ -148,7 +148,7 @@ module astrocorr
         end
     end
 
-    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, verbose=true)
+    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=true)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
 
@@ -218,7 +218,7 @@ module astrocorr
             c2 = df[i, :corr2]
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
-            ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4')) # mean of the two outer products
+            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
@@ -229,6 +229,8 @@ module astrocorr
     Correlators: TreeCorr, Heirarchical Clustering, etc.
     =#
 
+    corr_metric_default(x,y) = x * y'
+
     function corr(ra::Vector{Float64},
             dec::Vector{Float64}, 
             x::Vector{Vector{Float64}}, 
@@ -238,9 +240,10 @@ module astrocorr
             θ_max::Float64; 
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=true)
-        return correlator(x, y)
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -252,9 +255,10 @@ module astrocorr
             θ_max::Float64; 
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=true)
-        return correlator(x, y)
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
     end
 
     function corr(ra::Vector{Float64}, 
@@ -266,9 +270,10 @@ module astrocorr
             θ_max::Float64; 
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default,
             correlator=treecorr, 
             verbose=true)
-        return correlator(x, y)
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -280,14 +285,29 @@ module astrocorr
             θ_max::Float64; 
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=true)
-        return correlator(x, y)
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+    end
+    
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Float64}, 
+            y::Vector{Float64}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            spacing=log, 
+            sky_metric=Vincenty_Formula(),
+            correlator=treecorr,
+            verbose=true)
+        corr_metric(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
     end
     #=
     Rest of corr functions here, multiple dispatch!
     =#
-    
     #=
     #example
     #gal_cal = galaxy_catalog([1,2,3,4,5], [1,2,3,4,5], [1,2,3,4,5], [1,2,3,4,5])
