@@ -229,7 +229,7 @@ module astrocorr
     Correlators: TreeCorr, Heirarchical Clustering, etc.
     =#
 
-    corr_metric_default(x,y) = x * y'
+    corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
 
     function corr(ra::Vector{Float64},
             dec::Vector{Float64}, 
@@ -300,9 +300,9 @@ module astrocorr
             θ_max::Float64; 
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default_point_point,
             correlator=treecorr,
             verbose=true)
-        corr_metric(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
         return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
     end
     #=
