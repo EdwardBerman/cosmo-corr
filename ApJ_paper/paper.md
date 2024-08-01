@@ -10,3 +10,5 @@ A PSF Benchmarking Study with JWST NIRCam Imaging. II. Two Point Correlations an
 or
 
 A PSF Benchmarking Study with JWST NIRCam Imaging. II. On Binning Strategies for Computing Rho Statistics
+
+Sections - Intro - Engineering Design and User Experience - The toy problem and different binning Strategies - computing Rho Statistics for each strategy
