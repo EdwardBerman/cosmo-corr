@@ -56,11 +56,11 @@ module astrocorr
             θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
         end
 
-        θ_bin_assignments = zeros(length(distance_vector))
+        θ_bin_assignments_data = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
             for j in 1:length(θ_bins)
-                if distance_vector[i] < θ_bins[j]
-                    θ_bin_assignments[i] = j
+                if distance_vector[i] < θ_bins[j] && distance_vector[i] > θ_min
+                    θ_bin_assignments_data[i] = j
                     break
                 end
             end
@@ -71,13 +71,13 @@ module astrocorr
                        max_distance=Float64[], 
                        count=Int[], 
                        mean_distance=Float64[], 
-                       corr1=Vector{Float64}[], 
-                       corr2=Vector{Float64}[], 
-                       corr1_reverse=Vector{Float64}[], 
-                       corr2_reverse=Vector{Float64}[])
+                       corr1=Vector{Any}[], 
+                       corr2=Vector{Any}[], 
+                       corr1_reverse=Vector{Any}[], 
+                       corr2_reverse=Vector{Any}[])
 
         for i in 1:number_bins
-            bin = findall(θ_bin_assignments .== i)
+            bin = findall(θ_bin_assignments_data .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
@@ -121,7 +121,7 @@ module astrocorr
             c2 = df[i, :corr2]
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
-            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
+            ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
@@ -180,10 +180,10 @@ module astrocorr
                        max_distance=Float64[], 
                        count=Int[], 
                        mean_distance=Float64[], 
-                       corr1=Vector{Float64}[], 
-                       corr2=Vector{Float64}[], 
-                       corr1_reverse=Vector{Float64}[], 
-                       corr2_reverse=Vector{Float64}[])
+                       corr1=Vector{Any}[], 
+                       corr2=Vector{Any}[], 
+                       corr1_reverse=Vector{Any}[], 
+                       corr2_reverse=Vector{Any}[])
         
         for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
@@ -221,7 +221,7 @@ module astrocorr
             c2 = df[i, :corr2]
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
-            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
+            ψ_θ[2,i] = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
@@ -232,6 +232,7 @@ module astrocorr
     Correlators: TreeCorr, Heirarchical Clustering, etc.
     =#
 
+    DD(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
     corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
 
     function corr(ra::Vector{Float64},
