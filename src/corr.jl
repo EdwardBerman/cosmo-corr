@@ -1,9 +1,11 @@
 module astrocorr
     include("metrics.jl")
     include("kdtree.jl")
+    include("hcc.jl")
 
     using .metrics
     using .kdtree
+    using .hcc
 
     export corr
     using LinearAlgebra

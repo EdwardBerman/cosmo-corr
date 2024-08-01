@@ -4,19 +4,6 @@ export build_distance_matrix, metric_dict, Vincenty_Formula
 
 using Base.Threads
 
-
-function build_distance_matrix(ra, dec; metric=Euclidean())
-    n = length(ra)
-    coords = [(ra[i], dec[i]) for i in 1:n]
-    distance_matrix = zeros(n, n)
-    @threads for i in 1:n
-        for j in 1:i-1
-            distance_matrix[i,j] = metric(coords[i], coords[j])
-        end
-    end
-    return distance_matrix
-end
-
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
     ϕ2, λ2 = coord2
@@ -35,6 +22,17 @@ metric_dict = Dict(
     "log" => log,
 )
 
+function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
+    n = length(ra)
+    coords = [(ra[i], dec[i]) for i in 1:n]
+    distance_matrix = zeros(n, n)
+    @threads for i in 1:n
+        for j in 1:i-1
+            distance_matrix[i,j] = metric(coords[i], coords[j])
+        end
+    end
+    return distance_matrix
+end
 # go from radians to arcmins?
 
 end
