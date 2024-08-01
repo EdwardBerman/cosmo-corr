@@ -10,7 +10,8 @@ using Distances
 using Clustering
 
 function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, verbose=false)
-    distance_matrix = pairwise(sky_metric, [galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies])
+    distance_matrix = build_distance_matrix([galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies]; metric=sky_metric)
+    distance_matrix = distance_matrix + distance_matrix'
     hc = hclust(distance_matrix)
     clusters = cutree(hc, k=clusters)
 
