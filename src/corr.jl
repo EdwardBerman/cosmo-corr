@@ -66,6 +66,7 @@ module astrocorr
             end
         end
 
+        lock = ReentrantLock()
         df = DataFrame(bin_number=Int[], 
                        min_distance=Float64[], 
                        max_distance=Float64[], 
@@ -76,8 +77,7 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
-        lock = ReentrantLock()
-        @threads for i in 1:number_bins
+        Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -98,7 +98,7 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-                lock(lock) do
+                Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
                                max_distance=max_distance, 
@@ -168,6 +168,7 @@ module astrocorr
             end
         end
 
+        lock = ReentrantLock()
         df = DataFrame(bin_number=Int[], 
                        min_distance=Float64[], 
                        max_distance=Float64[], 
@@ -178,8 +179,7 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
-        lock = ReentrantLock()
-        @threads for i in 1:number_bins
+        Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -200,7 +200,7 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-                lock(lock) do
+                Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
                                max_distance=max_distance, 
@@ -255,6 +255,7 @@ module astrocorr
             end
         end
 
+        lock = ReentrantLock()
         df = DataFrame(bin_number=Int[], 
                        min_distance=Float64[], 
                        max_distance=Float64[], 
@@ -265,8 +266,7 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
-        lock = ReentrantLock()
-        for i in 1:number_bins
+        Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -279,7 +279,7 @@ module astrocorr
                 corr1_reverse_values = [corr1[j] for (i, j) in bin_indices]
                 corr2_reverse_values = [corr2[i] for (i, j) in bin_indices]
 
-                lock(lock) do
+                Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
                                max_distance=max_distance, 
