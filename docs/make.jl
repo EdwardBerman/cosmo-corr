@@ -14,6 +14,8 @@ makedocs(
     ],
 )
 
+using Documenter: deploydocs
+
 deploydocs(
     repo = "https://github.com/EdwardBerman/CosmoCorr.git",
 )
