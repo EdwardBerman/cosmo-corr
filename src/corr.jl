@@ -27,6 +27,14 @@ module astrocorr
     struct Position
         ra::Float64
         dec::Float64
+        value::String
+        function DR_Type(value::String)
+            if value == "DATA" || value == "RANDOM"
+                return new(value)
+            else
+                error("SimType must be either 'DATA' or 'RANDOM'")
+            end
+        end
     end
 
     function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
