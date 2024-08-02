@@ -39,22 +39,44 @@ module astrocorr
 
     function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
+        
+        if verbose
+            println("Tree Correlation")
+        end
+
         sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         
         b = Δ_ln_d = (log(θ_max) - log(θ_min) )/ number_bins
         bin_size = b
 
+        if verbose
+            println("Bin size: ", bin_size)
+            println("Population KDTree")
+        end
+
         tree = populate(galaxies, bin_size, metric=sky_metric) # b = Δ (ln d) 
+        
+        if verbose
+            println("Populated KDTree")
+        end
+        
         leafs = get_leaves(tree)
         ra_circles = [leaf.root.center[1] for leaf in leafs]
         dec_circles = [leaf.root.center[2] for leaf in leafs]
-        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
-
         n = length(ra_circles)
+
         if verbose
             println("Number of circles: ", n)
+            println("Computing Distance Matrix")
         end
+
+        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
+
+        if verbose
+            println("Distance Matrix complete")
+        end
+
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         
@@ -85,6 +107,10 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
+        if verbose
+            println("Assigning data points to θ bins")
+        end
+
         Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
@@ -122,6 +148,7 @@ module astrocorr
         end
         
         if verbose
+            println("Assigned data points to θ bins")
             println(df)
         end
         
@@ -141,17 +168,35 @@ module astrocorr
     
     function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
+        
+        if verbose
+            println("Heirarchical Correlation")
+        end
+        
         sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         clusters = round(Int, length(galaxies) * cluster_factor)
+        
+        if verbose
+            println("Number of clusters: ", clusters)
+            println("Clustering")
+        end
+        
         circles = hcc(galaxies, clusters, sky_metric=sky_metric, verbose=verbose)
         ra_circles = [circle.center[1] for circle in circles]
         dec_circles = [circle.center[2] for circle in circles]
-        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
-
         n = length(ra_circles)
+        
         if verbose
+            println("Clustering complete")
             println("Number of circles: ", n)
+            println("Computing Distance Matrix")
+        end
+        
+        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
+        
+        if verbose
+            println("Distance Matrix complete")
         end
 
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]
@@ -184,6 +229,10 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
+        if verbose
+            println("Assigning data points to θ bins")
+        end
+
         Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
@@ -221,6 +270,7 @@ module astrocorr
         end
         
         if verbose
+            println("Assigned data points to θ bins")
             println(df)
         end
         
@@ -239,6 +289,10 @@ module astrocorr
 
     function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
+        if verbose
+            println("Naive Correlation")
+            println("Computing Distance Matrix")
+        end
         distance_matrix = build_distance_matrix(ra, dec, metric=sky_metric)
 
         n = length(ra)
@@ -272,6 +326,10 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
+        if verbose
+            println("Assigning data points to θ bins")
+        end
+
         Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
@@ -306,6 +364,7 @@ module astrocorr
         end
 
         if verbose
+            println("Assigned data points to θ bins")
             println(df)
         end
         
