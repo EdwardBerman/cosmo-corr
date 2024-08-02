@@ -24,6 +24,11 @@ module astrocorr
         corr2::Vector{Any}
     end
 
+    struct Position
+        ra::Float64
+        dec::Float64
+    end
+
     function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         sky_metric = sky_metric
@@ -303,9 +308,8 @@ module astrocorr
         return ψ_θ
     end
 
-    DD(c1,c2,c3,c4) = length(c1) 
-    RR(c1,c2,c3,c4) = length(c1) 
     corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
+    corr_metric_default_position_position(c1,c2,c3,c4) = landy_szalay_estimator(DD(c1, c2, c3, c4), DR(c1, c2, c3, c4), RR(c1, c2, c3, c4))
 
     function corr(ra::Vector{Float64},
             dec::Vector{Float64}, 
@@ -382,6 +386,22 @@ module astrocorr
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             corr_metric=corr_metric_default_point_point,
+            correlator=treecorr,
+            verbose=false)
+        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+    end
+    
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Position},
+            y::Vector{Position},
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            cluster_factor=0.25,
+            spacing=log, 
+            sky_metric=Vincenty_Formula(),
+            corr_metric=corr_metric_default_position_position,
             correlator=treecorr,
             verbose=false)
         return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
