@@ -17,8 +17,6 @@ module astrocorr
     using Base.Iterators: product
     using Base.Iterators: partition
 
-    # Vector of vectors, vector of floats,
-    
     struct Galaxy_Catalog
         ra::Vector{Float64}
         dec::Vector{Float64}
@@ -26,9 +24,6 @@ module astrocorr
         corr2::Vector{Any}
     end
 
-
-    #Heirarchical Clustering from Julia
-    
     function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         sky_metric = sky_metric
@@ -127,10 +122,6 @@ module astrocorr
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
-
-        # replace with estimator?
-
-        return 0
     end
     
     
@@ -309,11 +300,6 @@ module astrocorr
         end
         return ψ_θ
     end
-    # parallelize ξ (θ) for different θ bins 
-
-    #=
-    Correlators: TreeCorr, Heirarchical Clustering, etc.
-    =#
 
     DD(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
     corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
