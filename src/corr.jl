@@ -75,8 +75,9 @@ module astrocorr
                        corr2=Vector{Any}[], 
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
-
-        for i in 1:number_bins
+        
+        lock = ReentrantLock()
+        @threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -97,16 +98,17 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-
-                push!(df, (bin_number=i, 
-                           min_distance=min_distance, 
-                           max_distance=max_distance, 
-                           count=count, 
-                           mean_distance=mean_distance, 
-                           corr1=corr1_values, 
-                           corr2=corr2_values, 
-                           corr1_reverse=corr1_reverse_values, 
-                           corr2_reverse=corr2_reverse_values))
+                lock(lock) do
+                    push!(df, (bin_number=i, 
+                               min_distance=min_distance, 
+                               max_distance=max_distance, 
+                               count=count, 
+                               mean_distance=mean_distance, 
+                               corr1=corr1_values, 
+                               corr2=corr2_values, 
+                               corr1_reverse=corr1_reverse_values, 
+                               corr2_reverse=corr2_reverse_values))
+                end
             end
         end
         
@@ -175,8 +177,9 @@ module astrocorr
                        corr2=Vector{Any}[], 
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
-
-        for i in 1:number_bins
+        
+        lock = ReentrantLock()
+        @threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -197,16 +200,17 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-
-                push!(df, (bin_number=i, 
-                           min_distance=min_distance, 
-                           max_distance=max_distance, 
-                           count=count, 
-                           mean_distance=mean_distance, 
-                           corr1=corr1_values, 
-                           corr2=corr2_values, 
-                           corr1_reverse=corr1_reverse_values, 
-                           corr2_reverse=corr2_reverse_values))
+                lock(lock) do
+                    push!(df, (bin_number=i, 
+                               min_distance=min_distance, 
+                               max_distance=max_distance, 
+                               count=count, 
+                               mean_distance=mean_distance, 
+                               corr1=corr1_values, 
+                               corr2=corr2_values, 
+                               corr1_reverse=corr1_reverse_values, 
+                               corr2_reverse=corr2_reverse_values))
+                end
             end
         end
         
@@ -261,6 +265,7 @@ module astrocorr
                        corr1_reverse=Vector{Any}[], 
                        corr2_reverse=Vector{Any}[])
         
+        lock = ReentrantLock()
         for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
@@ -274,15 +279,17 @@ module astrocorr
                 corr1_reverse_values = [corr1[j] for (i, j) in bin_indices]
                 corr2_reverse_values = [corr2[i] for (i, j) in bin_indices]
 
-                push!(df, (bin_number=i, 
-                           min_distance=min_distance, 
-                           max_distance=max_distance,
-                           count=count, 
-                           mean_distance=mean_distance, 
-                           corr1=corr1_values, 
-                           corr2=corr2_values,
-                           corr1_reverse=corr1_reverse_values,
-                           corr2_reverse=corr2_reverse_values))
+                lock(lock) do
+                    push!(df, (bin_number=i, 
+                               min_distance=min_distance, 
+                               max_distance=max_distance, 
+                               count=count, 
+                               mean_distance=mean_distance, 
+                               corr1=corr1_values, 
+                               corr2=corr2_values, 
+                               corr1_reverse=corr1_reverse_values, 
+                               corr2_reverse=corr2_reverse_values))
+                end
             end
         end
 
