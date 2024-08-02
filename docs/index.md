@@ -1,1 +1,1 @@
-# CosmoCorr
+# CosmoCorr docs
