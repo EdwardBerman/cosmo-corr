@@ -19,13 +19,17 @@ jobs:
         version: '1.10'  # Use the version of Julia you are using
 
     - name: Install Franklin
-      run: julia -e 'using Pkg; Pkg.add("Franklin")'
+      run: |
+        julia -e 'using Pkg; Pkg.add("Franklin")'
+        julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
     - name: Build site
       run: |
         pwd
         ls
         cd docs
+        julia -e 'using Pkg; Pkg.add("Franklin")'
+        julia --project=. -e 'using Pkg; Pkg.instantiate()'
         julia --project=. -e 'using Franklin; optimize()'
 
     - name: Deploy to GitHub Pages
