@@ -1,0 +1,36 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: '1.9'  # specify the version of Julia you want to use
+
+    - name: Install dependencies
+      run: |
+        julia -e 'import Pkg; Pkg.add("Documenter")'
+        julia -e 'import Pkg; Pkg.instantiate()'
+
+    - name: Build documentation
+      run: julia --project=docs/ docs/make.jl
+
+    - name: Deploy to GitHub Pages
+      if: github.ref == 'refs/heads/main'
+      run: |
+        julia --project=docs/ -e 'using Pkg; Pkg.add("DocumenterTools")'
+        julia --project=docs/ -e 'using DocumenterTools; DocumenterTools.deploydocs()'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
