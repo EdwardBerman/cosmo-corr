@@ -1,4 +1,4 @@
-using Documenter, Clustering
+using Documenter
 
 makedocs(
     source = "source",
