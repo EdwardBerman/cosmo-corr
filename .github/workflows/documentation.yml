@@ -18,13 +18,11 @@ jobs:
       with:
         version: '1.10.4'  # specify the version of Julia you want to use
 
-    - name: Install dependencies
+    - name: Build documentation
       run: |
         julia -e 'import Pkg; Pkg.add("Documenter")'
         julia -e 'import Pkg; Pkg.instantiate()'
-
-    - name: Build documentation
-      run: julia --project=docs/ docs/make.jl
+        julia --project=docs/ docs/make.jl
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
