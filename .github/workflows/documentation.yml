@@ -4,31 +4,23 @@ on:
   push:
     branches:
       - main
+    tags: '*'
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up Julia
-      uses: julia-actions/setup-julia@v1
-      with:
-        version: '1.10.4'  # specify the version of Julia you want to use
-
-    - name: Build documentation
-      run: |
-        julia -e 'import Pkg; Pkg.add("Documenter")'
-        julia -e 'import Pkg; Pkg.instantiate()'
-        julia --project=docs/ docs/make.jl
-
-    - name: Deploy to GitHub Pages
-      if: github.ref == 'refs/heads/main'
-      run: |
-        julia --project=docs/ -e 'using Pkg; Pkg.add("DocumenterTools")'
-        julia --project=docs/ -e 'using DocumenterTools; DocumenterTools.deploydocs()'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      - uses: actions/checkout@v4
+      - uses: julia-actions/setup-julia@latest
+        with:
+          version: '1.10'
+      - name: Install dependencies
+        run: julia --project=docs/ -e 'using Pkg; Pkg.develop(PackageSpec(path=pwd())); Pkg.instantiate()'
+      - name: Build and deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # If authenticating with GitHub Actions token
+          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # If authenticating with SSH deploy key
+        run: julia --project=docs/ docs/make.jl --code-coverage=user
+      - uses: julia-actions/julia-processcoverage@v1
+      - uses: codecov/codecov-action@v1
