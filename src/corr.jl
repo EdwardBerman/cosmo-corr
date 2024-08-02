@@ -77,7 +77,6 @@ module astrocorr
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
-                count = length(bin)
                 mean_distance = mean(distance_vector[bin])
                 bin_indices = [indices[k] for k in bin]
 
@@ -93,6 +92,8 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
+                count = length(cor1_values)
+
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
@@ -175,7 +176,6 @@ module astrocorr
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
-                count = length(bin)
                 mean_distance = mean(distance_vector[bin])
                 bin_indices = [indices[k] for k in bin]
 
@@ -191,6 +191,8 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
+                count = length(cor1_values)
+
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
@@ -262,13 +264,13 @@ module astrocorr
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
                 max_distance = maximum(distance_vector[bin])
-                count = length(bin)
                 mean_distance = mean(distance_vector[bin])
                 bin_indices = [indices[k] for k in bin]
                 corr1_values = [corr1[i] for (i, j) in bin_indices]
                 corr2_values = [corr2[j] for (i, j) in bin_indices]
                 corr1_reverse_values = [corr1[j] for (i, j) in bin_indices]
                 corr2_reverse_values = [corr2[i] for (i, j) in bin_indices]
+                count = length(cor1_values)
 
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
@@ -301,7 +303,8 @@ module astrocorr
         return ψ_θ
     end
 
-    DD(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
+    DD(c1,c2,c3,c4) = length(c1) 
+    RR(c1,c2,c3,c4) = length(c1) 
     corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
 
     function corr(ra::Vector{Float64},
