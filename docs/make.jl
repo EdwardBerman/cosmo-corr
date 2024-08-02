@@ -1,5 +1,4 @@
 using Documenter
-@show isdefined(Documenter, :deploydocs)
 
 makedocs(
     source = "source",
