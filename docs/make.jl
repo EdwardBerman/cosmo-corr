@@ -4,7 +4,6 @@ makedocs(
     source = "source",
     format = Documenter.HTML(prettyurls=false),
     sitename = "CosmoCorr.jl",
-    modules = [CosmoCorr],
     pages = [
         "Introduction" => "index.md",
         "Algorithms" => [
@@ -18,3 +17,5 @@ makedocs(
 deploydocs(
     repo = "https://github.com/EdwardBerman/CosmoCorr.git",
 )
+
+# specify under sitename when the module is published in pkg: modules = [CosmoCorr],
