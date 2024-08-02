@@ -18,4 +18,4 @@ deploydocs(
     repo = "https://github.com/EdwardBerman/CosmoCorr.git",
 )
 
-# specify under sitename when the module is published in pkg: modules = [CosmoCorr],
+# specify under sitename when the module is published in pkg: modules = [CosmoCorr], 
