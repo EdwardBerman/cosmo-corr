@@ -1,1 +1,1 @@
-[Blog](./blog.md){: .button-link } 
+[Contribute](./contribute.md){: .button-link } 
