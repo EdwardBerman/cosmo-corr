@@ -322,7 +322,7 @@ module astrocorr
         return ψ_θ
     end
 
-    corr_metric_default_point_point(c1,c2,c3,c4) = ((c1 * c2) + (c3 * c4)) / (length(c1) + length(c3))
+    corr_metric_default_point_point(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
 
     function corr(ra::Vector{Float64},
