@@ -1,0 +1,34 @@
+name: Deploy Franklin.jl Site
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch if different
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Julia
+      uses: julia-actions/setup-julia@v1
+      with:
+        version: '1.6'  # Use the version of Julia you are using
+
+    - name: Install Franklin
+      run: julia -e 'using Pkg; Pkg.add("Franklin")'
+
+    - name: Build site
+      run: julia --project=. -e 'using Franklin; optimize()'
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./__site
+        keep_files: true
+
+
