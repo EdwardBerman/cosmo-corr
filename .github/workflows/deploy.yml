@@ -16,19 +16,18 @@ jobs:
     - name: Set up Julia
       uses: julia-actions/setup-julia@v1
       with:
-        version: '1.6'  # Use the version of Julia you are using
+        version: '1.10'  # Use the version of Julia you are using
 
     - name: Install Franklin
       run: julia -e 'using Pkg; Pkg.add("Franklin")'
 
     - name: Build site
+      working-directory: docs
       run: julia --project=. -e 'using Franklin; optimize()'
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./__site
+        publish_dir: docs/__site
         keep_files: true
-
-
