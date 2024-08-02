@@ -1,0 +1,4 @@
+Sitemap: https://EdwardBerman.github.io/CosmoCorr/docs/sitemap.xml
+
+User-agent: *
+Disallow:
