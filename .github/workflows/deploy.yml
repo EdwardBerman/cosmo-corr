@@ -42,11 +42,11 @@ jobs:
           julia -e 'using Pkg; Pkg.add("Franklin")'
           julia --project=. -e 'using Pkg; Pkg.instantiate()'
           julia --project=. -e 'using Franklin; optimize()'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "__site/"         
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/__site
-          keep_files: true
