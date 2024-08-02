@@ -1,4 +1,5 @@
 using Documenter
+@show isdefined(Documenter, :deploydocs)
 
 makedocs(
     source = "source",
@@ -13,8 +14,6 @@ makedocs(
         ],
     ],
 )
-
-using Documenter: deploydocs
 
 deploydocs(
     repo = "https://github.com/EdwardBerman/CosmoCorr.git",
