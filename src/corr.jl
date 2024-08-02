@@ -105,7 +105,7 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-                count = length(cor1_values)
+                count = length(bin_indices)
 
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
@@ -204,7 +204,7 @@ module astrocorr
                     append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
                     append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
                 end
-                count = length(cor1_values)
+                count = length(bin_indices)
 
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
@@ -279,11 +279,17 @@ module astrocorr
                 max_distance = maximum(distance_vector[bin])
                 mean_distance = mean(distance_vector[bin])
                 bin_indices = [indices[k] for k in bin]
-                corr1_values = [corr1[i] for (i, j) in bin_indices]
-                corr2_values = [corr2[j] for (i, j) in bin_indices]
-                corr1_reverse_values = [corr1[j] for (i, j) in bin_indices]
-                corr2_reverse_values = [corr2[i] for (i, j) in bin_indices]
-                count = length(cor1_values)
+                corr1_values, corr2_values = [], []
+                corr1_reverse_values, corr2_reverse_values = [], []
+
+                for (i, j) in bin_indices
+                    append!(corr1_values, corr1[i])
+                    append!(corr2_values, corr2[j])
+                    append!(corr1_reverse_values, corr1[j])
+                    append!(corr2_reverse_values, corr2[i])
+                end
+
+                count = length(bin_indices)
 
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
@@ -316,7 +322,7 @@ module astrocorr
         return ψ_θ
     end
 
-    corr_metric_default_point_point(c1,c2,c3,c4) = sum(c1 * c2') + sum(c3 * c4') / (length(c1 * c2') + length(c3 * c4'))
+    corr_metric_default_point_point(c1,c2,c3,c4) = ((c1 * c2) + (c3 * c4)) / (length(c1) + length(c3))
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
 
     function corr(ra::Vector{Float64},
