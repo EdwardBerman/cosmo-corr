@@ -14,7 +14,7 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     y = sqrt(c1 + c2)
     x = c3
     Δσ = atan(y, x)
-    return Δσ
+    return Δσ * (180 / π) 
 end
 
 metric_dict = Dict(
