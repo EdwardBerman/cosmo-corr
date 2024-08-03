@@ -1,4 +1,6 @@
-module hcc
+module kmc
+
+export kmeans_clustering
 
 include("metrics.jl")
 include("kdtree.jl")
@@ -9,7 +11,7 @@ using .kdtree
 using Distances
 using Clustering
 
-function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, kmeans_metric=Vincenty, verbose=false)
+function kmeans_clustering(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, kmeans_metric=Vincenty, verbose=false)
     positions = hcat([galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies])'
     result = kmeans(positions, clusters, distance=kmeans_metric)
     labels = result.assignments

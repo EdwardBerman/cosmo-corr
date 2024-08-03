@@ -1,11 +1,11 @@
 module astrocorr
     include("metrics.jl")
     include("kdtree.jl")
-    include("hcc.jl")
+    include("kmean.jl")
 
     using .metrics
     using .kdtree
-    using .hcc
+    using .kmc
 
     export corr
     using LinearAlgebra
@@ -211,7 +211,7 @@ module astrocorr
             println("Clustering")
         end
         
-        circles = hcc(galaxies, clusters, sky_metric=sky_metric, kmeans_metric=kmeans_metric, verbose=verbose)
+        circles = kmeans_clustering(galaxies, clusters, sky_metric=sky_metric, kmeans_metric=kmeans_metric, verbose=verbose)
         ra_circles = [circle.center[1] for circle in circles]
         dec_circles = [circle.center[2] for circle in circles]
         n = length(ra_circles)
