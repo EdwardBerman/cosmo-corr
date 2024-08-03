@@ -127,10 +127,14 @@ module astrocorr
                 corr2_reverse_values = []
 
                 for (i, j) in bin_indices
-                    append!(corr1_values, [galaxies[k].corr1 for k in leafs[i].root.galaxies])
-                    append!(corr2_values, [galaxies[k].corr2 for k in leafs[j].root.galaxies])
-                    append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
-                    append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
+                    for galaxy_i in leafs[i].root.galaxies
+                        for galaxy_j in leafs[j].root.galaxies
+                            append!(corr1_values, [galaxies[galaxy_i].corr1])
+                            append!(corr2_values, [galaxies[galaxy_j].corr2])
+                            append!(corr1_reverse_values, [galaxies[galaxy_j].corr1])
+                            append!(corr2_reverse_values, [galaxies[galaxy_i].corr2])
+                        end
+                    end
                 end
                 count = length(bin_indices)
 
@@ -247,12 +251,16 @@ module astrocorr
 
                 corr1_reverse_values = []
                 corr2_reverse_values = []
-
+                
                 for (i, j) in bin_indices
-                    append!(corr1_values, [galaxies[k].corr1 for k in leafs[i].root.galaxies])
-                    append!(corr2_values, [galaxies[k].corr2 for k in leafs[j].root.galaxies])
-                    append!(corr1_reverse_values, [galaxies[k].corr1 for k in leafs[j].root.galaxies])
-                    append!(corr2_reverse_values, [galaxies[k].corr2 for k in leafs[i].root.galaxies])
+                    for galaxy_i in circles[i].galaxies
+                        for galaxy_j in circles[j].galaxies
+                            append!(corr1_values, [galaxies[galaxy_i].corr1])
+                            append!(corr2_values, [galaxies[galaxy_j].corr2])
+                            append!(corr1_reverse_values, [galaxies[galaxy_j].corr1])
+                            append!(corr2_reverse_values, [galaxies[galaxy_i].corr2])
+                        end
+                    end
                 end
                 count = length(bin_indices)
 
