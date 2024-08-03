@@ -10,7 +10,7 @@ using Distances
 using Clustering
 
 function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, verbose=false)
-    positions = hcat([galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies])
+    positions = hcat([galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies])'
     result = kmeans(positions, clusters; maxiter=300, tol=1e-6)
     labels = result.assignments
 
