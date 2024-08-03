@@ -588,6 +588,7 @@ module astrocorr
             DD=DD,
             DR=DR,
             RR=RR,
+            estimator=landy_szalay_estimator,
             correlator=treecorr,
             verbose=false)
         DD_cat = galaxy_catalog([pos.ra for pos in x if pos.value == "DATA"], 
@@ -665,7 +666,7 @@ module astrocorr
         DD_interp = interpolate_to_common_bins_spline(DD_θ, θ_common)
         DR_interp = interpolate_to_common_bins_spline(DR_θ, θ_common)
         RR_interp = interpolate_to_common_bins_spline(RR_θ, θ_common)
-        return landy_szalay_estimator(DD_interp, DR_interp, RR_interp)
+        return estimator(DD_interp, DR_interp, RR_interp)
     end
     #=
     Rest of corr functions here, multiple dispatch!
