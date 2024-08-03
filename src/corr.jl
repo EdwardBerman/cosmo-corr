@@ -38,7 +38,19 @@ module astrocorr
         end
     end
 
-    function treecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric_default, verbose=false)
+    function treecorr(ra, 
+            dec, 
+            corr1, 
+            corr2, 
+            θ_min, 
+            number_bins, 
+            θ_max; 
+            cluster_factor=0.25, 
+            spacing=log, 
+            sky_metric=Vincenty_Formula, 
+            kmeans_metric=Vincenty,
+            corr_metric=corr_metric_default, 
+            verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
@@ -171,7 +183,19 @@ module astrocorr
     end
     
     
-    function clustercorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
+    function clustercorr(ra,
+            dec, 
+            corr1, 
+            corr2, 
+            θ_min, 
+            number_bins, 
+            θ_max; 
+            cluster_factor=0.25, 
+            spacing=log, 
+            sky_metric=Vincenty_Formula, 
+            kmeans_metric=Vincenty, 
+            corr_metric=corr_metric, 
+            verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
@@ -187,7 +211,7 @@ module astrocorr
             println("Clustering")
         end
         
-        circles = hcc(galaxies, clusters, sky_metric=sky_metric, verbose=verbose)
+        circles = hcc(galaxies, clusters, sky_metric=sky_metric, kmeans_metric=kmeans_metric, verbose=verbose)
         ra_circles = [circle.center[1] for circle in circles]
         dec_circles = [circle.center[2] for circle in circles]
         n = length(ra_circles)
@@ -296,7 +320,19 @@ module astrocorr
         return ψ_θ
     end
 
-    function naivecorr(ra, dec, corr1, corr2, θ_min, number_bins, θ_max; cluster_factor=0.25, spacing=log, sky_metric=Vincenty_Formula, corr_metric=corr_metric, verbose=false)
+    function naivecorr(ra, 
+            dec, 
+            corr1, 
+            corr2, 
+            θ_min, 
+            number_bins, 
+            θ_max; 
+            cluster_factor=0.25, 
+            spacing=log, 
+            sky_metric=Vincenty_Formula, 
+            kmeans_metric=Vincenty,
+            corr_metric=corr_metric, 
+            verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         if verbose
             println("Naive Correlation")
@@ -403,10 +439,23 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=false)
-        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric, 
+                          kmeans_metric=kmeans_metric, 
+                          corr_metric=corr_metric, 
+                          verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -419,10 +468,23 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=false)
-        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric, 
+                          kmeans_metric=kmeans_metric, 
+                          corr_metric=corr_metric, 
+                          verbose=true)
     end
 
     function corr(ra::Vector{Float64}, 
@@ -435,10 +497,23 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty, 
             corr_metric=corr_metric_default,
             correlator=treecorr, 
             verbose=false)
-        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=corr_metric,
+                          verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -451,10 +526,23 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
             verbose=false)
-        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=corr_metric, 
+                          verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -467,10 +555,23 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_point_point,
             correlator=treecorr,
             verbose=false)
-        return correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=corr_metric, verbose=true)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=corr_metric, 
+                          verbose=true)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -483,6 +584,7 @@ module astrocorr
             cluster_factor=0.25,
             spacing=log, 
             sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
             DD=DD,
             DR=DR,
             RR=RR,
@@ -504,21 +606,57 @@ module astrocorr
             println("Computing DD")
         end
         
-        DD_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=DD, verbose=true)
+        DD_θ = correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=DD, 
+                          verbose=true)
         
         if verbose
             println("DD complete")
             println("Computing DR")
         end
         
-        DR_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=DR, verbose=true)
+        DR_θ = correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric, 
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=DR, 
+                          verbose=true)
         
         if verbose
             println("DR complete")
             println("Computing RR")
         end
         
-        RR_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=RR, verbose=true)
+        RR_θ = correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=RR, 
+                          verbose=true)
         
         if verbose
             println("RR complete")

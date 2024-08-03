@@ -9,12 +9,9 @@ using .kdtree
 using Distances
 using Clustering
 
-function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, verbose=false)
-    ra, dec = [galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies]
-    ra, dec = deg2rad.(ra), deg2rad.(dec)
-    x, y, z = cos.(dec) .* cos.(ra), cos.(dec) .* sin.(ra), sin.(dec)
-    positions = hcat(x, y, z)'
-    result = kmeans(positions, clusters; maxiter=300, tol=1e-6)
+function hcc(galaxies::Vector{Galaxy}, clusters::Int64, sky_metric=Vincenty_Formula, kmeans_metric=Vincenty, verbose=false)
+    positions = hcat([galaxy.ra for galaxy in galaxies], [galaxy.dec for galaxy in galaxies])'
+    result = kmeans(positions, clusters, distance=kmeans_metric)
     labels = result.assignments
 
     galaxy_clusters = Dict{Int, Vector{Tuple{Int, Galaxy}}}()

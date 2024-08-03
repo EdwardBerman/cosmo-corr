@@ -1,6 +1,6 @@
 #euclidean
 module metrics
-export build_distance_matrix, metric_dict, Vincenty_Formula
+export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
 
 using Base.Threads
 
@@ -15,6 +15,29 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     x = c3
     Δσ = atan(y, x)
     return Δσ * (180 / π) 
+end
+
+struct Vincenty <: SemiMetric end
+
+function (d::Vincenty)(point1, point2)
+    lat1, lon1 = deg2rad_custom(point1...)
+    lat2, lon2 = deg2rad_custom(point2...)
+
+    Δλ = abs(lon2 - lon1)
+
+    c1 = (cos(lat2) * sin(Δλ))^2
+    c2 = (cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(Δλ))^2
+    c3 = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(Δλ)
+
+    y = sqrt(c1 + c2)
+    x = c3
+
+    Δσ = atan(y, x)
+    return Δσ * (180 / π)
+end
+
+function deg2rad_custom(degrees...)
+    return degrees .*(π / 180.0)
 end
 
 metric_dict = Dict(
