@@ -14,6 +14,7 @@ module astrocorr
     using Clustering
     using Distances
     using DataFrames
+    using Interpolations
     using Base.Iterators: product
     using Base.Iterators: partition
 
@@ -488,10 +489,37 @@ module astrocorr
         RR_cat = galaxy_catalog([pos.ra for pos in x if pos.value == "RANDOM"], 
                                 [pos.dec for pos in x if pos.value == "RANDOM"], 
                                 [pos.value for pos in x if pos.value == "RANDOM"])
+
+        θ_common = 10.^(range(log10(θ_min), log10(θ_max), length=number_bins))
+        
+        if verbose
+            println("Computing DD")
+        end
+        
         DD_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=DD, verbose=true)
+        
+        if verbose
+            println("DD complete")
+            println("Computing DR")
+        end
+        
         DR_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=DR, verbose=true)
+        
+        if verbose
+            println("DR complete")
+            println("Computing RR")
+        end
+        
         RR_θ = correlator(ra, dec, x, y, θ_min, number_bins, θ_max, cluster_factor=cluster_factor, spacing=spacing, sky_metric=sky_metric, corr_metric=RR, verbose=true)
-        return landy_szalay_estimator(DD, DR, RR)
+        
+        if verbose
+            println("RR complete")
+        end
+
+        DD_interp = interpolate_to_common_bins_spline(DD_θ, θ_common)
+        DR_interp = interpolate_to_common_bins_spline(DR_θ, θ_common)
+        RR_interp = interpolate_to_common_bins_spline(RR_θ, θ_common)
+        return landy_szalay_estimator(DD_interp, DR_interp, RR_interp)
     end
     #=
     Rest of corr functions here, multiple dispatch!
