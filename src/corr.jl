@@ -55,6 +55,7 @@ module astrocorr
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
+            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             println("Tree Correlation")
         end
 
@@ -200,7 +201,8 @@ module astrocorr
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
-            println("Heirarchical Correlation")
+            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            println("K means clustering")
         end
         
         sky_metric = sky_metric
@@ -336,6 +338,7 @@ module astrocorr
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         if verbose
+            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             println("Naive Correlation")
             println("Computing Distance Matrix")
         end
