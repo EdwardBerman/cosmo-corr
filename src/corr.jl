@@ -8,6 +8,11 @@ module astrocorr
     using .kmc
 
     export corr
+    export landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline
+    export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, get_leaves, collect_leaves
+    export kmeans_clustering
+    export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
+
     using LinearAlgebra
     using Base.Threads
     using Statistics
