@@ -82,6 +82,7 @@ module astrocorr
         n = length(ra_circles)
 
         if verbose
+            scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
             println("Number of circles: ", n)
             println("Computing Distance Matrix")
         end
@@ -211,7 +212,7 @@ module astrocorr
         
         if verbose
             println("Number of clusters: ", clusters)
-            println("Clustering")
+            println("Clustering...")
         end
         
         circles = kmeans_clustering(galaxies, clusters, sky_metric=sky_metric, kmeans_metric=kmeans_metric, verbose=verbose)
@@ -222,6 +223,7 @@ module astrocorr
         if verbose
             println("Clustering complete")
             println("Number of circles: ", n)
+            scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
             println("Computing Distance Matrix")
         end
         
