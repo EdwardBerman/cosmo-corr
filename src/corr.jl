@@ -60,7 +60,8 @@ module astrocorr
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
-            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
             println("Tree Correlation")
         end
 
@@ -87,7 +88,8 @@ module astrocorr
         n = length(ra_circles)
 
         if verbose
-            scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
+            scatterplot_clusters = scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
+            densityplot_clusters = densityplot(ra_circles, dec_circles, title="Cluster Density", xlabel="RA", ylabel="DEC")
             println("Number of circles: ", n)
             println("Computing Distance Matrix")
         end
@@ -207,7 +209,8 @@ module astrocorr
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
         if verbose
-            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
             println("K means clustering")
         end
         
@@ -228,7 +231,8 @@ module astrocorr
         if verbose
             println("Clustering complete")
             println("Number of circles: ", n)
-            scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
+            scatterplot_clusters = scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
+            densityplot_clusters = densityplot(ra_circles, dec_circles, title="Cluster Density", xlabel="RA", ylabel="DEC")
             println("Computing Distance Matrix")
         end
         
