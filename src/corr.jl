@@ -7,11 +7,7 @@ module astrocorr
     using .kdtree
     using .kmc
 
-    export corr
-    export landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, deg2rad_custom, Galaxy_Catalog
-    export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, get_leaves, collect_leaves
-    export kmeans_clustering
-    export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
+    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_point_point, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, deg2rad_custom, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
 
     using LinearAlgebra
     using Base.Threads
@@ -31,15 +27,15 @@ module astrocorr
         corr2::Vector{Any}
     end
 
-    struct Position
+    struct Position_RA_DEC
         ra::Float64
         dec::Float64
         value::String
-        function DR_Type(value::String)
+        Position_RA_DEC(ra::Float64, dec::Float64, value::String) = begin
             if value == "DATA" || value == "RANDOM"
-                return new(value)
+                new(ra, dec, value)
             else
-                error("SimType must be either 'DATA' or 'RANDOM'")
+                error("value must be either 'DATA' or 'RANDOM'")
             end
         end
     end
@@ -620,8 +616,8 @@ module astrocorr
     
     function corr(ra::Vector{Float64}, 
             dec::Vector{Float64}, 
-            x::Vector{Position},
-            y::Vector{Position},
+            x::Vector{Position_RA_DEC},
+            y::Vector{Position_RA_DEC},
             θ_min::Float64, 
             number_bins::Int64, 
             θ_max::Float64; 
@@ -645,7 +641,7 @@ module astrocorr
                                 [pos.dec for pos in x if pos.value == "RANDOM"], 
                                 [pos.value for pos in x if pos.value == "RANDOM"])
 
-        θ_common = 10.^(range(log10(θ_min), log10(θ_max), length=number_bins))
+        θ_common = 10 .^(range(log10(θ_min), log10(θ_max), length=number_bins))
         
         if verbose
             println("Computing DD")

@@ -4,6 +4,7 @@ module metrics
 export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, deg2rad_custom
 
 using Base.Threads
+using Distances
 
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
