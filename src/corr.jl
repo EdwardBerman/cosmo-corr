@@ -17,6 +17,7 @@ module astrocorr
     using Interpolations
     using Base.Iterators: product
     using Base.Iterators: partition
+    using UnicodePlots
 
     struct Galaxy_Catalog
         ra::Vector{Float64}
@@ -455,7 +456,7 @@ module astrocorr
                           sky_metric=sky_metric, 
                           kmeans_metric=kmeans_metric, 
                           corr_metric=corr_metric, 
-                          verbose=true)
+                          verbose=verbose)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -484,7 +485,7 @@ module astrocorr
                           sky_metric=sky_metric, 
                           kmeans_metric=kmeans_metric, 
                           corr_metric=corr_metric, 
-                          verbose=true)
+                          verbose=verbose)
     end
 
     function corr(ra::Vector{Float64}, 
@@ -513,7 +514,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=corr_metric,
-                          verbose=true)
+                          verbose=verbose)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -542,7 +543,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=corr_metric, 
-                          verbose=true)
+                          verbose=verbose)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -571,7 +572,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=corr_metric, 
-                          verbose=true)
+                          verbose=verbose)
     end
     
     function corr(ra::Vector{Float64}, 
@@ -619,7 +620,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=DD, 
-                          verbose=true)
+                          verbose=verbose)
         
         if verbose
             println("DD complete")
@@ -638,7 +639,7 @@ module astrocorr
                           sky_metric=sky_metric, 
                           kmeans_metric=kmeans_metric,
                           corr_metric=DR, 
-                          verbose=true)
+                          verbose=verbose)
         
         if verbose
             println("DR complete")
@@ -657,7 +658,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=RR, 
-                          verbose=true)
+                          verbose=verbose)
         
         if verbose
             println("RR complete")
@@ -666,6 +667,13 @@ module astrocorr
         DD_interp = interpolate_to_common_bins_spline(DD_θ, θ_common)
         DR_interp = interpolate_to_common_bins_spline(DR_θ, θ_common)
         RR_interp = interpolate_to_common_bins_spline(RR_θ, θ_common)
+        if verbose
+            println("Interpolated to common bins")
+            plt = lineplot(log10.(θ_common), log10.(estimator(DD_interp, DR_interp, RR_interp)), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+            lineplot!(plt, log10.(θ_common), log10.(DD_interp), color=:red, name="DD")
+            lineplot!(plt, log10.(θ_common), log10.(DR_interp), color=:yellow, name="DR")
+            lineplot!(plt, log10.(θ_common), log10.(RR_interp), color=:cyan, name="RR")
+        end
         return estimator(DD_interp, DR_interp, RR_interp)
     end
     #=
