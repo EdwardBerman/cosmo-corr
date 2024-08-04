@@ -8,7 +8,7 @@ module astrocorr
     using .kmc
 
     export corr
-    export landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline
+    export landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, deg2rad_custom, Galaxy_Catalog
     export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, get_leaves, collect_leaves
     export kmeans_clustering
     export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
@@ -62,6 +62,15 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+            
+            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
+            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
+            
+            x = sin.(ra_radians) .* cos.(dec_radians)
+            y = sin.(ra_radians) .* sin.(dec_radians)
+            z(x,y) = √(1 .- x.^2 .- y.^2)
+            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
+            println("If angle is small, points will appear flat on the sky")
             println("Tree Correlation")
         end
 
@@ -211,6 +220,15 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+            
+            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
+            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
+            
+            x = sin.(ra_radians) .* cos.(dec_radians)
+            y = sin.(ra_radians) .* sin.(dec_radians)
+            z(x,y) = √(1 .- x.^2 .- y.^2)
+            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
+            println("If angle is small, points will appear flat on the sky")
             println("K means clustering")
         end
         
@@ -349,7 +367,18 @@ module astrocorr
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         if verbose
-            scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+
+            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
+            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
+            
+            x = sin.(ra_radians) .* cos.(dec_radians)
+            y = sin.(ra_radians) .* sin.(dec_radians)
+            z(x,y) = √(1 .- x.^2 .- y.^2)
+            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
+            println("If angle is small, points will appear flat on the sky")
+
             println("Naive Correlation")
             println("Computing Distance Matrix")
         end
