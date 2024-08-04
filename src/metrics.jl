@@ -1,7 +1,7 @@
 #euclidean
 module metrics
 
-export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
+export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, deg2rad_custom
 
 using Base.Threads
 
