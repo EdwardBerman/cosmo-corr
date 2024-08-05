@@ -7,6 +7,7 @@ export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initi
 
 using AbstractTrees
 using Statistics
+using Base.Threads
 
 struct Galaxy 
     ra::Float64
@@ -113,8 +114,6 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     @assert size(distance_matrix) == size(galaxy_radius_adj)
     split_matrix = comparison_matrix .> b
     
-    # number of elements less than b
-    println("Number of elements less than b: ", sum(split_matrix))
     for i in 1:size(split_matrix, 1)
         for j in 1:size(split_matrix, 2)
             if j < i && (split_matrix[i,j] == 1) # b = Δ ln d
@@ -137,7 +136,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
         println("No more splits possible.")
         return 0, count
     else
-        for leaf in leaves
+        @threads for leaf in leaves
             if leaf.root.split == true
                 circle = leaf.root
                 ra_list = [galaxy.ra for galaxy in circle.galaxies]
