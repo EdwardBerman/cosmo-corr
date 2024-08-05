@@ -173,7 +173,9 @@ function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Form
     while continue_splitting 
         leaves = get_leaves(tree)
         split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
-        println(iteration)
+        if i%10 == 0
+            println("Iteration: ", iteration)
+        end
     end
     return tree
 end
