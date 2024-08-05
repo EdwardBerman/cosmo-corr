@@ -123,6 +123,7 @@ module astrocorr
             end
         end
 
+        lock = ReentrantLock()
         df = DataFrame(bin_number=Int[], 
                        min_distance=Float64[], 
                        max_distance=Float64[], 
@@ -133,7 +134,7 @@ module astrocorr
             println("Assigning data points to θ bins")
         end
 
-        for i in 1:number_bins
+        Threads.@threads for i in 1:number_bins
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -160,11 +161,14 @@ module astrocorr
 
                 ψ_bin = corr_metric(corr1_values, corr2_values, corr1_reverse_values, corr2_reverse_values)
 
-                push!(df, (bin_number=i, 
-                           min_distance=min_distance, 
-                           max_distance=max_distance, 
-                           mean_distance=mean_distance, 
-                           ψ=ψ_bin))
+
+                Threads.lock(lock) do
+                    push!(df, (bin_number=i, 
+                               min_distance=min_distance, 
+                               max_distance=max_distance, 
+                               mean_distance=mean_distance, 
+                               ψ=ψ_bin))
+                end
             end
         end
         
