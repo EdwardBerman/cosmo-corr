@@ -47,7 +47,7 @@ end
 
 
 function get_leaves(node::KD_Galaxy_Tree)::Vector{KD_Galaxy_Tree}
-    leaves = []
+    leaves = Vector{KD_Galaxy_Tree}()
     collect_leaves(node, leaves)
     return leaves
 end
