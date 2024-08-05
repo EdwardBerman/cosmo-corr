@@ -30,18 +30,18 @@ mutable struct KD_Galaxy_Tree
 end
 
 function append_left!(tree::KD_Galaxy_Tree, node::KD_Galaxy_Tree)
-    if tree.root == nothing
-        tree.root = node
+    if tree.left === nothing
+        tree.left = node
     else
-        append_left!(tree.root, node)
+        append_left!(tree.left, node)
     end
 end
 
 function append_right!(tree::KD_Galaxy_Tree, node::KD_Galaxy_Tree)
-    if tree.root == nothing
-        tree.root = KD_Galaxy_Tree(node, nothing, nothing)
+    if tree.right === nothing
+        tree.right = node
     else
-        append_right!(tree.root, node)
+        append_right!(tree.right, node)
     end
 end
 
@@ -164,7 +164,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
 end
 
 function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!)
-    tree = initialize_circles(galaxies)
+    tree = initialize_circles(galaxies, sky_metric=sky_metric)
     
     split_number = 1
     continue_splitting = (split_number != 0)
@@ -172,10 +172,12 @@ function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Form
     iteration = 1
     while continue_splitting 
         leaves = get_leaves(tree)
-        split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
-        if iteration%10 == 0
-            print("Iteration: ", iteration,"...")
+        if iteration%5 == 0
+            println("Iteration: ", iteration,"...")
+            println("Number of leaves: ", length(leaves))
         end
+        split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
+        iteration += 1
     end
     return tree
 end
