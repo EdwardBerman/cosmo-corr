@@ -17,7 +17,7 @@ function DR(c1,c2,c3,c4)
     return count
 end
 
-landy_szalay_estimator(DD, DR, RR) = (DD .- 2.*DR .+ RR) ./ RR
+landy_szalay_estimator(DD, DR, RR) = (DD .- 2 .*DR .+ RR) ./ RR
 
 function interpolate_to_common_bins_spline(corr_func, θ_common)
     θ_vals, values = corr_func[1,:], corr_func[2,:]
