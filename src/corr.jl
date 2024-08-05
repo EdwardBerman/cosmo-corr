@@ -61,6 +61,8 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+            println(scatterplot_galaxies)
+            println(densityplot_galaxies)
             println("Tree Correlation")
         end
 
@@ -89,6 +91,8 @@ module astrocorr
         if verbose
             scatterplot_clusters = scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
             densityplot_clusters = densityplot(ra_circles, dec_circles, title="Cluster Density", xlabel="RA", ylabel="DEC")
+            println(scatterplot_clusters)
+            println(densityplot_clusters)
             println("Number of circles: ", n)
             println("Computing Distance Matrix")
         end

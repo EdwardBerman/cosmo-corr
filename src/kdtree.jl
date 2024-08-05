@@ -63,12 +63,13 @@ function collect_leaves(node::Union{KD_Galaxy_Tree, Nothing}, leaves::Vector{KD_
     end
 end
 
-function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formula)
+function initialize_circles(galaxies::Vector{Galaxy}; sky_metric=Vincenty_Formula)
     ra_list = [galaxy.ra for galaxy in galaxies]
     dec_list = [galaxy.dec for galaxy in galaxies]
     ra_extent = maximum(ra_list) - minimum(ra_list)
     dec_extent = maximum(dec_list) - minimum(dec_list)
     if ra_extent > dec_extent
+        println("Splitting on RA...")
         ra_median = median(ra_list)
         left_galaxies = [galaxy for galaxy in galaxies if galaxy.ra < ra_median]
         right_galaxies = [galaxy for galaxy in galaxies if galaxy.ra >= ra_median]
@@ -81,6 +82,7 @@ function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formul
         left_circle = KD_Galaxy_Tree(Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, 0, false), nothing, nothing)
         right_circle = KD_Galaxy_Tree(Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, 0, false), nothing, nothing)
     else
+        println("Splitting on DEC...")
         dec_median = median(dec_list)
         left_galaxies = [galaxy for galaxy in galaxies if galaxy.dec < dec_median]
         right_galaxies = [galaxy for galaxy in galaxies if galaxy.dec >= dec_median]
@@ -106,61 +108,74 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
     distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
-    #distance_matrix = spacing.(distance_matrix)
-    for i in 1:length(galaxy_circles)
-        for j in 1:length(galaxy_circles)
-            if i < j && (galaxy_circles[i].radius + galaxy_circles[j].radius)/ distance_matrix[i, j] < b # b = Δ ln d
+    galaxy_radius_adj = [galaxy_circles[i].radius + galaxy_circles[j].radius for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
+    comparison_matrix = galaxy_radius_adj ./ distance_matrix
+    @assert size(distance_matrix) == size(galaxy_radius_adj)
+    split_matrix = comparison_matrix .> b
+    for i in 1:size(split_matrix, 1)
+        for j in 1:size(split_matrix, 2)
+            if j < i && (split_matrix[i,j] == 1) # b = Δ ln d
                 leaves[i].root.split = true
                 leaves[j].root.split = true
             end
         end
     end
-
-    if sum([circle.split for circle in galaxy_circles]) == 0
-        return 0, count
-    end
-
-    for leaf in leaves
-        if leaf.root.split == true
-            circle = leaf.root
-            ra_list = [galaxy.ra for galaxy in circle.galaxies]
-            dec_list = [galaxy.dec for galaxy in circle.galaxies]
-            ra_extent = maximum(ra_list) - minimum(ra_list)
-            dec_extent = maximum(dec_list) - minimum(dec_list)
-            if ra_extent > dec_extent
-                ra_median = median(ra_list)
-                left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
-                right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
-                left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
-                left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
-                right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
-                right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
-                max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
-                max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
-                left_circle = KD_Galaxy_Tree(Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, count, false), nothing, nothing)
-                right_circle = KD_Galaxy_Tree(Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, count + 1, false), nothing, nothing)
-                append_left!(leaf, left_circle)
-                append_right!(leaf, right_circle)
-                count += 2
-            else
-                dec_median = median(dec_list)
-                left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec < dec_median]
-                right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec >= dec_median]
-                left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
-                left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
-                right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
-                right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
-                max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
-                max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
-                left_circle = KD_Galaxy_Tree(Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, count, false), nothing, nothing)
-                right_circle = KD_Galaxy_Tree(Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, count + 1, false), nothing, nothing)
-                append_left!(leaf, left_circle)
-                append_right!(leaf, right_circle)
-                count += 2
-            end
+        
+    split_array = [leaf.root.split for leaf in leaves]
+    for i in 1:length(split_array)
+        if split_array[i] == true
+            split_array[i] = 1 
+        else
+            split_array[i] = 0
         end
     end
-    return 1, count
+
+    if sum(split_array) == 0
+        println("No more splits possible.")
+        return 0, count
+    else
+        for leaf in leaves
+            if leaf.root.split == true
+                circle = leaf.root
+                ra_list = [galaxy.ra for galaxy in circle.galaxies]
+                dec_list = [galaxy.dec for galaxy in circle.galaxies]
+                ra_extent = maximum(ra_list) - minimum(ra_list)
+                dec_extent = maximum(dec_list) - minimum(dec_list)
+                if ra_extent > dec_extent
+                    ra_median = median(ra_list)
+                    left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
+                    right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
+                    left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+                    left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+                    right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+                    right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+                    max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+                    max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+                    left_circle = KD_Galaxy_Tree(Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, count, false), nothing, nothing)
+                    right_circle = KD_Galaxy_Tree(Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, count + 1, false), nothing, nothing)
+                    append_left!(leaf, left_circle)
+                    append_right!(leaf, right_circle)
+                    count += 2
+                else
+                    dec_median = median(dec_list)
+                    left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec < dec_median]
+                    right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec >= dec_median]
+                    left_average_position_ra = mean([galaxy.ra for galaxy in left_galaxies])
+                    left_average_position_dec = mean([galaxy.dec for galaxy in left_galaxies])
+                    right_average_position_ra = mean([galaxy.ra for galaxy in right_galaxies])
+                    right_average_position_dec = mean([galaxy.dec for galaxy in right_galaxies])
+                    max_distance_left = maximum([sky_metric([left_average_position_ra, left_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in left_galaxies])
+                    max_distance_right = maximum([sky_metric([right_average_position_ra, right_average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in right_galaxies])
+                    left_circle = KD_Galaxy_Tree(Galaxy_Circle([left_average_position_ra, left_average_position_dec], max_distance_left, left_galaxies, count, false), nothing, nothing)
+                    right_circle = KD_Galaxy_Tree(Galaxy_Circle([right_average_position_ra, right_average_position_dec], max_distance_right, right_galaxies, count + 1, false), nothing, nothing)
+                    append_left!(leaf, left_circle)
+                    append_right!(leaf, right_circle)
+                    count += 2
+                end
+            end
+        end
+        return 1, count
+    end
 end
 
 function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!)
@@ -172,11 +187,12 @@ function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Form
     iteration = 1
     while continue_splitting 
         leaves = get_leaves(tree)
-        if iteration%5 == 0
+        if iteration%5 == 0 && iteration < 100
             println("Iteration: ", iteration,"...")
             println("Number of leaves: ", length(leaves))
         end
         split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
+        continue_splitting = (split_number != 0)
         iteration += 1
     end
     return tree
