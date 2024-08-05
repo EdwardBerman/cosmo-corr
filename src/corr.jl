@@ -174,11 +174,11 @@ module astrocorr
         end
         
         ψ_θ = zeros(2, number_bins) 
-        @threads for i in 1:nrow(df)
+        for i in 1:nrow(df)
             ψ_θ[1,i] = df[i, :mean_distance]
             ψ_θ[2,i] = df[i, :ψ]
-            ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
+        ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         return ψ_θ
     end
     
