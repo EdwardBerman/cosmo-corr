@@ -16,6 +16,8 @@ y3 = rand(10)
 y4 = rand(10)
 
 # Create the initial line plot with the first color
+#
+println("\n\n")
 plt = lineplot(x, y1, title="CosmoCorr.jl", xlabel="θ", ylabel="ξ(θ)", color=purple)
 
 # Add the other lines with the specified colors
@@ -25,4 +27,5 @@ lineplot!(plt, x, y4, color=blue)
 
 # Display the plot
 println(plt)
+println("\n\n")
 savefig(plt, "CC_logo.png")
