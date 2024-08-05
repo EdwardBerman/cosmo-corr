@@ -108,15 +108,19 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     galaxy_circles = [leaf.root for leaf in leaves]
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
-    distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
-    galaxy_radius_adj = [j < i ? galaxy_circles[i].radius + galaxy_circles[j].radius : 0 for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
-    comparison_matrix = galaxy_radius_adj ./ distance_matrix
-    @assert size(distance_matrix) == size(galaxy_radius_adj)
-    split_matrix = comparison_matrix .> b
+    #distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
+    #galaxy_radius_adj = [j < i ? galaxy_circles[i].radius + galaxy_circles[j].radius : 0 for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
+    #comparison_matrix = galaxy_radius_adj ./ distance_matrix
+    #@assert size(distance_matrix) == size(galaxy_radius_adj)
+    #split_matrix = comparison_matrix .> b
     
-    for i in 1:size(split_matrix, 1)
-        for j in 1:size(split_matrix, 2)
-            if j < i && (split_matrix[i,j] == 1) # b = Δ ln d 
+    @threads for i in 1:length(galaxy_circles)
+        for j in 1:length(galaxy_circles)
+            split_condition_1 = j < i
+            circles_radii = galaxy_circles[i].radius + galaxy_circles[j].radius
+            center_distance = sky_metric([galaxy_circles[i].center[1], galaxy_circles[i].center[2]], [galaxy_circles[j].center[1], galaxy_circles[j].center[2]])
+            split_condition_2 = circles_radii / center_distance > b
+            if split_condition_1 && split_condition_2 > b  # b = Δ ln d 
                 leaves[i].root.split = true
                 leaves[j].root.split = true
             end
