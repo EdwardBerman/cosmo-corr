@@ -112,6 +112,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     comparison_matrix = galaxy_radius_adj ./ distance_matrix
     @assert size(distance_matrix) == size(galaxy_radius_adj)
     split_matrix = comparison_matrix .> b
+
     for i in 1:size(split_matrix, 1)
         for j in 1:size(split_matrix, 2)
             if j < i && (split_matrix[i,j] == 1) # b = Δ ln d

@@ -22,7 +22,7 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     y = sqrt(c1 + c2)
     x = c3
     Δσ = atan(y, x)
-    return Δσ * (180 / π) 
+    return Δσ * (180 / π) * 60
 end
 
 function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64, Float64})
@@ -40,7 +40,7 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     y = sqrt(c1 + c2)
     x = c3
     Δσ = atan(y, x)
-    return Δσ * (180 / π) 
+    return Δσ * (180 / π) * 60 
 end
 
 struct Vincenty <: SemiMetric end
@@ -60,7 +60,7 @@ function (d::Vincenty)(point1, point2)
     x = c3
 
     Δσ = atan(y, x)
-    return Δσ * (180 / π)
+    return Δσ * (180 / π) * 60 
 end
 
 
@@ -78,7 +78,6 @@ function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
             distance_matrix[i,j] = metric(coords[i], coords[j])
         end
     end
-    distance_matrix .*= 60 # convert to arcmins
     return distance_matrix
 end
 # go from radians to arcmins?
