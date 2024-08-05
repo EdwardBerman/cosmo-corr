@@ -9,7 +9,7 @@ module astrocorr
     using .kmc
     using .estimators
 
-    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_point_point, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, deg2rad_custom, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate!, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
+    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_point_point, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, deg2rad_custom, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
 
     using LinearAlgebra
     using Base.Threads
