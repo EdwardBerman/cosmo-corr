@@ -685,6 +685,7 @@ module astrocorr
             lineplot!(plt, log10.(θ_common), log10.(DD_interp), color=:red, name="DD")
             lineplot!(plt, log10.(θ_common), log10.(DR_interp), color=:yellow, name="DR")
             lineplot!(plt, log10.(θ_common), log10.(RR_interp), color=:cyan, name="RR")
+            println(plt)
         end
         return estimator(DD_interp, DR_interp, RR_interp)
     end
