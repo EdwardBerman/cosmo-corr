@@ -122,12 +122,8 @@ module astrocorr
         df = DataFrame(bin_number=Int[], 
                        min_distance=Float64[], 
                        max_distance=Float64[], 
-                       count=Int[], 
                        mean_distance=Float64[], 
-                       corr1=Vector{Any}[], 
-                       corr2=Vector{Any}[], 
-                       corr1_reverse=Vector{Any}[], 
-                       corr2_reverse=Vector{Any}[])
+                       ψ=Any[])
         
         if verbose
             println("Assigning data points to θ bins")
@@ -157,18 +153,13 @@ module astrocorr
                         end
                     end
                 end
-                count = length(bin_indices)
 
                 Threads.lock(lock) do
                     push!(df, (bin_number=i, 
                                min_distance=min_distance, 
                                max_distance=max_distance, 
-                               count=count, 
                                mean_distance=mean_distance, 
-                               corr1=corr1_values, 
-                               corr2=corr2_values, 
-                               corr1_reverse=corr1_reverse_values, 
-                               corr2_reverse=corr2_reverse_values))
+                               ψ=corr_metric(corr1_values, corr2_values, corr1_reverse_values, corr2_reverse_values)))
                 end
             end
         end
@@ -181,11 +172,7 @@ module astrocorr
         ψ_θ = zeros(2, number_bins) 
         @threads for i in 1:nrow(df)
             ψ_θ[1,i] = df[i, :mean_distance]
-            c1 = df[i, :corr1]
-            c2 = df[i, :corr2]
-            c3 = df[i, :corr1_reverse]
-            c4 = df[i, :corr2_reverse]
-            ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
+            ψ_θ[2,i] = df[i, :ψ]
             ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
         return ψ_θ
