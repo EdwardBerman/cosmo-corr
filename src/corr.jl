@@ -196,6 +196,7 @@ module astrocorr
             sky_metric=Vincenty_Formula, 
             kmeans_metric=Vincenty, 
             corr_metric=corr_metric, 
+            splitter=split_galaxy_cells!,
             max_depth=3,
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
@@ -338,6 +339,7 @@ module astrocorr
             sky_metric=Vincenty_Formula, 
             kmeans_metric=Vincenty,
             corr_metric=corr_metric, 
+            splitter=split_galaxy_cells!,
             max_depth=3,
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
