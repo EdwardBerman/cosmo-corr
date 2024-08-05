@@ -163,15 +163,17 @@ function split_cirlces!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::Int64
     return 1, count
 end
 
-function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula)
+function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_circles!)
     tree = initialize_circles(galaxies)
     
     split_number = 1
     continue_splitting = (split_number != 0)
     count = 3
+    iteration = 1
     while continue_splitting 
         leaves = get_leaves(tree)
-        split_number, count = split_circles!(leaves, b, count, sky_metric=sky_metric)
+        split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
+        println(iteration)
     end
     return tree
 end
