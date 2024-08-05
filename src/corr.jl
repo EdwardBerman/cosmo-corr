@@ -72,7 +72,7 @@ module astrocorr
 
         if verbose
             println("Bin size: ", bin_size)
-            println("Population KDTree")
+            println("Populating KDTree")
         end
 
         tree = populate(galaxies, bin_size, sky_metric=sky_metric, splitter=splitter) # b = Δ (ln d) 

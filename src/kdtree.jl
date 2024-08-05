@@ -46,13 +46,13 @@ function append_right!(tree::KD_Galaxy_Tree, node::KD_Galaxy_Tree)
 end
 
 
-function get_leaves(node::KD_Galaxy_Tree)
+function get_leaves(node::KD_Galaxy_Tree)::Vector{KD_Galaxy_Tree}
     leaves = []
     collect_leaves(node, leaves)
     return leaves
 end
 
-function collect_leaves(node::Union{KD_Galaxy_Tree, Nothing}, leaves::Vector{Any})
+function collect_leaves(node::Union{KD_Galaxy_Tree, Nothing}, leaves::Vector{KD_Galaxy_Tree})
     if node === nothing
         return
     elseif node.left === nothing && node.right === nothing
