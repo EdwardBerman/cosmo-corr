@@ -4,4 +4,4 @@ A Julia package for calculating 2 pt correlation functions for Cosmological anal
 
 To-do, add benchmarks to advise which of the three schemes works best and examine the trade offs between accuracy and speed.
 
-![image][assets/CC_logo.png]
+![image](assets/CC_logo.png)
