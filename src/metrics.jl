@@ -6,12 +6,14 @@ export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, deg2rad_c
 using Base.Threads
 using Distances
 
+
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
     ϕ2, λ2 = coord2
-
-    ϕ1, λ1 = deg2rad_custom(ϕ1, λ1)
-    ϕ2, λ2 = deg2rad_custom(ϕ2, λ2)
+    ϕ1 *= π / 180
+    λ1 *= π / 180
+    ϕ2 *= π / 180
+    λ2 *= π / 180
     
     Δλ = abs(λ2 - λ1)
     c1 = (cos(ϕ2)*sin(Δλ))^2
@@ -26,8 +28,9 @@ end
 struct Vincenty <: SemiMetric end
 
 function (d::Vincenty)(point1, point2)
-    lat1, lon1 = deg2rad_custom(point1...)
-    lat2, lon2 = deg2rad_custom(point2...)
+    
+    lat1, lon1 = point1 .*(π / 180.0)
+    lat2, lon2 = point2 .*(π / 180.0)
 
     Δλ = abs(lon2 - lon1)
 
@@ -42,9 +45,6 @@ function (d::Vincenty)(point1, point2)
     return Δσ * (180 / π)
 end
 
-function deg2rad_custom(degrees...)
-    return degrees .*(π / 180.0)
-end
 
 metric_dict = Dict(
     "angular_separation" => Vincenty_Formula,
