@@ -3,7 +3,7 @@ module kdtree
 include("metrics.jl")
 using .metrics
 
-export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_circles!, populate, get_leaves, collect_leaves
+export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves
 
 using AbstractTrees
 using Statistics
@@ -101,7 +101,7 @@ function initialize_circles(galaxies::Vector{Galaxy}, sky_metric=Vincenty_Formul
     return initial_circle
 end
 
-function split_cirlces!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::Int64; sky_metric=Vincenty_Formula)
+function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::Int64; sky_metric=Vincenty_Formula)
     galaxy_circles = [leaf.root for leaf in leaves]
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
@@ -163,7 +163,7 @@ function split_cirlces!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::Int64
     return 1, count
 end
 
-function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_circles!)
+function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!)
     tree = initialize_circles(galaxies)
     
     split_number = 1
