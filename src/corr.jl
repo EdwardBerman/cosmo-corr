@@ -60,15 +60,6 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
-            
-            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
-            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
-            
-            x = sin.(ra_radians) .* cos.(dec_radians)
-            y = sin.(ra_radians) .* sin.(dec_radians)
-            z(x,y) = √(1 .- x.^2 .- y.^2)
-            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
-            println("If angle is small, points will appear flat on the sky")
             println("Tree Correlation")
         end
 
@@ -218,15 +209,6 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
-            
-            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
-            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
-            
-            x = sin.(ra_radians) .* cos.(dec_radians)
-            y = sin.(ra_radians) .* sin.(dec_radians)
-            z(x,y) = √(1 .- x.^2 .- y.^2)
-            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
-            println("If angle is small, points will appear flat on the sky")
             println("K means clustering")
         end
         
@@ -367,16 +349,6 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
-
-            ra_radians = [ra[i] .* π/180 for i in 1:length(ra)]
-            dec_radians = [dec[i] .* π/180 for i in 1:length(dec)]
-            
-            x = sin.(ra_radians) .* cos.(dec_radians)
-            y = sin.(ra_radians) .* sin.(dec_radians)
-            z(x,y) = √(1 .- x.^2 .- y.^2)
-            surfaceplot(x, y, z, title="Object Positions", xlabel="X", ylabel="Y", zlabel="Z", color=:jet)
-            println("If angle is small, points will appear flat on the sky")
-
             println("Naive Correlation")
             println("Computing Distance Matrix")
         end
