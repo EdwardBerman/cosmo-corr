@@ -54,6 +54,7 @@ module astrocorr
             sky_metric=Vincenty_Formula, 
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default, 
+            splitter=split_circles!,
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
@@ -74,7 +75,7 @@ module astrocorr
             println("Population KDTree")
         end
 
-        tree = populate(galaxies, bin_size, sky_metric=sky_metric) # b = Δ (ln d) 
+        tree = populate(galaxies, bin_size, sky_metric=sky_metric, splitter=splitter) # b = Δ (ln d) 
         
         if verbose
             println("Populated KDTree")
@@ -604,6 +605,7 @@ module astrocorr
             RR=RR,
             estimator=landy_szalay_estimator,
             correlator=treecorr,
+            splitter=split_circles!,
             verbose=false)
         DD_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "DATA"], 
                                 [pos.dec for pos in x if pos.value == "DATA"], 
@@ -636,6 +638,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=DD, 
+                          splitter=splitter,
                           verbose=verbose)
         
         if verbose
@@ -655,6 +658,7 @@ module astrocorr
                           sky_metric=sky_metric, 
                           kmeans_metric=kmeans_metric,
                           corr_metric=DR, 
+                          splitter=splitter,
                           verbose=verbose)
         
         if verbose
@@ -674,6 +678,7 @@ module astrocorr
                           sky_metric=sky_metric,
                           kmeans_metric=kmeans_metric,
                           corr_metric=RR, 
+                          splitter=splitter,
                           verbose=verbose)
         
         if verbose
