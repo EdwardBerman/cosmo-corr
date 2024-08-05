@@ -74,7 +74,7 @@ module astrocorr
             println("Population KDTree")
         end
 
-        tree = populate(galaxies, bin_size, metric=sky_metric) # b = Δ (ln d) 
+        tree = populate(galaxies, bin_size, sky_metric=sky_metric) # b = Δ (ln d) 
         
         if verbose
             println("Populated KDTree")
