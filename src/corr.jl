@@ -633,14 +633,17 @@ module astrocorr
             estimator=landy_szalay_estimator,
             correlator=treecorr,
             verbose=false)
-        DD_cat = galaxy_catalog([pos.ra for pos in x if pos.value == "DATA"], 
+        DD_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "DATA"], 
                                 [pos.dec for pos in x if pos.value == "DATA"], 
+                                [pos.value for pos in x if pos.value == "DATA"],
                                 [pos.value for pos in x if pos.value == "DATA"])
-        DR_cat = galaxy_catalog([pos.ra for pos in x],
+        DR_cat = Galaxy_Catalog([pos.ra for pos in x],
                                 [pos.dec for pos in x],
+                                [pos.value for pos in x],
                                 [pos.value for pos in x])
-        RR_cat = galaxy_catalog([pos.ra for pos in x if pos.value == "RANDOM"], 
+        RR_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "RANDOM"], 
                                 [pos.dec for pos in x if pos.value == "RANDOM"], 
+                                [pos.value for pos in x if pos.value == "RANDOM"],
                                 [pos.value for pos in x if pos.value == "RANDOM"])
 
         θ_common = 10 .^(range(log10(θ_min), log10(θ_max), length=number_bins))
@@ -649,10 +652,10 @@ module astrocorr
             println("Computing DD")
         end
         
-        DD_θ = correlator(ra, 
-                          dec, 
-                          x, 
-                          y, 
+        DD_θ = correlator(DD_cat.ra, 
+                          DD_cat.dec, 
+                          DD_cat.corr1,
+                          DD_cat.corr2,
                           θ_min, 
                           number_bins, 
                           θ_max, 
@@ -668,10 +671,10 @@ module astrocorr
             println("Computing DR")
         end
         
-        DR_θ = correlator(ra, 
-                          dec, 
-                          x, 
-                          y, 
+        DR_θ = correlator(DR_cat.ra,
+                          DR_cat.dec,
+                          DR_cat.corr1,
+                          DR_cat.corr2,
                           θ_min, 
                           number_bins, 
                           θ_max, 
@@ -687,10 +690,10 @@ module astrocorr
             println("Computing RR")
         end
         
-        RR_θ = correlator(ra, 
-                          dec, 
-                          x, 
-                          y, 
+        RR_θ = correlator(RR_cat.ra,
+                          RR_cat.dec,
+                          RR_cat.corr1,
+                          RR_cat.corr2,
                           θ_min, 
                           number_bins, 
                           θ_max, 
