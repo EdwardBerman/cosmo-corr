@@ -10,7 +10,7 @@ RR(c1,c2,c3,c4) = length(c1)
 function DR(c1,c2,c3,c4)
     count = 0
     for i in 1:length(c1)
-        if c1[i].value == "DATA" && c2[i].value == "RANDOM"
+        if c1[i] == "DATA" && c2[i] == "RANDOM"
             count += 1
         end
     end

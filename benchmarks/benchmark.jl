@@ -17,12 +17,9 @@ ra = f[2].data["RA"]
 dec = f[2].data["DEC"]
 ra = convert(Vector{Float64}, ra)
 dec = convert(Vector{Float64}, dec)
-println(mean(ra))
-println(mean(dec))
-println(scatterplot(ra, dec, title="RA vs DEC Scatterplot", xlabel="RA", ylabel="DEC"))
 
-positions = [Position_RA_DEC(ra, dec, "DATA") for (ra, dec) in zip(ra, dec)]
 rand_inds = rand(1:length(ra), 1000)
-positions = positions[rand_inds]
+ra, dec = ra[rand_inds], dec[rand_inds]
+positions = [Position_RA_DEC(ra, dec, "DATA") for (ra, dec) in zip(ra, dec)]
 
 corr(ra, dec, positions, positions, 0.6, 15, 600.0; correlator=naivecorr, verbose=true)

@@ -329,8 +329,8 @@ module astrocorr
 
     function naivecorr(ra, 
             dec, 
-            corr1, 
-            corr2, 
+            corr1::Vector{T},
+            corr2::Vector{S},
             θ_min, 
             number_bins, 
             θ_max; 
@@ -341,11 +341,14 @@ module astrocorr
             corr_metric=corr_metric, 
             splitter=split_galaxy_cells!,
             max_depth=3,
-            verbose=false)
+            verbose=false) where {T,S}
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
+
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+            println(scatterplot_galaxies)
+            println(densityplot_galaxies)
             println("Naive Correlation")
             println("Computing Distance Matrix")
         end
@@ -377,10 +380,10 @@ module astrocorr
                        max_distance=Float64[], 
                        count=Int[], 
                        mean_distance=Float64[], 
-                       corr1=Vector{Any}[], 
-                       corr2=Vector{Any}[], 
-                       corr1_reverse=Vector{Any}[], 
-                       corr2_reverse=Vector{Any}[])
+                       corr1=Vector{T}[],
+                       corr2=Vector{S}[],
+                       corr1_reverse=Vector{T}[],
+                       corr2_reverse=Vector{S}[])
         
         if verbose
             println("Assigning data points to θ bins")
@@ -402,7 +405,7 @@ module astrocorr
                     append!(corr1_reverse_values, corr1[j])
                     append!(corr2_reverse_values, corr2[i])
                 end
-
+                
                 count = length(bin_indices)
 
                 Threads.lock(lock) do
@@ -432,8 +435,8 @@ module astrocorr
             c3 = df[i, :corr1_reverse]
             c4 = df[i, :corr2_reverse]
             ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
-            ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         end
+        ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         return ψ_θ
     end
 
@@ -614,6 +617,7 @@ module astrocorr
             splitter=split_galaxy_cells!,
             max_depth=3,
             verbose=false)
+        println("Position Position Correlation")
         DD_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "DATA"], 
                                 [pos.dec for pos in x if pos.value == "DATA"], 
                                 [pos.value for pos in x if pos.value == "DATA"],
