@@ -109,14 +109,14 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     circle_ra = [circle.center[1] for circle in galaxy_circles]
     circle_dec = [circle.center[2] for circle in galaxy_circles]
     distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
-    galaxy_radius_adj = [galaxy_circles[i].radius + galaxy_circles[j].radius for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
+    galaxy_radius_adj = [j < i ? galaxy_circles[i].radius + galaxy_circles[j].radius : 0 for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
     comparison_matrix = galaxy_radius_adj ./ distance_matrix
     @assert size(distance_matrix) == size(galaxy_radius_adj)
     split_matrix = comparison_matrix .> b
     
     for i in 1:size(split_matrix, 1)
         for j in 1:size(split_matrix, 2)
-            if j < i && (split_matrix[i,j] == 1) # b = Δ ln d
+            if j < i && (split_matrix[i,j] == 1) # b = Δ ln d 
                 leaves[i].root.split = true
                 leaves[j].root.split = true
             end
@@ -180,7 +180,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, b::Float64, count::
     end
 end
 
-function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!)
+function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!, max_depth=100)
     tree = initialize_circles(galaxies, sky_metric=sky_metric)
     
     split_number = 1
@@ -196,6 +196,10 @@ function populate(galaxies::Vector{Galaxy}, b::Float64; sky_metric=Vincenty_Form
         split_number, count = splitter(leaves, b, count, sky_metric=sky_metric)
         continue_splitting = (split_number != 0)
         iteration += 1
+        if iteration > max_depth
+            println("Max depth reached.")
+            break
+        end
     end
     return tree
 end

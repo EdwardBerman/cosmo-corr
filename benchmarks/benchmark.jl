@@ -23,4 +23,4 @@ println(scatterplot(ra, dec, title="RA vs DEC Scatterplot", xlabel="RA", ylabel=
 
 positions = [Position_RA_DEC(ra, dec, "DATA") for (ra, dec) in zip(ra, dec)]
 
-corr(ra, dec, positions, positions, 1.0, 100, 400.0; verbose=true)
+corr(ra, dec, positions, positions, 0.6, 15, 600.0; verbose=true)
