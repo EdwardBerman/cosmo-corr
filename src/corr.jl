@@ -62,14 +62,20 @@ module astrocorr
         if verbose
             scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
             densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
-            #println(scatterplot_galaxies)
-            #println(densityplot_galaxies)
+            println(scatterplot_galaxies)
+            println(densityplot_galaxies)
             println("Tree Correlation")
         end
 
         sky_metric = sky_metric
         galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
         
+        θ_bins = range(θ_min, stop=θ_max, length=number_bins)
+        
+        if spacing == log
+            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+        end
+
         b = Δ_ln_d = (log(θ_max) - log(θ_min) )/ number_bins
         bin_size = b
 
@@ -78,7 +84,7 @@ module astrocorr
             println("Populating KDTree")
         end
 
-        tree = populate(galaxies, bin_size, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth) # b = Δ (ln d) 
+        tree = populate(galaxies, θ_bins, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth) # b = Δ (ln d) 
         
         if verbose
             println("Populated KDTree")
@@ -92,8 +98,8 @@ module astrocorr
         if verbose
             scatterplot_clusters = scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
             densityplot_clusters = densityplot(ra_circles, dec_circles, title="Cluster Density", xlabel="RA", ylabel="DEC")
-            #println(scatterplot_clusters)
-            #println(densityplot_clusters)
+            println(scatterplot_clusters)
+            println(densityplot_clusters)
             println("Number of circles: ", n)
             println("Computing Distance Matrix")
         end
@@ -107,12 +113,6 @@ module astrocorr
         indices = [(i, j) for i in 1:n, j in 1:n if j < i]
         distance_vector = [distance_matrix[i, j] for (i, j) in indices]
         
-        θ_bins = range(θ_min, stop=θ_max, length=number_bins)
-        
-        if spacing == log
-            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
-        end
-
         θ_bin_assignments = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
             for j in 1:length(θ_bins)
@@ -122,19 +122,24 @@ module astrocorr
                 end
             end
         end
-
-        lock = ReentrantLock()
-        df = DataFrame(bin_number=Int[], 
-                       min_distance=Float64[], 
-                       max_distance=Float64[], 
-                       mean_distance=Float64[], 
-                       ψ=Any[])
         
         if verbose
             println("Assigning data points to θ bins")
         end
 
-        Threads.@threads for i in 1:number_bins
+        empty_bins = 0
+        for i in 1:number_bins
+            bin = findall(θ_bin_assignments .== i)
+            if isempty(bin)
+                empty_bins += 1
+            end
+        end
+
+        println("Empty bins: ", empty_bins)
+
+        ψ_array = zeros(number_bins - empty_bins, 5)
+
+        Threads.@threads for i in 1:(number_bins - empty_bins)
             bin = findall(θ_bin_assignments .== i)
             if !isempty(bin)
                 min_distance = minimum(distance_vector[bin])
@@ -160,15 +165,7 @@ module astrocorr
                 end
 
                 ψ_bin = corr_metric(corr1_values, corr2_values, corr1_reverse_values, corr2_reverse_values)
-
-
-                Threads.lock(lock) do
-                    push!(df, (bin_number=i, 
-                               min_distance=min_distance, 
-                               max_distance=max_distance, 
-                               mean_distance=mean_distance, 
-                               ψ=ψ_bin))
-                end
+                ψ_array[i,:] = [i, min_distance, max_distance, mean_distance, ψ_bin]
             end
         end
         
@@ -177,10 +174,10 @@ module astrocorr
             println(df)
         end
         
-        ψ_θ = zeros(2, number_bins) 
+        ψ_θ = zeros(2, number_bins - empty_bins) 
         for i in 1:nrow(df)
-            ψ_θ[1,i] = df[i, :mean_distance]
-            ψ_θ[2,i] = df[i, :ψ]
+            ψ_θ[1,i] = ψ_array[i, 4]
+            ψ_θ[2,i] = df[i, 5]
         end
         ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         return ψ_θ
@@ -459,7 +456,7 @@ module astrocorr
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -490,7 +487,7 @@ module astrocorr
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -521,7 +518,7 @@ module astrocorr
             kmeans_metric=Vincenty, 
             corr_metric=corr_metric_default,
             correlator=treecorr, 
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -552,7 +549,7 @@ module astrocorr
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
             correlator=treecorr,
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -583,7 +580,7 @@ module astrocorr
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_point_point,
             correlator=treecorr,
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -618,7 +615,7 @@ module astrocorr
             estimator=landy_szalay_estimator,
             correlator=treecorr,
             splitter=split_galaxy_cells!,
-            max_depth=3,
+            max_depth=100,
             verbose=false)
         println("Position Position Correlation")
         DD_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "DATA"], 
