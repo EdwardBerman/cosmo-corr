@@ -26,7 +26,7 @@ dec_max = maximum(dec)
 
 rand_ra = rand(Uniform(ra_min, ra_max), length(ra))
 rand_sin_dec = rand(Uniform(sin(dec_min * π / 180), sin(dec_max * π / 180)), length(dec))
-rand_dec = asin.(rand_sin_dec) * 180 / π
+rand_dec = asin.(rand_sin_dec) .* 180 / π
 
 rand_positions = [Position_RA_DEC(ra, dec, "RANDOM") for (ra, dec) in zip(rand_ra, rand_dec)]
 positions = [Position_RA_DEC(ra, dec, "DATA") for (ra, dec) in zip(ra, dec)]
