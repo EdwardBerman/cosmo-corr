@@ -129,9 +129,13 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 center_distance_bin = length(θ_bins)
             end
             Δθ_bins = radii_distance_bin - center_distance_bin
-            if Δθ_bins > 1
+            if Δθ_bins > 1 && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
                 leaves[i].root.split = true
                 leaves[j].root.split = true
+            elseif Δθ_bins > 1 && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
+                leaves[j].root.split = true
+            elseif Δθ_bins > 1 && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
+                leaves[i].root.split = true
             end
         end
     end
