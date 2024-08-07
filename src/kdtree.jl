@@ -106,6 +106,14 @@ end
 
 function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Float64}, count::Int64; sky_metric=Vincenty_Formula)
     galaxy_circles = [leaf.root for leaf in leaves]
+    # circle_ra = [circle.center[1] for circle in galaxy_circles]
+    # circle_dec = [circle.center[2] for circle in galaxy_circles]
+    #distance_matrix = build_distance_matrix(circle_ra, circle_dec, metric=sky_metric) 
+    #galaxy_radius_adj = [j < i ? galaxy_circles[i].radius + galaxy_circles[j].radius : 0 for i in 1:length(galaxy_circles), j in 1:length(galaxy_circles)]
+    #comparison_matrix = galaxy_radius_adj ./ distance_matrix
+    #@assert size(distance_matrix) == size(galaxy_radius_adj)
+    #split_matrix = comparison_matrix .> b
+    b = log10(θ_bins[length(θ_bins)] - θ_bins[1])/length(θ_bins)
 
     @threads for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
@@ -148,7 +156,9 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 dec_list = [galaxy.dec for galaxy in circle.galaxies]
                 ra_extent = maximum(ra_list) - minimum(ra_list)
                 dec_extent = maximum(dec_list) - minimum(dec_list)
-                if ra_extent > dec_extent
+                if length(circle.galaxies) == 1
+                    leaf.root.split = false
+                elseif ra_extent > dec_extent
                     ra_median = median(ra_list)
                     left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
                     right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
