@@ -104,7 +104,7 @@ function initialize_circles(galaxies::Vector{Galaxy}; sky_metric=Vincenty_Formul
     return initial_circle
 end
 
-function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Float64}, count::Int64; sky_metric=Vincenty_Formula)
+function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Float64}, count::Int64; sky_metric=Vincenty_Formula, bin_slop=3)
     galaxy_circles = [leaf.root for leaf in leaves]
     # circle_ra = [circle.center[1] for circle in galaxy_circles]
     # circle_dec = [circle.center[2] for circle in galaxy_circles]
@@ -129,12 +129,12 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 center_distance_bin = length(θ_bins)
             end
             Δθ_bins = radii_distance_bin - center_distance_bin
-            if Δθ_bins > 1 && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
+            if Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
                 leaves[i].root.split = true
                 leaves[j].root.split = true
-            elseif Δθ_bins > 1 && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
+            elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[j].root.split = true
-            elseif Δθ_bins > 1 && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
+            elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
                 leaves[i].root.split = true
             end
         end
@@ -199,7 +199,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
     end
 end
 
-function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!, max_depth=100)
+function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!, max_depth=100, bin_slop=3)
     tree = initialize_circles(galaxies, sky_metric=sky_metric)
     
     split_number = 1
@@ -212,7 +212,7 @@ function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}; sky_metric
             println("Iteration: ", iteration,"...")
             println("Number of leaves: ", length(leaves))
         end
-        split_number, count = splitter(leaves, θ_bins, count, sky_metric=sky_metric)
+        split_number, count = splitter(leaves, θ_bins, count, sky_metric=sky_metric, bin_slop=bin_slop)
         continue_splitting = (split_number != 0)
         iteration += 1
         if iteration > max_depth
