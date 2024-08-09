@@ -56,7 +56,7 @@ module astrocorr
             corr_metric=corr_metric_default, 
             splitter=split_galaxy_cells!,
             max_depth=3,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
@@ -199,7 +199,7 @@ module astrocorr
             corr_metric=corr_metric, 
             splitter=split_galaxy_cells!,
             max_depth=3,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
         
@@ -343,7 +343,7 @@ module astrocorr
             corr_metric=corr_metric, 
             splitter=split_galaxy_cells!,
             max_depth=3,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false) where {T,S}
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
 
@@ -460,7 +460,7 @@ module astrocorr
             corr_metric=corr_metric_default,
             correlator=treecorr,
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -493,7 +493,7 @@ module astrocorr
             corr_metric=corr_metric_default,
             correlator=treecorr,
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -526,7 +526,7 @@ module astrocorr
             corr_metric=corr_metric_default,
             correlator=treecorr, 
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -559,7 +559,7 @@ module astrocorr
             corr_metric=corr_metric_default,
             correlator=treecorr,
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -592,7 +592,7 @@ module astrocorr
             corr_metric=corr_metric_default_point_point,
             correlator=treecorr,
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         return correlator(ra, 
                           dec, 
@@ -629,7 +629,7 @@ module astrocorr
             correlator=treecorr,
             splitter=split_galaxy_cells!,
             max_depth=100,
-            bin_slop=3,
+            bin_slop=nothing,
             verbose=false)
         println("Position Position Correlation")
         DD_cat = Galaxy_Catalog([pos.ra for pos in x if pos.value == "DATA"], 
