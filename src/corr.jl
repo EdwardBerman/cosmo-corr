@@ -74,6 +74,9 @@ module astrocorr
         θ_bins = range(θ_min, stop=θ_max, length=number_bins)
         
         if spacing == log
+            if verbose
+                println("Logarithmic spacing")
+            end
             θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
         end
 
