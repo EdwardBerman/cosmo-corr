@@ -44,12 +44,12 @@ T_psf .= 2.0 .* σ_psf.^2
 δ_TT .= δ_T ./ T_psf
 
 
-ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
 
-ρ6 = corr(ra, dec, χ2, δg1, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ7 = corr(ra, dec, χ2, δg2, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ8 = corr(ra, dec, χ2, δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ6 = corr(ra, dec, χ2, δg1, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ7 = corr(ra, dec, χ2, δg2, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
+ρ8 = corr(ra, dec, χ2, δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; corr_metric = ξ_+, correlator=naivecorr, verbose=true)
