@@ -22,20 +22,20 @@ polydim = 2
 nparams = np.prod([polydeg+i+1 for i in range(polydim)])/polydim
 
 psf_fits = []
-file_name = 'f444w_psf.fits'
+file_name = '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits'
 
 for i in range(len(f[2].data)):
     try:
-        a_vignet = f[2].data['VIGNET'][i]
+        a_vignet = f[2].data['VIGNET_CROPPED'][i]
         img_vignet = galsim.Image(a_vignet, wcs=galsim.PixelScale(0.03), xmin=0, ymin=0)
         result_vignet = img_vignet.FindAdaptiveMom(guess_sig=1.0)
-        a_psfex = f[2].data['PSFEX_VIGNET'][i]
+        a_psfex = f[2].data['PSFEX_VIGNET_CROPPED'][i]
         img_psfex = galsim.Image(a_psfex, wcs=galsim.PixelScale(0.03), xmin=0, ymin=0)
         result_psfex = img_psfex.FindAdaptiveMom(guess_sig=1)
         s_d, g1_d, g2_d = result_vignet.moments_sigma, result_vignet.observed_shape.g1, result_vignet.observed_shape.g2
         s_p, g1_p, g2_p = result_psfex.moments_sigma, result_psfex.observed_shape.g1, result_psfex.observed_shape.g2
         psf_fits.append(PSF_fit(s_d, g1_d, g2_d, s_p, g1_p, g2_p))
-        chi2_map = (a_vignet .- a_psfex ./ f[2].data['ERR_VIGNET'][i]).^2
+        chi2_map = (a_vignet .- a_psfex ./ f[2].data['ERR_VIGNET_CROPPED'][i]).^2
         chi2_finite = chi2_map[np.isfinite(chi2_map)]
         ddof = chi2_finite.size - nparams
         chi2 = np.sum(chi2_finite)/ddof
