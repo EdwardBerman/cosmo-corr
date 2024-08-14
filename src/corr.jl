@@ -9,7 +9,7 @@ module astrocorr
     using .kmc
     using .estimators
 
-    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_point_point, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, ̂̂ξ_+, corr_metric_default_vector_vector 
+    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, ̂̂ξ_+, corr_metric_default_vector_vector 
 
     using LinearAlgebra
     using Base.Threads
@@ -446,7 +446,7 @@ module astrocorr
         return ψ_θ
     end
 
-    corr_metric_default_point_point(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
+    corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     corr_metric_default_vector_vector(c1,c2,c3,c4) = (sum(dot(v1, v2) for (v1, v2) in zip(c1, c2)) + sum(dot(v3, v4) for (v3, v4) in zip(c3, c4))) / (length(c1) + length(c3))
     ̂ξ_+ = corr_metric_default_vector_vector
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
@@ -594,7 +594,7 @@ module astrocorr
             spacing=log, 
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty,
-            corr_metric=corr_metric_default_point_point,
+            corr_metric=corr_metric_default_scalar_scalar,
             correlator=treecorr,
             max_depth=100,
             bin_slop=nothing,
