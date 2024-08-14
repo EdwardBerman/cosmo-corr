@@ -44,10 +44,9 @@ for i in range(len(f[2].data)):
         print(f"Error processing object {i}: {e}")
         continue
 
-dtype = [('sig_vignet', np.float64), ('g1_vignet', np.float64), ('g2_vignet', np.float64),
-         ('sig_psfex', np.float64), ('g1_psfex', np.float64), ('g2_psfex', np.float64)]
+dtype = [('sig_vignet', np.float64), ('g1_vignet', np.float64), ('g2_vignet', np.float64), ('sig_psfex', np.float64), ('g1_psfex', np.float64), ('g2_psfex', np.float64), ('chi2', np.float64)]
 psf_fits_array = np.array([tuple(psf.__dict__.values()) for psf in psf_fits], dtype=dtype)
-column_names = ['sig_vignet', 'g1_vignet', 'g2_vignet', 'sig_psfex', 'g1_psfex', 'g2_psfex']
+column_names = ['sig_vignet', 'g1_vignet', 'g2_vignet', 'sig_psfex', 'g1_psfex', 'g2_psfex', 'chi2']
 table = Table(psf_fits_array, names=column_names)
 
 table = table[~np.isnan(table['sig_vignet'])]
