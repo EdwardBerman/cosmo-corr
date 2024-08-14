@@ -41,7 +41,7 @@ for i in range(len(f[2].data)):
         chi2 = np.sum(chi2_finite)/ddof
         psf_fits.append(PSF_fit(s_d, g1_d, g2_d, s_p, g1_p, g2_p, chi2))
     except Exception as e:
-        print(f"Error processing object {i} in {visit_str}: {e}")
+        print(f"Error processing object {i}: {e}")
         continue
 
 dtype = [('sig_vignet', np.float64), ('g1_vignet', np.float64), ('g2_vignet', np.float64),
