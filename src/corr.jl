@@ -726,7 +726,7 @@ module astrocorr
         RR_interp = interpolate_to_common_bins_spline(RR_θ, θ_common)
         if verbose
             println("Interpolated to common bins")
-            plt = lineplot(log10.(θ_common), log10.(estimator(DD_interp, DR_interp, RR_interp)), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+            plt = lineplot(log10.(θ_common), log10.(abs.(estimator(DD_interp, DR_interp, RR_interp))), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
             lineplot!(plt, log10.(θ_common), log10.(DD_interp), color=:red, name="DD")
             lineplot!(plt, log10.(θ_common), log10.(DR_interp), color=:yellow, name="DR")
             lineplot!(plt, log10.(θ_common), log10.(RR_interp), color=:cyan, name="RR")
