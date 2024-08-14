@@ -447,6 +447,8 @@ module astrocorr
     end
 
     corr_metric_default_point_point(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
+    corr_metric_default_vector_vector(c1,c2,c3,c4) = (sum(dot(v1, v2) for (v1, v2) in zip(c1, c2)) + sum(dot(v3, v4) for (v3, v4) in zip(c3, c4))) / (length(c1) + length(c3))
+    ξ_+ = corr_metric_default_vector_vector
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
 
     function corr(ra::Vector{Float64},
