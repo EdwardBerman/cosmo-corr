@@ -734,6 +734,39 @@ module astrocorr
         end
         return estimator(DD_interp, DR_interp, RR_interp)
     end
+    
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{Vector{Float64}}, 
+            y::Vector{Vector{Float64}}, 
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            cluster_factor=0.25,
+            spacing=log, 
+            sky_metric=Vincenty_Formula(),
+            kmeans_metric=Vincenty,
+            corr_metric=corr_metric_default_vector_vector,
+            correlator=treecorr,
+            max_depth=100,
+            bin_slop=nothing,
+            verbose=false)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=corr_metric, 
+                          max_depth=max_depth,
+                          bin_slop=bin_slop,
+                          verbose=verbose)
+    end
     #=
     Rest of corr functions here, multiple dispatch!
     =#
