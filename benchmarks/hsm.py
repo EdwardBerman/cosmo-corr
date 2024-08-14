@@ -22,7 +22,8 @@ polydim = 2
 nparams = np.prod([polydeg+i+1 for i in range(polydim)])/polydim
 
 psf_fits = []
-file_name = '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits'
+fits_file_name = '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits'
+f = fits.open(fits_file_name)
 
 for i in range(len(f[2].data)):
     try:
@@ -58,6 +59,6 @@ table = table[~np.isnan(table['g2_psfex'])]
 threshold = 3*np.std(table['sig_vignet']) + np.mean(table['sig_vignet'])
 table = table[table['sig_vignet'] < threshold]
 table = table[table['chi2'] < 100]
-output_fits_path = f'psf_fits_{file_name}.fits'
+output_fits_path = f'psf_fits_f277w.fits'
 table.write(output_fits_path, overwrite=True)
 print(f"Saved {file_name}")
