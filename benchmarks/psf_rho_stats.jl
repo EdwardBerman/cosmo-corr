@@ -34,19 +34,22 @@ g2_D = convert(Vector{Float64}, g2_D)
 g1_psf = convert(Vector{Float64}, g1_psf)
 g2_psf = convert(Vector{Float64}, g2_psf)
 
-δ_e .= g1_D .+ im(g2_D) .- (g1_psf .+ im(g2_psf))
-δ_e_star = conj.(δ_e)
-
-e = g1_D .+ im(g2_D)
-e_star = conj.(e)
+e_D = [[g1_D[i], g2_D[i]] for i in 1:length(g1_D)]
+e_psf = [[g1_psf[i], g2_psf[i]] for i in 1:length(g1_psf)]
+δ_e = [[g1_D[i] - g1_psf[i], g2_D[i] - g2_psf[i]] for i in 1:length(g1_D)]
 
 T_D .= 2.0 .* σ_D.^2
 T_psf .= 2.0 .* σ_psf.^2
 δ_T .= T_D .- T_psf
 δ_TT .= δ_T ./ T_psf
 
-ρ1 = corr(ra, dec, δ_e_star, δ_e, 200.0, 10, 5000.0; correlator=naivecorr, verbose=true)
-ρ2 = corr(ra, dec, e_star, δ_e_star, 200.0, 10, 5000.0; correlator=naivecorr, verbose=true)
-ρ3 = corr(ra, dec, e_star.*δ_TT, e.*δ_TT, 200.0, 10, 5000.0; correlator=naivecorr, verbose=true)
-ρ4 = corr(ra, dec, δ_e_star, e.*δ_TT, 200.0, 10, 5000.0; correlator=naivecorr, verbose=true)
-ρ5 = corr(ra, dec, e_star, e.*δ_TT, 200.0, 10, 5000.0; correlator=naivecorr, verbose=true)
+
+ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+
+ρ6 = corr(ra, dec, χ2, δg1, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ7 = corr(ra, dec, χ2, δg2, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ8 = corr(ra, dec, χ2, δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
