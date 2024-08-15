@@ -27,6 +27,12 @@ psf_fits = []
 fits_file_name = '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits'
 f = fits.open(fits_file_name)
 
+def count_nan_inf(arr):
+            np_arr = np.array(arr)
+            nan_count = np.count_nonzero(np.isnan(np_arr))
+            inf_count = np.count_nonzero(np.isinf(np_arr))
+            return nan_count, inf_count
+
 for i in range(len(f[2].data)):
     try:
         a_vignet = f[2].data['VIGNET_CROPPED'][i]
@@ -37,9 +43,10 @@ for i in range(len(f[2].data)):
         result_psfex = img_psfex.FindAdaptiveMom(guess_sig=1)
         s_d, g1_d, g2_d = result_vignet.moments_sigma, result_vignet.observed_shape.g1, result_vignet.observed_shape.g2
         s_p, g1_p, g2_p = result_psfex.moments_sigma, result_psfex.observed_shape.g1, result_psfex.observed_shape.g2
-        chi2_map = (a_vignet - a_psfex / f[2].data['ERR_VIGNET_CROPPED'][i])**2
+        chi2_map = np.divide(np.square(a_vignet - a_psfex), f[2].data['ERR_VIGNET_CROPPED'][i])
         chi2_finite = chi2_map[np.isfinite(chi2_map)]
-        ddof = chi2_finite.size - nparams
+        nan_count, inf_count = count_nan_inf(chi2_map)
+        ddof = chi2_finite.size - nparams - (nan_count + inf_count)
         chi2 = np.sum(chi2_finite)/ddof
         ra = f[2].data['alphawin_j2000'][i]
         dec = f[2].data['deltawin_j2000'][i]
