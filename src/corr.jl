@@ -370,11 +370,15 @@ module astrocorr
         if spacing == log
             θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
         end
+        
+        if verbose
+            println("θ min: ", θ_min, " θ max: ", θ_max)
+        end
 
         θ_bin_assignments = zeros(length(distance_vector))
         for i in 1:length(distance_vector)
             for j in 1:length(θ_bins)
-                if distance_vector[i] < θ_bins[j]
+                if distance_vector[i] < θ_bins[j] && distance_vector[i] > θ_min
                     θ_bin_assignments[i] = j
                     break
                 end
