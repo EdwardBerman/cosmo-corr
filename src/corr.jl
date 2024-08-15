@@ -9,7 +9,7 @@ module astrocorr
     using .kmc
     using .estimators
 
-    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, ̂̂ξ_+, corr_metric_default_vector_vector 
+    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus
 
     using LinearAlgebra
     using Base.Threads
@@ -316,6 +316,7 @@ module astrocorr
         
         if verbose
             println("Assigned data points to θ bins")
+            df = df[sortperm(df.mean_distance), :]
             println(df)
         end
         
@@ -334,8 +335,8 @@ module astrocorr
 
     function naivecorr(ra, 
             dec, 
-            corr1::Vector{T},
-            corr2::Vector{S},
+            corr1,
+            corr2,
             θ_min, 
             number_bins, 
             θ_max; 
@@ -347,7 +348,7 @@ module astrocorr
             splitter=split_galaxy_cells!,
             max_depth=3,
             bin_slop=nothing,
-            verbose=false) where {T,S}
+            verbose=false) 
         @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
 
         if verbose
@@ -386,10 +387,10 @@ module astrocorr
                        max_distance=Float64[], 
                        count=Int[], 
                        mean_distance=Float64[], 
-                       corr1=Vector{T}[],
-                       corr2=Vector{S}[],
-                       corr1_reverse=Vector{T}[],
-                       corr2_reverse=Vector{S}[])
+                       corr1=Vector{Any}[],
+                       corr2=Vector{Any}[],
+                       corr1_reverse=Vector{Any}[],
+                       corr2_reverse=Vector{Any}[])
         
         if verbose
             println("Assigning data points to θ bins")
@@ -430,6 +431,7 @@ module astrocorr
 
         if verbose
             println("Assigned data points to θ bins")
+            df = df[sortperm(df.mean_distance), :]
             println(df)
         end
         
@@ -443,12 +445,20 @@ module astrocorr
             ψ_θ[2,i] = corr_metric(c1, c2, c3, c4)
         end
         ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
+
+        if verbose
+            plt = lineplot(log10.(ψ_θ[1,:]), log10.(abs.(ψ_θ[2,:])), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+            println(plt)
+        end
+
         return ψ_θ
     end
 
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     corr_metric_default_vector_vector(c1,c2,c3,c4) = (sum(dot(v1, v2) for (v1, v2) in zip(c1, c2)) + sum(dot(v3, v4) for (v3, v4) in zip(c3, c4))) / (length(c1) + length(c3))
-    ̂ξ_+ = corr_metric_default_vector_vector
+    function ξ_plus(c1, c2, c3, c4)
+        return corr_metric_default_vector_vector(c1, c2, c3, c4)
+    end
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
 
     function corr(ra::Vector{Float64},
@@ -744,7 +754,7 @@ module astrocorr
             θ_max::Float64; 
             cluster_factor=0.25,
             spacing=log, 
-            sky_metric=Vincenty_Formula(),
+            sky_metric=Vincenty_Formula,
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_vector_vector,
             correlator=treecorr,

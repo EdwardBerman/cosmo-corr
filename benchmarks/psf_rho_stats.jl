@@ -10,14 +10,14 @@ using Distributions
 
 println(nthreads())
 
-file_name = "Aardvark.fit"
+file_name = "psf_fits_f277w.fits"
 
 fits = pyimport("astropy.io.fits")
 f = fits.open(file_name)
 print(f[2].data)
 
-ra = f[2].data["RA"]
-dec = f[2].data["DEC"]
+ra = f[2].data["ra"]
+dec = f[2].data["dec"]
 σ_D = f[2].data["sig_vignet"]
 g1_D = f[2].data["g1_vignet"]
 g2_D = f[2].data["g2_vignet"]
@@ -41,18 +41,22 @@ e_D = [[g1_D[i], g2_D[i]] for i in 1:length(g1_D)]
 e_psf = [[g1_psf[i], g2_psf[i]] for i in 1:length(g1_psf)]
 δ_e = [[g1_D[i] - g1_psf[i], g2_D[i] - g2_psf[i]] for i in 1:length(g1_D)]
 
-T_D .= 2.0 .* σ_D.^2
-T_psf .= 2.0 .* σ_psf.^2
-δ_T .= T_D .- T_psf
-δ_TT .= δ_T ./ T_psf
+T_D = 2.0 .* σ_D.^2
+T_psf = 2.0 .* σ_psf.^2
+δ_T = T_D .- T_psf
+δ_TT = δ_T ./ T_psf
 
 e_psf_χ2 = e_psf .* χ2
 
-ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+println("ρ1 = $ρ1")
+plt = lineplot(log10.(ρ1[1,:]), log10.(abs.(ρ1[2,:])), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
 
-ρ6 = corr(ra, dec, e_psf_χ2, e_psf_χ2, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
-ρ7 = corr(ra, dec, δ_e, e_psf_χ2, 200.0*0.03/3600, 10, 5000.0*0.03/3600; correlator=naivecorr, verbose=true)
+ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+
+ρ6 = corr(ra, dec, e_psf_χ2, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+ρ7 = corr(ra, dec, δ_e, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
