@@ -48,15 +48,23 @@ T_psf = 2.0 .* σ_psf.^2
 
 e_psf_χ2 = e_psf .* χ2
 
+println("Computing ρ1")
 ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
-println("ρ1 = $ρ1")
-plt = lineplot(log10.(ρ1[1,:]), log10.(abs.(ρ1[2,:])), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
-println(plt)
 
+println("Computing ρ2")
 ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+
+println("Computing ρ3")
 ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+
+println("Computing ρ4")
 ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+
+println("Computing ρ5")
 ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
 
+println("Computing ρ6")
 ρ6 = corr(ra, dec, e_psf_χ2, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
+
+println("Computing ρ7")
 ρ7 = corr(ra, dec, δ_e, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
