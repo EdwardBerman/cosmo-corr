@@ -36,7 +36,7 @@ for i in range(len(f[2].data)):
         s_d, g1_d, g2_d = result_vignet.moments_sigma, result_vignet.observed_shape.g1, result_vignet.observed_shape.g2
         s_p, g1_p, g2_p = result_psfex.moments_sigma, result_psfex.observed_shape.g1, result_psfex.observed_shape.g2
         psf_fits.append(PSF_fit(s_d, g1_d, g2_d, s_p, g1_p, g2_p))
-        chi2_map = (a_vignet .- a_psfex ./ f[2].data['ERR_VIGNET_CROPPED'][i]).^2
+        chi2_map = (a_vignet - a_psfex / f[2].data['ERR_VIGNET_CROPPED'][i])^2
         chi2_finite = chi2_map[np.isfinite(chi2_map)]
         ddof = chi2_finite.size - nparams
         chi2 = np.sum(chi2_finite)/ddof
