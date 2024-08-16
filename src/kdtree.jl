@@ -122,7 +122,6 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             bin_slop = 0.1 / b
         end
     end
-    println("Bin size: ", b, " Bin slop: ", bin_slop)
 
     @threads for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
