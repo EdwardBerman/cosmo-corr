@@ -12,7 +12,7 @@ using Base.Threads
 using Zygote
 using Statistics
 
-struct Galaxy 
+struct diff_Galaxy 
     ra::Float64
     dec::Float64
     corr1::Any
@@ -64,15 +64,16 @@ end
 positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
-galaxies = [Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
+galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
 hyperparameters = Dict{Symbol, Any}(:bin_size => 5, :max_depth => 10, :cell_minimum_count => 1, :spatial_dimensions => 2)
 output = kd_tree(galaxies, hyperparameters)
+
 function estimator(leaves) 
     c1 = [sum([galaxy.corr1 for galaxy in leaf]) for leaf in leaves]
     c2 = [sum([galaxy.corr2 for galaxy in leaf]) for leaf in leaves]
     return sum(c1 .* c2) / length(c1)
 end
-#grads = Zygote.gradient(kd_tree, galaxies, hyperparameters)
+
 grads = Zygote.gradient(estimator, output)
 
 end
