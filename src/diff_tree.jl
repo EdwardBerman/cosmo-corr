@@ -1,4 +1,4 @@
-module kdtree 
+module diff_tree
 
 include("metrics.jl")
 using .metrics
