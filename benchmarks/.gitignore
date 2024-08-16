@@ -1,4 +1,11 @@
 .ipynb_checkpoints/
 TreeCorr/
 chi2_hist.png
+chi2_hist_f115w.png
+chi2_hist_f150w.png
+chi2_hist_f277w.png
+chi2_hist_f444w.png
+psf_fits_f115w.fits
+psf_fits_f150w.fits
 psf_fits_f277w.fits
+psf_fits_f444w.fits
