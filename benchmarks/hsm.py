@@ -24,7 +24,11 @@ polydim = 2
 nparams = np.prod([polydeg+i+1 for i in range(polydim)])/polydim
 
 psf_fits = []
-fits_file_name = '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits'
+
+file_names = ['../../cweb_psf/new_f115_apr_mosaic_combined_catalog.fits', '../../cweb_psf/new_f150_apr_mosaic_combined_catalog.fits', '../../cweb_psf/new_f277_apr_mosaic_combined_catalog.fits', '../../cweb_psf/new_f444_apr_mosaic_combined_catalog.fits']
+
+fits_file_name = file_names[1]
+
 f = fits.open(fits_file_name)
 
 def count_nan_inf(arr):
@@ -70,7 +74,7 @@ table = table[~np.isnan(table['g2_psfex'])]
 threshold = 3*np.std(table['sig_vignet']) + np.mean(table['sig_vignet'])
 table = table[table['sig_vignet'] < threshold]
 table = table[table['chi2'] < 100]
-output_fits_path = f'psf_fits_f277w.fits'
+output_fits_path = f'psf_fits_f150w.fits'
 table.write(output_fits_path, overwrite=True)
 
 
@@ -84,5 +88,5 @@ ax.set_xlim(0.001, 100)
 ax.set_xlabel(r'$\chi^2$', fontsize=18)
 ax.set_ylabel('Frequency', fontsize=18)
 ax.legend(fontsize=18)
-plt.savefig('chi2_hist.png')
+plt.savefig('chi2_hist_f150w.png')
 
