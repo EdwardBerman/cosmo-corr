@@ -20,9 +20,9 @@ struct diff_Galaxy
 end
 
 struct hyperparameters
-    bin_size::Int
-    max_depth::Int
-    cell_minimum_count::Int
+    bin_size::Float64
+    max_depth::Float64
+    cell_minimum_count::Float64
 end
 
 function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) where T
@@ -103,7 +103,7 @@ positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(5, 10, 1)
+hyperparams = hyperparameters(5.0, 10.0, 1.0)
 output = diff_kd_tree(galaxies, hyperparams)
 
 function estimator(leaves) 
