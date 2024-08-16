@@ -135,11 +135,10 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             idx = findfirst(left_edges .> log10(center_distance))
             right_edge = left_edges[idx]
             left_edge = left_edges[idx - 1]
-            right_edge_slop = 10^(log10(right_edge) + bin_slop)
-            left_edge_slop = 10^(log10(left_edge) - bin_slop)
 
-            distance_offset = log10(center_distance + circles_radii) - log10(center_distance)
-            in_trapezoid = (right_edge - left_edge) * b > distance_offset
+            # assuming log space for now
+            right_edge_slop = 10^(log10(right_edge) + bin_slop*b)
+            left_edge_slop = 10^(log10(left_edge) - bin_slop*b)
 
             radii_distance_bin = findfirst(right_edges .> log10(circles_radii))
             if radii_distance_bin === nothing
@@ -150,12 +149,15 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             end
             
             Δθ_bins = radii_distance_bin - center_distance_bin
-            if Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
+            #if Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
+            if center_distance >= left_edge_slop && center_distance <= right_edge_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[i].root.split = true
                 leaves[j].root.split = true
-            elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
+            #elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
+            elseif center_distance >= left_edge_slop && center_distance <= right_edge_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[j].root.split = true
-            elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
+            #elseif Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
+            elseif center_distance >= left_edge_slop && center_distance <= right_edge_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
                 leaves[i].root.split = true
             end
         end
