@@ -20,7 +20,7 @@ struct diff_Galaxy
 end
 
 
-function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where T
+function diff_kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where T
     bin_size = hyperparameters[:bin_size]
     max_depth = hyperparameters[:max_depth]
     cell_minimum_count = hyperparameters[:cell_minimum_count]
@@ -86,8 +86,8 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
         end
             
 
-        left_tree = build_tree(galaxies_left, depth + 1)
-        right_tree = build_tree(galaxies_right, depth + 1)
+        left_leaves = build_tree(galaxies_left, depth + 1)
+        right_leaves = build_tree(galaxies_right, depth + 1)
 
         return vcat(left_leaves, right_leaves)
     end
