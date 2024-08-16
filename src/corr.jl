@@ -193,6 +193,158 @@ module astrocorr
         return ψ_θ
     end
     
+    #= In progress
+    function diff_treecorr(ra, 
+            dec, 
+            corr1, 
+            corr2, 
+            θ_min, 
+            number_bins, 
+            θ_max; 
+            cluster_factor=0.25, 
+            spacing=log, 
+            sky_metric=Vincenty_Formula, 
+            kmeans_metric=Vincenty,
+            corr_metric=corr_metric_default, 
+            splitter=split_galaxy_cells!,
+            max_depth=3,
+            bin_slop=nothing,
+            verbose=false)
+        @assert length(ra) == length(dec) == length(corr1) == length(corr2) "ra, dec, corr1, and corr2 must be the same length"
+        
+        if verbose
+            scatterplot_galaxies = scatterplot(ra, dec, title="Object Positions", xlabel="RA", ylabel="DEC")
+            densityplot_galaxies = densityplot(ra, dec, title="Object Density", xlabel="RA", ylabel="DEC")
+            println(scatterplot_galaxies)
+            println(densityplot_galaxies)
+            println("Tree Correlation")
+        end
+
+        sky_metric = sky_metric
+        galaxies = [Galaxy(ra[i], dec[i], corr1[i], corr2[i]) for i in 1:length(ra)]
+        
+        θ_bins = range(θ_min, stop=θ_max, length=number_bins)
+        
+        if spacing == log
+            if verbose
+                println("Logarithmic spacing")
+            end
+            θ_bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+        end
+
+        b = Δ_ln_d = (log(θ_max) - log(θ_min) )/ number_bins
+        bin_size = b
+
+        if verbose
+            println("Bin size: ", bin_size)
+            println("Populating KDTree")
+        end
+
+        leaves = diff_kd_tree(galaxies, θ_bins, bin_size, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth, bin_slop=bin_slop) # b = Δ (ln d) 
+        
+        if verbose
+            println("Populated KDTree")
+        end
+        
+        leafs = get_leaves(tree)
+        ra_circles = [leaf.root.center[1] for leaf in leafs]
+        dec_circles = [leaf.root.center[2] for leaf in leafs]
+        n = length(ra_circles)
+
+        if verbose
+            scatterplot_clusters = scatterplot(ra_circles, dec_circles, title="Cluster Positions", xlabel="RA", ylabel="DEC")
+            densityplot_clusters = densityplot(ra_circles, dec_circles, title="Cluster Density", xlabel="RA", ylabel="DEC")
+            println(scatterplot_clusters)
+            println(densityplot_clusters)
+            println("Number of circles: ", n)
+            println("Computing Distance Matrix")
+        end
+
+        distance_matrix = build_distance_matrix(ra_circles, dec_circles, metric=sky_metric)
+
+        if verbose
+            println("Distance Matrix complete")
+        end
+
+        indices = [(i, j) for i in 1:n, j in 1:n if j < i]
+        distance_vector = [distance_matrix[i, j] for (i, j) in indices]
+        
+        θ_bin_assignments = zeros(length(distance_vector))
+        for i in 1:length(distance_vector)
+            for j in 1:length(θ_bins)
+                if distance_vector[i] < θ_bins[j] && distance_vector[i] > θ_min
+                    θ_bin_assignments[i] = j
+                    break
+                end
+            end
+        end
+        
+        if verbose
+            println("Assigning data points to θ bins")
+        end
+
+        empty_bins = 0
+        for i in 1:number_bins
+            bin = findall(θ_bin_assignments .== i)
+            if isempty(bin)
+                empty_bins += 1
+            end
+        end
+
+        println("Empty bins: ", empty_bins)
+
+        ψ_array = zeros(number_bins - empty_bins, 5)
+
+        Threads.@threads for i in 1:(number_bins - empty_bins)
+            bin = findall(θ_bin_assignments .== i)
+            if !isempty(bin)
+                min_distance = minimum(distance_vector[bin])
+                max_distance = maximum(distance_vector[bin])
+                mean_distance = mean(distance_vector[bin])
+                bin_indices = [indices[k] for k in bin]
+
+                corr1_values = []
+                corr2_values = []
+
+                corr1_reverse_values = []
+                corr2_reverse_values = []
+
+                for (i, j) in bin_indices
+                    for galaxy_i in leafs[i].root.galaxies
+                        for galaxy_j in leafs[j].root.galaxies
+                            append!(corr1_values, [galaxy_i.corr1])
+                            append!(corr2_values, [galaxy_j.corr2])
+                            append!(corr1_reverse_values, [galaxy_j.corr1])
+                            append!(corr2_reverse_values, [galaxy_i.corr2])
+                        end
+                    end
+                end
+
+                ψ_bin = corr_metric(corr1_values, corr2_values, corr1_reverse_values, corr2_reverse_values)
+                ψ_array[i,:] = [i, min_distance, max_distance, mean_distance, ψ_bin]
+            end
+        end
+        
+        if verbose
+            println("Assigned data points to θ bins")
+            println(ψ_array)
+        end
+        
+        ψ_θ = zeros(2, number_bins - empty_bins) 
+        for i in 1:(number_bins - empty_bins)
+            ψ_θ[1,i] = ψ_array[i, 4]
+            ψ_θ[2,i] = ψ_array[i, 5]
+        end
+        ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
+        
+        if verbose
+            plt = lineplot(log10.(ψ_θ[1,:]), log10.(abs.(ψ_θ[2,:])), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+            println(plt)
+        end
+       
+        return ψ_θ
+    end
+    =#
     
     function clustercorr(ra,
             dec, 
