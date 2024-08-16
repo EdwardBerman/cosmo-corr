@@ -122,7 +122,7 @@ function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyper
     return estimator(output)
 end
 
-grads = Zygote.gradient(estimator, output)
+#grads = Zygote.gradient(estimator, output)
 grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
 
 end
