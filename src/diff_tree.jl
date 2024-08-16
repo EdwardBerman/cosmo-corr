@@ -55,7 +55,8 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
         end
         return true
     end
-
+    
+    current_iteration = 0
     function build_tree(galaxies, depth)
         number_galaxies = length(galaxies)
 
@@ -65,15 +66,18 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
             radius = calculate_radius(galaxies)
         end
 
-        if depth == max_depth || number_galaxies <= cell_minimum_count || can_merge([galaxies])
+        current_iteration += 1
+        println("Iteration: ", current_iteration)
+
+        if depth == max_depth || number_galaxies <= cell_minimum_count || (can_merge([galaxies]) && current_iteration > 1)
             if depth == max_depth
                 println("Max depth reached")
             end
             if number_galaxies <= cell_minimum_count
                 println("Minimum count reached in a cell")
             end
-            if can_merge([galaxies])
-                println("Merging Condition Satisfied")
+            if can_merge([galaxies]) && current_iteration > 1
+                println("Merging Condition Satisfied at iteration: ", current_iteration)
             end
             return [galaxies]
         end
