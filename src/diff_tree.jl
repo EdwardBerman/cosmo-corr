@@ -19,6 +19,7 @@ struct diff_Galaxy
     corr2::Any
 end
 
+
 function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where T
     bin_size = hyperparameters[:bin_size]
     max_depth = hyperparameters[:max_depth]
@@ -26,10 +27,45 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
     spatial_dimensions = hyperparameters[:spatial_dimensions]
     leaves = []
 
+    function calculate_radius(galaxies)
+        ra_list = [galaxy.ra for galaxy in galaxies]
+        dec_list = [galaxy.dec for galaxy in galaxies]
+        average_position_ra = mean(ra_list)
+        average_position_dec = mean(dec_list)
+        radius = maximum([Vincenty_Formula([average_position_ra, average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in galaxies])
+        return radius
+    end
+
+    function can_merge(leaves)
+        for i in 1:length(leaves)
+            for j in i+1:length(leaves)
+                radius_i = calculate_radius(leaves[i])
+                radius_j = calculate_radius(leaves[j])
+                distance_ij = Vincenty_Formula(
+                    [mean([galaxy.ra for galaxy in leaves[i]]), mean([galaxy.dec for galaxy in leaves[i]])],
+                    [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
+                )
+                if (radius_i + radius_j) / distance_ij >= bin_size
+                    return false
+                end
+            end
+        end
+        return false
+    end
+
     function build_tree(galaxies, depth)
         number_galaxies = length(galaxies)
-        
-        if number_galaxies <= bin_size || depth == max_depth || number_galaxies <= cell_minimum_count
+
+         if number_galaxies <= 1
+            radius = 0
+        else
+            radius = calculate_radius(galaxies)
+        end
+
+        if depth == max_depth || number_galaxies <= cell_minimum_count || can_merge(leaves) 
+            if depth == max_depth
+                println("Max depth reached")
+            end
             push!(leaves, galaxies)
             return galaxies
         end
