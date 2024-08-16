@@ -49,7 +49,7 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
                 end
             end
         end
-        return false
+        return true
     end
 
     function build_tree(galaxies, depth)
@@ -61,12 +61,11 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
             radius = calculate_radius(galaxies)
         end
 
-        if depth == max_depth || number_galaxies <= cell_minimum_count || can_merge(leaves) 
+        if depth == max_depth || number_galaxies <= cell_minimum_count || can_merge([galaxies])
             if depth == max_depth
                 println("Max depth reached")
             end
-            push!(leaves, galaxies)
-            return galaxies
+            return [galaxies]
         end
     
         ra_list = [galaxy.ra for galaxy in galaxies]
@@ -89,9 +88,11 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
 
         left_tree = build_tree(galaxies_left, depth + 1)
         right_tree = build_tree(galaxies_right, depth + 1)
+
+        return vcat(left_leaves, right_leaves)
     end
 
-    tree = build_tree(galaxies, 0)
+    leaves = build_tree(galaxies, 0)
 
     return leaves
 end
