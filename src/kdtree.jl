@@ -125,12 +125,12 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             circles_radii = galaxy_circles[i].radius + galaxy_circles[j].radius
             center_distance = sky_metric([galaxy_circles[i].center[1], galaxy_circles[i].center[2]], [galaxy_circles[j].center[1], galaxy_circles[j].center[2]])
             distance_slop = circles_radii / center_distance
-            if distance_slop < b*bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
+            if distance_slop >= b*bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[i].root.split = true
                 leaves[j].root.split = true
-            elseif distance_slop < b*bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
+            elseif distance_slop >= b*bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[j].root.split = true
-            elseif distance_slop < b*bin_slop length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
+            elseif distance_slop >= b*bin_slop length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
                 leaves[i].root.split = true
             end
         end
