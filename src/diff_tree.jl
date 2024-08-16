@@ -19,12 +19,16 @@ struct diff_Galaxy
     corr2::Any
 end
 
+struct hyperparameters
+    bin_size::Int
+    max_depth::Int
+    cell_minimum_count::Int
+end
 
-function diff_kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where T
-    bin_size = hyperparameters[:bin_size]
-    max_depth = hyperparameters[:max_depth]
-    cell_minimum_count = hyperparameters[:cell_minimum_count]
-    leaves = []
+function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) where T
+    bin_size = hyperparameters.bin_size
+    max_depth = hyperparameters.max_depth
+    cell_minimum_count = hyperparameters.cell_minimum_count
 
     function calculate_radius(galaxies)
         ra_list = [galaxy.ra for galaxy in galaxies]
@@ -99,8 +103,8 @@ positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparameters = Dict{Symbol, Any}(:bin_size => 5, :max_depth => 10, :cell_minimum_count => 1)
-output = kd_tree(galaxies, hyperparameters)
+hyperparams = hyperparameters(5, 10, 1)
+output = diff_kd_tree(galaxies, hyperparams)
 
 function estimator(leaves) 
     c1 = [sum([galaxy.corr1 for galaxy in leaf]) for leaf in leaves]
@@ -108,12 +112,12 @@ function estimator(leaves)
     return sum(c1 .* c2) / length(c1)
 end
 
-function generate_output(galaxies::Vector{diff_Galaxy}, hyperparameters::Dict{Symbol, Any})
+function generate_output(galaxies::Vector{diff_Galaxy}, hyperparameters::hyperparameters)
     output = kd_tree(galaxies, hyperparameters)
     return output
 end
 
-function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::Dict{Symbol, Any})
+function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyperparameters)
     output = generate_output(galaxies, hyperparameters)
     return estimator(output)
 end
