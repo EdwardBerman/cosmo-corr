@@ -42,4 +42,4 @@ rand_dec .*= 180 / π
 rand_positions = [Position_RA_DEC(ra, dec, "RANDOM") for (ra, dec) in zip(rand_ra, rand_dec)]
 all_positions = vcat(positions, rand_positions)
 
-ψ = corr(ra, dec, all_positions, all_positions, 0.6, 15, 600.0; verbose=true)
+ψ = corr(ra, dec, all_positions, all_positions, 0.6, 100, 600.0; verbose=true)

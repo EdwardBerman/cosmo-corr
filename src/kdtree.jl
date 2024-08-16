@@ -138,8 +138,14 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
 
             # assuming log space for now
             right_edge_slop = 10^(log10(right_edge) + bin_slop*b)
-            left_edge_slop = 10^(log10(left_edge) - bin_slop*b)
-
+            if isinf(left_edge)
+                left_edge_slop = -Inf
+            else
+                left_edge_slop = 10^(log10(left_edge) - bin_slop*b)
+            end
+            
+            #=
+            center_distance_bin = findfirst(left_edges .> log10(center_distance))
             radii_distance_bin = findfirst(right_edges .> log10(circles_radii))
             if radii_distance_bin === nothing
                 radii_distance_bin = length(θ_bins)
@@ -150,9 +156,10 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             
             Δθ_bins = radii_distance_bin - center_distance_bin
             # is center distance the thing i want to check ? 
-            
-            distance_slop = center_distance + circles_radii
+            =#
             #if Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
+            distance_slop = log10(center_distance + circles_radii)
+            #println("Distance slop: ", distance_slop)
             if distance_slop >= left_edge_slop && distance_slop <= right_edge_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[i].root.split = true
                 leaves[j].root.split = true

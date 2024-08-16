@@ -51,22 +51,22 @@ e_psf_χ2 = e_psf .* χ2
 # At some point i should go from g1 g2 to gtan gcross
 
 println("Computing ρ1")
-ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; bin_slop = 4, verbose=true)
+ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*60*0.03/3600, 50, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ2")
-ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ2")
+#ρ2 = corr(ra, dec, e_psf, δ_e, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ3")
-ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ3")
+#ρ3 = corr(ra, dec, e_psf.*δ_TT, e_psf.*δ_TT, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ4")
-ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ4")
+#ρ4 = corr(ra, dec, δ_e, e_psf.*δ_TT, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ5")
-ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ5")
+#ρ5 = corr(ra, dec, e_psf, e_psf.*δ_TT, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ6")
-ρ6 = corr(ra, dec, e_psf_χ2, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ6")
+#ρ6 = corr(ra, dec, e_psf_χ2, e_psf_χ2, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
 
-println("Computing ρ7")
-ρ7 = corr(ra, dec, δ_e, e_psf_χ2, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; verbose=true)
+#println("Computing ρ7")
+#ρ7 = corr(ra, dec, δ_e, e_psf_χ2, 200.0*60*0.03/3600, 30, 5000.0*60*0.03/3600; verbose=true)
