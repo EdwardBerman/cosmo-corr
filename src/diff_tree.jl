@@ -24,7 +24,6 @@ function kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) where 
     bin_size = hyperparameters[:bin_size]
     max_depth = hyperparameters[:max_depth]
     cell_minimum_count = hyperparameters[:cell_minimum_count]
-    spatial_dimensions = hyperparameters[:spatial_dimensions]
     leaves = []
 
     function calculate_radius(galaxies)
@@ -101,7 +100,7 @@ positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparameters = Dict{Symbol, Any}(:bin_size => 5, :max_depth => 10, :cell_minimum_count => 1, :spatial_dimensions => 2)
+hyperparameters = Dict{Symbol, Any}(:bin_size => 5, :max_depth => 10, :cell_minimum_count => 1)
 output = kd_tree(galaxies, hyperparameters)
 
 function estimator(leaves) 
