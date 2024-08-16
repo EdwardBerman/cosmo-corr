@@ -3,7 +3,7 @@ module diff_tree
 include("metrics.jl")
 using .metrics
 
-export Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves
+export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function
 
 using AbstractTrees
 using Statistics
