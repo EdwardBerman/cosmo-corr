@@ -123,13 +123,25 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
         end
     end
 
+    left_edges = vcat(-Inf, θ_bins[1:end-1])
+    right_edges = θ_bins
+
     @threads for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
             split_condition_1 = j < i
             circles_radii = galaxy_circles[i].radius + galaxy_circles[j].radius
             center_distance = sky_metric([galaxy_circles[i].center[1], galaxy_circles[i].center[2]], [galaxy_circles[j].center[1], galaxy_circles[j].center[2]])
-            center_distance_bin = findfirst(θ_bins .> center_distance)
-            radii_distance_bin = findfirst(θ_bins .> circles_radii + center_distance)
+
+            idx = findfirst(left_edges .> log10(center_distance))
+            right_edge = left_edges[idx]
+            left_edge = left_edges[idx - 1]
+            right_edge_slop = 10^(log10(right_edge) + bin_slop)
+            left_edge_slop = 10^(log10(left_edge) - bin_slop)
+
+            distance_offset = log10(center_distance + circles_radii) - log10(center_distance)
+            in_trapezoid = (right_edge - left_edge) * b > distance_offset
+
+            radii_distance_bin = findfirst(right_edges .> log10(circles_radii))
             if radii_distance_bin === nothing
                 radii_distance_bin = length(θ_bins)
             end
