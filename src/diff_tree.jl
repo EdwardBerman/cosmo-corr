@@ -10,6 +10,7 @@ using Statistics
 using Base.Threads
 
 using Zygote
+using Statistics
 
 function kd_tree(positions::Matrix{T}, quantities::Vector{S}, hyperparameters::Dict{Symbol, Any}) where {T, S}
     bin_size = hyperparameters[:bin_size]
@@ -41,12 +42,14 @@ function kd_tree(positions::Matrix{T}, quantities::Vector{S}, hyperparameters::D
             axis = 2
         end
 
-        sorted_data = sort(data, by=row -> row[axis])
-        median_idx = div(n, 2)
-        median_value = sorted_data[median_idx, axis]
+        median_value = median(data[:, axis])
+        data_left = data[data[:, axis] .<= median_value, :]
+        quantities_left = quantities[data[:, axis] .<= median_value]
+        data_right = data[data[:, axis] .> median_value, :]
+        quantities_right = quantities[data[:, axis] .> median_value]
 
-        left_tree = build_tree(sorted_data[1:median_idx-1, :], depth + 1)
-        right_tree = build_tree(sorted_data[median_idx:end, :], depth + 1)
+        left_tree = build_tree(data_left, quantities_left, depth + 1)
+        right_tree = build_tree(data_right, quantities_right, depth + 1)
 
         return (left_tree, median_value, right_tree)
     end
