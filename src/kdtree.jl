@@ -149,6 +149,8 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
             end
             
             Δθ_bins = radii_distance_bin - center_distance_bin
+            # is center distance the thing i want to check ? 
+
             #if Δθ_bins > bin_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1 # replace 1 with bin slop?
             if center_distance >= left_edge_slop && center_distance <= right_edge_slop && length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[i].root.split = true
