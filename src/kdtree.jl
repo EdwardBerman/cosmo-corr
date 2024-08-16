@@ -104,7 +104,7 @@ function initialize_circles(galaxies::Vector{Galaxy}; sky_metric=Vincenty_Formul
     return initial_circle
 end
 
-function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Float64}, count::Int64; sky_metric=Vincenty_Formula, bin_slop=nothing)
+function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Float64}, bin_size::Float64, count::Int64; sky_metric=Vincenty_Formula, bin_slop=nothing)
     galaxy_circles = [leaf.root for leaf in leaves]
     # circle_ra = [circle.center[1] for circle in galaxy_circles]
     # circle_dec = [circle.center[2] for circle in galaxy_circles]
@@ -113,7 +113,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
     #comparison_matrix = galaxy_radius_adj ./ distance_matrix
     #@assert size(distance_matrix) == size(galaxy_radius_adj)
     #split_matrix = comparison_matrix .> b
-    b = log10(θ_bins[length(θ_bins)] - θ_bins[1])/length(θ_bins)
+    b = bin_size
     
     if bin_slop === nothing
         if b < 0.1
@@ -209,7 +209,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
     end
 end
 
-function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!, max_depth=100, bin_slop=nothing)
+function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}, bin_size::Float64; sky_metric=Vincenty_Formula, splitter=split_galaxy_cells!, max_depth=100, bin_slop=nothing)
     tree = initialize_circles(galaxies, sky_metric=sky_metric)
     
     split_number = 1
@@ -222,7 +222,7 @@ function populate(galaxies::Vector{Galaxy}, θ_bins::Vector{Float64}; sky_metric
             println("Iteration: ", iteration,"...")
             println("Number of leaves: ", length(leaves))
         end
-        split_number, count = splitter(leaves, θ_bins, count, sky_metric=sky_metric, bin_slop=bin_slop)
+        split_number, count = splitter(leaves, θ_bins, bin_size, count, sky_metric=sky_metric, bin_slop=bin_slop)
         continue_splitting = (split_number != 0)
         iteration += 1
         if iteration > max_depth

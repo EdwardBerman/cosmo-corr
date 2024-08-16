@@ -88,7 +88,7 @@ module astrocorr
             println("Populating KDTree")
         end
 
-        tree = populate(galaxies, θ_bins, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth, bin_slop=bin_slop) # b = Δ (ln d) 
+        tree = populate(galaxies, θ_bins, bin_size, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth, bin_slop=bin_slop) # b = Δ (ln d) 
         
         if verbose
             println("Populated KDTree")
@@ -175,13 +175,13 @@ module astrocorr
         
         if verbose
             println("Assigned data points to θ bins")
-            println(df)
+            println(ψ_array)
         end
         
         ψ_θ = zeros(2, number_bins - empty_bins) 
-        for i in 1:nrow(df)
+        for i in 1:(number_bins - empty_bins)
             ψ_θ[1,i] = ψ_array[i, 4]
-            ψ_θ[2,i] = df[i, 5]
+            ψ_θ[2,i] = ψ_array[i, 5]
         end
         ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
         return ψ_θ
