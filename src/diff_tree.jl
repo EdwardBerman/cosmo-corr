@@ -109,6 +109,17 @@ function estimator(leaves)
     return sum(c1 .* c2) / length(c1)
 end
 
+function generate_output(galaxies::Vector{diff_Galaxy}, hyperparameters::Dict{Symbol, Any})
+    output = kd_tree(galaxies, hyperparameters)
+    return output
+end
+
+function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::Dict{Symbol, Any})
+    output = generate_output(galaxies, hyperparameters)
+    return estimator(output)
+end
+
 grads = Zygote.gradient(estimator, output)
+grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparameters)
 
 end
