@@ -69,6 +69,12 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
             if depth == max_depth
                 println("Max depth reached")
             end
+            if number_galaxies <= cell_minimum_count
+                println("Minimum count reached in a cell")
+            end
+            if can_merge([galaxies])
+                println("Merging Condition Satisfied")
+            end
             return [galaxies]
         end
     
@@ -103,7 +109,7 @@ positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(5.0, 10.0, 1.0)
+hyperparams = hyperparameters(5.0, 20000.0, 1.0)
 output = diff_kd_tree(galaxies, hyperparams)
 
 function estimator(leaves) 
