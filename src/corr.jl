@@ -184,6 +184,12 @@ module astrocorr
             ψ_θ[2,i] = ψ_array[i, 5]
         end
         ψ_θ = ψ_θ[:, sortperm(ψ_θ[1,:])]
+        
+        if verbose
+            plt = lineplot(log10.(ψ_θ[1,:]), log10.(abs.(ψ_θ[2,:])), title="Correlation Function", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+            println(plt)
+        end
+       
         return ψ_θ
     end
     
