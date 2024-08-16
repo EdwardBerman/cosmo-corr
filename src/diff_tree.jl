@@ -113,7 +113,7 @@ function estimator(leaves)
 end
 
 function generate_output(galaxies::Vector{diff_Galaxy}, hyperparameters::hyperparameters)
-    output = kd_tree(galaxies, hyperparameters)
+    output = diff_kd_tree(galaxies, hyperparameters)
     return output
 end
 
@@ -123,6 +123,6 @@ function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyper
 end
 
 grads = Zygote.gradient(estimator, output)
-grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparameters)
+grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
 
 end
