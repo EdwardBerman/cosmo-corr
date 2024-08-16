@@ -74,12 +74,10 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::Dict{Symbol, Any}) w
         dec_extent = maximum(dec_list) - minimum(dec_list)
         
         if ra_extent > dec_extent
-            axis = 1
             median_value = median(ra_list)
             galaxies_left = [galaxy for galaxy in galaxies if galaxy.ra <= median_value]
             galaxies_right = [galaxy for galaxy in galaxies if galaxy.ra > median_value]
         else 
-            axis = 2
             median_value = median(dec_list)
             galaxies_left = [galaxy for galaxy in galaxies if galaxy.dec <= median_value]
             galaxies_right = [galaxy for galaxy in galaxies if galaxy.dec > median_value]
