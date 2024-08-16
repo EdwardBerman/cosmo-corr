@@ -48,6 +48,8 @@ T_psf = 2.0 .* σ_psf.^2
 
 e_psf_χ2 = e_psf .* χ2
 
+# At some point i should go from g1 g2 to gtan gcross
+
 println("Computing ρ1")
 ρ1 = corr(ra, dec, δ_e, δ_e, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; correlator=naivecorr, verbose=true)
 
