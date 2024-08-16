@@ -154,11 +154,19 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 circle = leaf.root
                 ra_list = [galaxy.ra for galaxy in circle.galaxies]
                 dec_list = [galaxy.dec for galaxy in circle.galaxies]
+                if !isempty(ra_list) 
+                    ra_extent = maximum(ra_list) - minimum(ra_list)
+                else
+                    ra_extent = NaN
+                end
+                if !isempty(dec_list)
+                    dec_extent = maximum(dec_list) - minimum(dec_list)
+                else
+                    dec_extent = NaN
+                end
                 if length(circle.galaxies) == 1
                     leaf.root.split = false
-                elseif ra_extent > dec_extent
-                    ra_extent = maximum(ra_list) - minimum(ra_list)
-                    dec_extent = maximum(dec_list) - minimum(dec_list)
+                elseif ra_extent > dec_extent && ra_extent !== NaN && dec_extent !== NaN
                     ra_median = median(ra_list)
                     left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
                     right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
@@ -173,7 +181,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                     append_left!(leaf, left_circle)
                     append_right!(leaf, right_circle)
                     count += 2
-                else
+                elseif ra_extent !== NaN && dec_extent !== NaN
                     ra_extent = maximum(ra_list) - minimum(ra_list)
                     dec_extent = maximum(dec_list) - minimum(dec_list)
                     dec_median = median(dec_list)
