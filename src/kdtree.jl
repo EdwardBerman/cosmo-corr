@@ -118,7 +118,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
 
     left_edges = vcat(-Inf, θ_bins[1:end-1])
     right_edges = θ_bins
-
+    
     @threads for i in 1:length(galaxy_circles)
         for j in 1:length(galaxy_circles)
             split_condition_1 = j < i
@@ -130,13 +130,8 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 leaves[j].root.split = true
             elseif distance_slop >= b*bin_slop && length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
                 leaves[j].root.split = true
-                leaves[i].root.split = false
             elseif distance_slop >= b*bin_slop length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
                 leaves[i].root.split = true
-                leaves[j].root.split = false
-            else
-                leaves[i].root.split = false
-                leaves[j].root.split = false
             end
         end
     end
@@ -159,11 +154,11 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 circle = leaf.root
                 ra_list = [galaxy.ra for galaxy in circle.galaxies]
                 dec_list = [galaxy.dec for galaxy in circle.galaxies]
-                ra_extent = maximum(ra_list) - minimum(ra_list)
-                dec_extent = maximum(dec_list) - minimum(dec_list)
                 if length(circle.galaxies) == 1
                     leaf.root.split = false
                 elseif ra_extent > dec_extent
+                    ra_extent = maximum(ra_list) - minimum(ra_list)
+                    dec_extent = maximum(dec_list) - minimum(dec_list)
                     ra_median = median(ra_list)
                     left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra < ra_median]
                     right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.ra >= ra_median]
@@ -179,6 +174,8 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                     append_right!(leaf, right_circle)
                     count += 2
                 else
+                    ra_extent = maximum(ra_list) - minimum(ra_list)
+                    dec_extent = maximum(dec_list) - minimum(dec_list)
                     dec_median = median(dec_list)
                     left_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec < dec_median]
                     right_galaxies = [galaxy for galaxy in circle.galaxies if galaxy.dec >= dec_median]
