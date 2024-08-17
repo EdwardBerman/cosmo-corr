@@ -66,15 +66,17 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
             radius = calculate_radius(galaxies)
         end
 
-        println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
+        #println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
 
         if depth == max_depth || number_galaxies <= cell_minimum_count 
+            #=
             if depth == max_depth
                 println("Max depth reached")
             end
             if number_galaxies <= cell_minimum_count
                 println("Minimum count reached in a cell")
             end
+            =#
             return [galaxies]
         end
     
@@ -99,7 +101,7 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
 
         all_leaves = vcat(left_leaves, right_leaves)
         if can_merge(all_leaves)
-            println("Merging Condition Satisfied at depth: ", depth)
+            #println("Merging Condition Satisfied at depth: ", depth)
             return [vcat(all_leaves...)]
         else
             return all_leaves
@@ -111,12 +113,15 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
     return leaves
 end
 
-positions = rand(100, 2)  # 100 points in 2D space
-quantities_one = rand(100)  # 100 random quantities
-quantities_two = rand(100)  # 100 random quantities
+positions = rand(200000, 2)  # 100 points in 2D space
+quantities_one = rand(200000)  # 100 random quantities
+quantities_two = rand(200000)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(0.1, 20000.0, 1.0)
-output = diff_kd_tree(galaxies, hyperparams)
+hyperparams = hyperparameters(0.95, 2000000.0, 1.0)
+@time begin
+    output = diff_kd_tree(galaxies, hyperparams)
+end
+println(length(output))
 
 function estimator(leaves) 
     c1 = [sum([galaxy.corr1 for galaxy in leaf]) for leaf in leaves]
@@ -134,7 +139,6 @@ function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyper
     return estimator(output)
 end
 
-#grads = Zygote.gradient(estimator, output)
 #grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
 #println(grads_galaxies)
 #println(grads_hyperparameters)
