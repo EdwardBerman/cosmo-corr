@@ -68,15 +68,12 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
 
         println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
 
-        if depth == max_depth || number_galaxies <= cell_minimum_count || ((can_merge([galaxies]) == true) && depth > 2)
+        if depth == max_depth || number_galaxies <= cell_minimum_count 
             if depth == max_depth
                 println("Max depth reached")
             end
             if number_galaxies <= cell_minimum_count
                 println("Minimum count reached in a cell")
-            end
-            if can_merge([galaxies]) && depth > 1
-                println("Merging Condition Satisfied at depth: ", depth)
             end
             return [galaxies]
         end
