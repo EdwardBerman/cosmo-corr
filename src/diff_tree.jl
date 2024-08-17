@@ -35,19 +35,23 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
         dec_list = [galaxy.dec for galaxy in galaxies]
         average_position_ra = mean(ra_list)
         average_position_dec = mean(dec_list)
-        radius = maximum([Vincenty_Formula([average_position_ra, average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in galaxies])
+        radius = maximum([sqrt((galaxy.ra - average_position_ra)^2 + (galaxy.dec - average_position_dec)^2) for galaxy in galaxies])
         return radius
     end
 
     function can_merge(leaves)
+        println("Checking if can merge")
+        println("Number of leaves: ", length(leaves))
         for i in 1:length(leaves)
             for j in i+1:length(leaves)
                 radius_i = calculate_radius(leaves[i])
                 radius_j = calculate_radius(leaves[j])
-                distance_ij = Vincenty_Formula(
-                    [mean([galaxy.ra for galaxy in leaves[i]]), mean([galaxy.dec for galaxy in leaves[i]])],
-                    [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
-                )
+                #distance_ij = Vincenty_Formula(
+                 #   [mean([galaxy.ra for galaxy in leaves[i]]), mean([galaxy.dec for galaxy in leaves[i]])],
+                  #  [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
+                #)
+                distance_ij = sqrt((mean([galaxy.ra for galaxy in leaves[i]]) - mean([galaxy.ra for galaxy in leaves[j]]))^2 + (mean([galaxy.dec for galaxy in leaves[i]]) - mean([galaxy.dec for galaxy in leaves[j]]))^2)
+                println("Distance: ", distance_ij, " Radius i: ", radius_i, " Radius j: ", radius_j)
                 if (radius_i + radius_j) / distance_ij >= bin_size
                     return false
                 end
@@ -131,6 +135,9 @@ function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyper
 end
 
 #grads = Zygote.gradient(estimator, output)
-grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
+#grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
+#println(grads_galaxies)
+#println(grads_hyperparameters)
+
 
 end
