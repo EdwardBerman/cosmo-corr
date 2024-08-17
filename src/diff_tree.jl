@@ -40,8 +40,6 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
     end
 
     function can_merge(leaves)
-        println("Checking if can merge")
-        println("Number of leaves: ", length(leaves))
         for i in 1:length(leaves)
             for j in i+1:length(leaves)
                 radius_i = calculate_radius(leaves[i])
@@ -51,8 +49,7 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
                   #  [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
                 #)
                 distance_ij = sqrt((mean([galaxy.ra for galaxy in leaves[i]]) - mean([galaxy.ra for galaxy in leaves[j]]))^2 + (mean([galaxy.dec for galaxy in leaves[i]]) - mean([galaxy.dec for galaxy in leaves[j]]))^2)
-                println("Distance: ", distance_ij, " Radius i: ", radius_i, " Radius j: ", radius_j)
-                if (radius_i + radius_j) / distance_ij >= bin_size
+                if ((radius_i + radius_j) / distance_ij) >= bin_size
                     return false
                 end
             end
@@ -71,7 +68,7 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
 
         println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
 
-        if depth == max_depth || number_galaxies <= cell_minimum_count || (can_merge([galaxies]) && depth > 1)
+        if depth == max_depth || number_galaxies <= cell_minimum_count || ((can_merge([galaxies]) == true) && depth > 2)
             if depth == max_depth
                 println("Max depth reached")
             end
@@ -103,7 +100,13 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
         left_leaves = build_tree(galaxies_left, depth + 1)
         right_leaves = build_tree(galaxies_right, depth + 1)
 
-        return vcat(left_leaves, right_leaves)
+        all_leaves = vcat(left_leaves, right_leaves)
+        if can_merge(all_leaves)
+            println("Merging Condition Satisfied at depth: ", depth)
+            return [vcat(all_leaves...)]
+        else
+            return all_leaves
+        end
     end
 
     leaves = build_tree(galaxies, 1)
@@ -115,7 +118,7 @@ positions = rand(100, 2)  # 100 points in 2D space
 quantities_one = rand(100)  # 100 random quantities
 quantities_two = rand(100)  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(5.0, 20000.0, 1.0)
+hyperparams = hyperparameters(0.1, 20000.0, 1.0)
 output = diff_kd_tree(galaxies, hyperparams)
 
 function estimator(leaves) 
