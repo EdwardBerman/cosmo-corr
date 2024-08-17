@@ -134,7 +134,7 @@ function split_galaxy_cells!(leaves::Vector{KD_Galaxy_Tree}, θ_bins::Vector{Flo
                 center_distance = sky_metric([galaxy_circles[i].center[1], galaxy_circles[i].center[2]], [galaxy_circles[j].center[1], galaxy_circles[j].center[2]])
                 distance_slop = circles_radii / center_distance
                 
-                split_condition_2 = distance_slop >= b*bin_slop
+                split_condition_2 = (distance_slop >= b*bin_slop)
                 split_condition_3 = length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) > 1
                 split_condition_4 = length(galaxy_circles[i].galaxies) == 1 && length(galaxy_circles[j].galaxies) > 1
                 split_condition_5 = length(galaxy_circles[i].galaxies) > 1 && length(galaxy_circles[j].galaxies) == 1
