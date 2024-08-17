@@ -1,136 +1,40 @@
-module diff_tree
-
-include("metrics.jl")
-using .metrics
-
-export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function
-
-using AbstractTrees
-using Statistics
-using Base.Threads
-
 using Zygote
-using Statistics
 
-struct diff_Galaxy 
-    ra::Float64
-    dec::Float64
-    corr1::Any
-    corr2::Any
+# Define an immutable struct for the tree nodes
+struct TreeNode
+    left::Union{Nothing, TreeNode}
+    right::Union{Nothing, TreeNode}
+    data::Float64
 end
 
-struct hyperparameters
-    bin_size::Float64
-    max_depth::Float64
-    cell_minimum_count::Float64
-end
-
-function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) where T
-    bin_size = hyperparameters.bin_size
-    max_depth = hyperparameters.max_depth
-    cell_minimum_count = hyperparameters.cell_minimum_count
-
-    function calculate_radius(galaxies)
-        ra_list = [galaxy.ra for galaxy in galaxies]
-        dec_list = [galaxy.dec for galaxy in galaxies]
-        average_position_ra = mean(ra_list)
-        average_position_dec = mean(dec_list)
-        radius = maximum([Vincenty_Formula([average_position_ra, average_position_dec], [galaxy.ra, galaxy.dec]) for galaxy in galaxies])
-        return radius
-    end
-
-    function can_merge(leaves)
-        for i in 1:length(leaves)
-            for j in i+1:length(leaves)
-                radius_i = calculate_radius(leaves[i])
-                radius_j = calculate_radius(leaves[j])
-                distance_ij = Vincenty_Formula(
-                    [mean([galaxy.ra for galaxy in leaves[i]]), mean([galaxy.dec for galaxy in leaves[i]])],
-                    [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
-                )
-                if (radius_i + radius_j) / distance_ij >= bin_size
-                    return false
-                end
-            end
-        end
-        return true
+# Recursive function to build the tree
+function build_tree(data::Vector{Float64}, depth::Int=0)::TreeNode
+    # Base case: if the data is empty, return a leaf node
+    if length(data) == 1
+        return TreeNode(nothing, nothing, data[1])
     end
     
-    function build_tree(galaxies, depth)
-        number_galaxies = length(galaxies)
-
-         if number_galaxies <= 1
-            radius = 0
-        else
-            radius = calculate_radius(galaxies)
-        end
-
-        println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
-
-        if depth == max_depth || number_galaxies <= cell_minimum_count || (can_merge([galaxies]) && depth > 1)
-            if depth == max_depth
-                println("Max depth reached")
-            end
-            if number_galaxies <= cell_minimum_count
-                println("Minimum count reached in a cell")
-            end
-            if can_merge([galaxies]) && depth > 1
-                println("Merging Condition Satisfied at depth: ", depth)
-            end
-            return [galaxies]
-        end
+    # Determine the splitting point
+    mid = length(data) ÷ 2
     
-        ra_list = [galaxy.ra for galaxy in galaxies]
-        dec_list = [galaxy.dec for galaxy in galaxies]
-        ra_extent = maximum(ra_list) - minimum(ra_list)
-        dec_extent = maximum(dec_list) - minimum(dec_list)
-        
-        if ra_extent > dec_extent
-            median_value = median(ra_list)
-            galaxies_left = [galaxy for galaxy in galaxies if galaxy.ra <= median_value]
-            galaxies_right = [galaxy for galaxy in galaxies if galaxy.ra > median_value]
-        else 
-            median_value = median(dec_list)
-            galaxies_left = [galaxy for galaxy in galaxies if galaxy.dec <= median_value]
-            galaxies_right = [galaxy for galaxy in galaxies if galaxy.dec > median_value]
-        end
-            
-
-        left_leaves = build_tree(galaxies_left, depth + 1)
-        right_leaves = build_tree(galaxies_right, depth + 1)
-
-        return vcat(left_leaves, right_leaves)
-    end
-
-    leaves = build_tree(galaxies, 1)
-
-    return leaves
+    # Recursively build the left and right subtrees
+    left_subtree = build_tree(data[1:mid], depth + 1)
+    right_subtree = build_tree(data[mid+1:end], depth + 1)
+    
+    # Return the current node with left and right children
+    return TreeNode(left_subtree, right_subtree, data[mid])
 end
 
-positions = rand(100, 2)  # 100 points in 2D space
-quantities_one = rand(100)  # 100 random quantities
-quantities_two = rand(100)  # 100 random quantities
-galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(5.0, 20000.0, 1.0)
-output = diff_kd_tree(galaxies, hyperparams)
+# Example data
+data = sort(rand(10))  # Sorted data for tree building
 
-function estimator(leaves) 
-    c1 = [sum([galaxy.corr1 for galaxy in leaf]) for leaf in leaves]
-    c2 = [sum([galaxy.corr2 for galaxy in leaf]) for leaf in leaves]
-    return sum(c1 .* c2) / length(c1)
-end
+# Build the tree
+tree = build_tree(data)
 
-function generate_output(galaxies::Vector{diff_Galaxy}, hyperparameters::hyperparameters)
-    output = diff_kd_tree(galaxies, hyperparameters)
-    return output
-end
+# Test differentiability with Zygote
+gradient(x -> build_tree(x).data, data)
 
-function combined_function(galaxies::Vector{diff_Galaxy}, hyperparameters::hyperparameters)
-    output = generate_output(galaxies, hyperparameters)
-    return estimator(output)
-end
-
-#grads = Zygote.gradient(estimator, output)
-grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
-
-end
+data = [0.3, 0.1, 0.2, 0.5, 0.4]
+println("Data: ", data)
+gradient(x -> build_tree(x).data, data)
+println("Gradient: ", gradient(x -> build_tree(x).data, data))
