@@ -184,6 +184,16 @@ end
 
 
 # Note: Do this with 100 x 100 blocks instead!
+# psuedo code:
+# ra = ...
+# dec = ...
+# ra_bins = 100
+# dec_bins = 100
+# ra_edges = range(minimum(ra), stop=maximum(ra), length=ra_bins)
+# dec_edges = range(minimum(dec), stop=maximum(dec), length=dec_bins)
+# for each bin 
+# build_distance_matrix
+#
 @threads for i in 1:length(output)
     for j in i+1:length(output)
         max_ratio = 0
