@@ -85,10 +85,11 @@ function build_distance_matrix_subblock(galaxies; metric=Vincenty_Formula)
     ra = [galaxy.ra for galaxy in galaxies]
     dec = [galaxy.dec for galaxy in galaxies]
     n = length(ra)
-    coords = [(ra[i], dec[i]) for i in 1:n]
-    distance_matrix = zeros(n, n)
+    m = length(dec)
+    coords = [(ra[i], dec[j]) for i in 1:n, j in 1:m]
+    distance_matrix = zeros(n, m)
     @threads for i in 1:n
-        for j in 1:n
+        for j in 1:m
             distance_matrix[i,j] = (metric(coords[i], coords[j]), galaxies[i], galaxies[j])
         end
     end
