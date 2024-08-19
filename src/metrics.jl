@@ -1,7 +1,7 @@
 #euclidean
 module metrics
 
-export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty
+export build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, build_distance_matrix_subblock
 
 using Base.Threads
 using Distances
@@ -80,6 +80,19 @@ function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
     end
     return distance_matrix
 end
-# go from radians to arcmins?
+
+function build_distance_matrix_subblock(galaxies; metric=Vincenty_Formula)
+    ra = [galaxy.ra for galaxy in galaxies]
+    dec = [galaxy.dec for galaxy in galaxies]
+    n = length(ra)
+    coords = [(ra[i], dec[i]) for i in 1:n]
+    distance_matrix = zeros(n, n)
+    @threads for i in 1:n
+        for j in 1:n
+            distance_matrix[i,j] = (metric(coords[i], coords[j]), galaxies[i], galaxies[j])
+        end
+    end
+    return distance_matrix
+end
 
 end
