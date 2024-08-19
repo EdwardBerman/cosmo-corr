@@ -164,9 +164,16 @@ dec_leaves = [mean([galaxy.dec for galaxy in leaf]) for leaf in output]
 scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
 println(scatterplot_galaxies)
 
+n = 100
+
+for i in 1:n:length(output)
+    galaxies = output[i:i+n-1]
+    submatrix = build_distance__subblock(galaxies)
+end
+
 println(length(output))
-#println(output)
 println(mean([length(leaf) for leaf in output]))
+#println(output)
 #println(maximum([length(leaf) for leaf in output]))
 #println(output[1])
 #println(length(output[1]))
