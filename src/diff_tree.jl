@@ -22,10 +22,25 @@ struct diff_Galaxy
     corr2::Any
 end
 
+mutable struct diff_Galaxy_Circle{T, r, g}
+    center::Vector{T}
+    radius::r
+    galaxies::Vector{g}
+end
+
 struct hyperparameters
     bin_size::Float64
     max_depth::Float64
     cell_minimum_count::Float64
+end
+
+function calculate_radius(galaxies)
+    ra_list = [galaxy.ra for galaxy in galaxies]
+    dec_list = [galaxy.dec for galaxy in galaxies]
+    average_position_ra = mean(ra_list)
+    average_position_dec = mean(dec_list)
+    radius = maximum([sqrt((galaxy.ra - average_position_ra)^2 + (galaxy.dec - average_position_dec)^2) for galaxy in galaxies])
+    return radius
 end
 
 function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) where T
@@ -159,17 +174,23 @@ hyperparams = hyperparameters(3.0, 2000000.0, 1.0)
     output = diff_kd_tree(galaxies, hyperparams)
 end
 
+
 ra_leaves = [mean([galaxy.ra for galaxy in leaf]) for leaf in output]
 dec_leaves = [mean([galaxy.dec for galaxy in leaf]) for leaf in output]
 scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
 println(scatterplot_galaxies)
 
-n = 100
+galaxy_circles = [diff_Galaxy_Circle([mean([galaxy.ra for galaxy in leaf]), mean([galaxy.dec for galaxy in leaf])], calculate_radius(leaf), leaf) for leaf in output]
 
-for i in 1:n:length(output)
-    galaxies = output[i:i+n-1]
-    submatrix = build_distance__subblock(galaxies)
+num_blocks = 100
+for i in 1:num_blocks:length(galaxy_circles)
+    for j in 1:num_blocks:length(galaxy_circles)
+        galaxy_list_i = galaxy_circles[i:min(i+num_blocks-1, length(galaxy_circles))]
+        galaxy_list_j = galaxy_circles[j:min(j+num_blocks-1, length(galaxy_circles))]
+        a = build_distance_subblock(galaxy_list_i, galaxy_list_j)
+    end
 end
+
 
 println(length(output))
 println(mean([length(leaf) for leaf in output]))
@@ -180,14 +201,6 @@ println(mean([length(leaf) for leaf in output]))
 
 θ_bins = 10 .^ range(log10(1), log10(400), length=100)
 # Check the merging condition
-function calculate_radius(galaxies)
-    ra_list = [galaxy.ra for galaxy in galaxies]
-    dec_list = [galaxy.dec for galaxy in galaxies]
-    average_position_ra = mean(ra_list)
-    average_position_dec = mean(dec_list)
-    radius = maximum([sqrt((galaxy.ra - average_position_ra)^2 + (galaxy.dec - average_position_dec)^2) for galaxy in galaxies])
-    return radius
-end
 
 
 # Note: Do this with 100 x 100 blocks instead!
@@ -201,32 +214,6 @@ end
 # for each bin 
 # build_distance_matrix
 #
-@threads for i in 1:length(output)
-    for j in i+1:length(output)
-        max_ratio = 0
-        radius_i = calculate_radius(output[i])
-        radius_j = calculate_radius(output[j])
-        mean_position_i = [mean([galaxy.ra for galaxy in output[i]]), mean([galaxy.dec for galaxy in output[i]])]
-        mean_position_j = [mean([galaxy.ra for galaxy in output[j]]), mean([galaxy.dec for galaxy in output[j]])]
-        distance_ij = Vincenty_Formula(mean_position_i, mean_position_j)
-        # find which θ bin the distance_ij falls into
-        bin_index = searchsortedfirst(θ_bins, distance_ij)
-        ratio = (radius_i + radius_j) / distance_ij
-        if ratio > max_ratio
-            max_ratio = ratio
-        end
-        if i == length(output) && j == length(output)
-            println("Max ratio: ", max_ratio)
-            println("Distance: ", distance_ij)
-            println("Radius i: ", radius_i)
-            println("Radius j: ", radius_j)
-        end
-    end
-end
-
-
-
-
 function estimator(leaves) 
     c1 = [sum([galaxy.corr1 for galaxy in leaf]) for leaf in leaves]
     c2 = [sum([galaxy.corr2 for galaxy in leaf]) for leaf in leaves]
