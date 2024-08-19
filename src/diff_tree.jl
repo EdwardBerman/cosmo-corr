@@ -8,6 +8,7 @@ export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, c
 using AbstractTrees
 using Statistics
 using Base.Threads
+using UnicodePlots
 
 using Zygote
 using Statistics
@@ -157,6 +158,12 @@ hyperparams = hyperparameters(2.0, 2000000.0, 1.0)
 @time begin
     output = diff_kd_tree(galaxies, hyperparams)
 end
+
+ra_leaves = [mean([galaxy.ra for galaxy in leaf]) for leaf in output]
+dec_leaves = [mean([galaxy.dec for galaxy in leaf]) for leaf in output]
+scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
+println(scatterplot_galaxies)
+
 println(length(output))
 #println(output)
 println(mean([length(leaf) for leaf in output]))
@@ -175,7 +182,7 @@ function calculate_radius(galaxies)
     return radius
 end
 
-for i in 1:length(output)
+@threads for i in 1:length(output)
     for j in i+1:length(output)
         max_ratio = 0
         radius_i = calculate_radius(output[i])
