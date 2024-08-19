@@ -154,7 +154,7 @@ positions = hcat(rand_ra, rand_dec)
 quantities_one = rand(length(rand_ra))  # 100 random quantities
 quantities_two = rand(length(rand_ra))  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(2.0, 2000000.0, 1.0)
+hyperparams = hyperparameters(3.0, 2000000.0, 1.0)
 @time begin
     output = diff_kd_tree(galaxies, hyperparams)
 end
@@ -182,6 +182,8 @@ function calculate_radius(galaxies)
     return radius
 end
 
+
+# Note: Do this with 100 x 100 blocks instead!
 @threads for i in 1:length(output)
     for j in i+1:length(output)
         max_ratio = 0
