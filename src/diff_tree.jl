@@ -172,6 +172,7 @@ galaxy_circles = [diff_Galaxy_Circle([mean([galaxy.ra for galaxy in leaf]), mean
 num_blocks = 100
 num_bins = number
 for i in 1:length(number)
+    bin_i = []
     for i in 1:num_blocks:length(galaxy_circles)
         for j in 1:num_blocks:length(galaxy_circles)
             galaxy_list_i = galaxy_circles[i:min(i+num_blocks-1, length(galaxy_circles))]
@@ -191,6 +192,7 @@ for i in 1:length(number)
                 end
             end
             subblock = subblock[.!isnan.(subblock)]
+            push!(bin_i, subblock...)
             # check which distances are in bin i
         end
     end
