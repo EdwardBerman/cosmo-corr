@@ -187,7 +187,22 @@ for i in 1:num_blocks:length(galaxy_circles)
     for j in 1:num_blocks:length(galaxy_circles)
         galaxy_list_i = galaxy_circles[i:min(i+num_blocks-1, length(galaxy_circles))]
         galaxy_list_j = galaxy_circles[j:min(j+num_blocks-1, length(galaxy_circles))]
-        a = build_distance_subblock(galaxy_list_i, galaxy_list_j)
+        if !(i > j)
+            indices = [(i, j) for i in 1:length(galaxy_list_i), j in 1:length(galaxy_list_j) if i > j]
+            subblock = build_distance_subblock(galaxy_list_i, galaxy_list_j)
+            for ii in 1:size(subblock, 1)
+                for jj in 1:size(subblock, 2)
+                    global_i = i + ii - 1
+                    global_j = j + jj - 1
+                    if global_i >= global_j
+                        subblock[ii, jj] = NaN
+                    end
+                end
+            end
+            #filter out NaNs
+            subblock = subblock[.!isnan.(subblock)]
+            # do operation with subblock
+        end
     end
 end
 
