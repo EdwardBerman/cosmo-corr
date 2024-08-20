@@ -69,7 +69,6 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
                                                [mean([galaxy.ra for galaxy in leaves[i]]), mean([galaxy.dec for galaxy in leaves[i]])],
                                                [mean([galaxy.ra for galaxy in leaves[j]]), mean([galaxy.dec for galaxy in leaves[j]])]
                                               )
-                #distance_ij = sqrt((mean([galaxy.ra for galaxy in leaves[i]]) - mean([galaxy.ra for galaxy in leaves[j]]))^2 + (mean([galaxy.dec for galaxy in leaves[i]]) - mean([galaxy.dec for galaxy in leaves[j]]))^2)
                 if ((radius_i + radius_j) / distance_ij) >= bin_size
                     return false
                 end
@@ -87,23 +86,9 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
             radius = calculate_radius(galaxies)
         end
 
-        #println("Current Depth: ", depth, " Number of Galaxies: ", number_galaxies, " Radius: ", radius)
-
         if depth == max_depth || number_galaxies <= cell_minimum_count 
-            #=
-            if depth == max_depth
-                println("Max depth reached")
-            end
-            if number_galaxies <= cell_minimum_count
-                println("Minimum count reached in a cell")
-            end
-            =#
             return [galaxies]
         end
-
-        #if should_stop[]  # Check the flag to stop recursion
-         #   return [galaxies]  # Return the galaxies as they are
-        #end
     
         ra_list = [galaxy.ra for galaxy in galaxies]
         dec_list = [galaxy.dec for galaxy in galaxies]
@@ -126,7 +111,6 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
 
         all_leaves = vcat(left_leaves, right_leaves)
         if can_merge(all_leaves)
-            #should_stop[] = true
             return [vcat(all_leaves...)]
         else
             return all_leaves
@@ -180,6 +164,8 @@ ra_leaves = [mean([galaxy.ra for galaxy in leaf]) for leaf in output]
 dec_leaves = [mean([galaxy.dec for galaxy in leaf]) for leaf in output]
 scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
 println(scatterplot_galaxies)
+println(length(output))
+println(maximum([length(leaf) for leaf in output]))
 
 galaxy_circles = [diff_Galaxy_Circle([mean([galaxy.ra for galaxy in leaf]), mean([galaxy.dec for galaxy in leaf])], calculate_radius(leaf), leaf) for leaf in output]
 
@@ -207,7 +193,6 @@ for i in 1:num_blocks:length(galaxy_circles)
 end
 
 
-println(length(output))
 println(mean([length(leaf) for leaf in output]))
 #println(output)
 #println(maximum([length(leaf) for leaf in output]))
