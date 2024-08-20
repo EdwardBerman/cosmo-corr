@@ -9,7 +9,7 @@ module astrocorr
     using .kmc
     using .estimators
 
-    export corr, naivecorr, clustercorr, treecorr, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock
+    export corr, naivecorr, clustercorr, treecorr_queue, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock
 
     using LinearAlgebra
     using Base.Threads
@@ -42,7 +42,7 @@ module astrocorr
         end
     end
 
-    function treecorr(ra, 
+    function treecorr_queue(ra, 
             dec, 
             corr1, 
             corr2, 
@@ -194,7 +194,7 @@ module astrocorr
     end
     
     #= In progress
-    function diff_treecorr(ra, 
+    function treecorr_stack(ra, 
             dec, 
             corr1, 
             corr2, 
@@ -635,7 +635,7 @@ module astrocorr
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
@@ -668,7 +668,7 @@ module astrocorr
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
@@ -701,7 +701,7 @@ module astrocorr
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty, 
             corr_metric=corr_metric_default,
-            correlator=treecorr, 
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
@@ -734,7 +734,7 @@ module astrocorr
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
@@ -767,7 +767,7 @@ module astrocorr
             sky_metric=Vincenty_Formula(),
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_scalar_scalar,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
@@ -803,7 +803,7 @@ module astrocorr
             DR=DR,
             RR=RR,
             estimator=landy_szalay_estimator,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             splitter=split_galaxy_cells!,
             max_depth=100,
             bin_slop=nothing,
@@ -919,7 +919,7 @@ module astrocorr
             sky_metric=Vincenty_Formula,
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_vector_vector,
-            correlator=treecorr,
+            correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
             verbose=false)
