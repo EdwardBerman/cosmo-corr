@@ -4,7 +4,7 @@ include("metrics.jl")
 
 using .metrics
 
-export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function
+export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function, diff_Galaxy_Circle, calculate_radius
 
 using AbstractTrees
 using Statistics
