@@ -169,7 +169,7 @@ positions = hcat(rand_ra, rand_dec)
 quantities_one = rand(length(rand_ra))  # 100 random quantities
 quantities_two = rand(length(rand_ra))  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(3.0, 2000000.0, 1.0)
+hyperparams = hyperparameters(0.06, 2000000.0, 1.0)
 @time begin
     output = diff_kd_tree(galaxies, hyperparams)
 end
@@ -188,7 +188,6 @@ for i in 1:num_blocks:length(galaxy_circles)
         galaxy_list_i = galaxy_circles[i:min(i+num_blocks-1, length(galaxy_circles))]
         galaxy_list_j = galaxy_circles[j:min(j+num_blocks-1, length(galaxy_circles))]
         if !(i > j)
-            indices = [(i, j) for i in 1:length(galaxy_list_i), j in 1:length(galaxy_list_j) if i > j]
             subblock = build_distance_subblock(galaxy_list_i, galaxy_list_j)
             for ii in 1:size(subblock, 1)
                 for jj in 1:size(subblock, 2)
