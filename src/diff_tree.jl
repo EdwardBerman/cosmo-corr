@@ -189,7 +189,7 @@ for i in 1:num_blocks:length(galaxy_circles)
         galaxy_list_j = galaxy_circles[j:min(j+num_blocks-1, length(galaxy_circles))]
         indices_ij = [(k,l) for k in [i:min(i+num_blocks-1, length(galaxy_circles))] for l in [j:min(j+num_blocks-1, length(galaxy_circles))]]
         above_diagonal = [k >= l for (k,l) in indices_ij]
-        if !all(above_diagonal
+        if !all(above_diagonal)
             subblock = build_distance_subblock(galaxy_list_i, galaxy_list_j)
             for ii in 1:size(subblock, 1)
                 for jj in 1:size(subblock, 2)
