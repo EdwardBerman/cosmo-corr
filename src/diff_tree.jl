@@ -1,10 +1,8 @@
 module diff_tree
 
 include("metrics.jl")
-include("kdtree.jl")
 
 using .metrics
-using .kdtree
 
 export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function
 
