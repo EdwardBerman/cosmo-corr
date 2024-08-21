@@ -625,7 +625,7 @@ module astrocorr
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     function corr_metric_default_vector_vector(c1,c2,c3,c4)
         k1 = sum([dot(c1[i], c2[j]) for i in 1:length(c1), j in 1:length(c2)])
-        k2 = sum([dot(c3[i], c4[j]) for i in 1:length(c3)], j in 1:length(c4))
+        k2 = sum([dot(c3[i], c4[j]) for i in 1:length(c3), j in 1:length(c4)])
         denominator = length(c1) * length(c2) + length(c3) * length(c4)
         return (k1 + k2) / denominator
     end
