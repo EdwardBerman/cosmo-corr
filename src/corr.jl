@@ -9,7 +9,7 @@ module astrocorr
     using .kmc
     using .estimators
 
-    export corr, naivecorr, clustercorr, treecorr_queue, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock
+    export corr, naivecorr, clustercorr, treecorr_queue, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock, shear, corr_metric_shear_minus, corr_metric_default_shear_shear
 
     using LinearAlgebra
     using Base.Threads
@@ -629,11 +629,12 @@ module astrocorr
         return (k1 + k2) / (length(c1) + length(c3))
     end
 
-    function rotate_shear(shear)
+    function rotate_shear(shear::shear)
+        shear = shear.tan_cross
         ϕ = π / 4
         shear_tan_cross_galaxy = @. -exp(-2im * ϕ) * (shear[1] + (shear[2] * 1im))
         gtan_galaxy, gcross_galaxy = @. real(shear_tan_cross_galaxy), imag(shear_tan_cross_galaxy)
-        return [gtan_galaxy, gcross_galaxy]
+        return shear([gtan_galaxy, gcross_galaxy])
     end
 
 
@@ -643,8 +644,8 @@ module astrocorr
         c3_rotated = [rotate_shear(c) for c in c3]
         c4_rotated = [rotate_shear(c) for c in c4]
 
-        k1 = sum(dot(c1_rotated[i], c2_rotated[i]) for i in 1:length(c1))
-        k2 = sum(dot(c3_rotated[i], c4_rotated[i]) for i in 1:length(c3))
+        k1 = sum(dot(c1_rotated[i].tan_cross, c2_rotated[i].tan_cross) for i in 1:length(c1))
+        k2 = sum(dot(c3_rotated[i].tan_cross, c4_rotated[i].tan_cross) for i in 1:length(c3))
 
         numerator = k1 + k2
         denominator = length(c1) + length(c3)
@@ -657,8 +658,8 @@ module astrocorr
         c3_rotated = [rotate_shear(c) for c in c3]
         c4_rotated = [rotate_shear(c) for c in c4]
 
-        k1 = sum(c1_rotated[i][1]*c2_rotated[i][1] - c1_rotated[i][2] for i in 1:length(c1))
-        k2 = sum(c3_rotated[i][1]*c4_rotated[i][1] - c3_rotated[i][2] for i in 1:length(c3))
+        k1 = sum(c1_rotated[i].tan_cross[1]*c2_rotated[i].tan_cross[1] - c1_rotated[i].tan_cross[2] for i in 1:length(c1))
+        k2 = sum(c3_rotated[i].tan_cross[1]*c4_rotated[i].tan_cross[1] - c3_rotated[i].tan_cross[2] for i in 1:length(c3))
         return (k1 + k2) / (length(c1) + length(c3))
     end
 
