@@ -624,9 +624,10 @@ module astrocorr
     
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     function corr_metric_default_vector_vector(c1,c2,c3,c4)
-        k1 = sum([dot(c1[i], c2[i]) for i in 1:length(c1)])
-        k2 = sum([dot(c3[i], c4[i]) for i in 1:length(c3)])
-        return (k1 + k2) / (length(c1) + length(c3))
+        k1 = sum([dot(c1[i], c2[j]) for i in 1:length(c1), j in 1:length(c2)])
+        k2 = sum([dot(c3[i], c4[j]) for i in 1:length(c3)], j in 1:length(c4))
+        denominator = length(c1) * length(c2) + length(c3) * length(c4)
+        return (k1 + k2) / denominator
     end
 
     function rotate_shear(shear::shear)
@@ -644,11 +645,11 @@ module astrocorr
         c3_rotated = [rotate_shear(c) for c in c3]
         c4_rotated = [rotate_shear(c) for c in c4]
 
-        k1 = sum(dot(c1_rotated[i].tan_cross, c2_rotated[i].tan_cross) for i in 1:length(c1))
-        k2 = sum(dot(c3_rotated[i].tan_cross, c4_rotated[i].tan_cross) for i in 1:length(c3))
+        k1 = sum(dot(c1_rotated[i].tan_cross, c2_rotated[j].tan_cross) for i in 1:length(c1), j in 1:length(c2))
+        k2 = sum(dot(c3_rotated[i].tan_cross, c4_rotated[j].tan_cross) for i in 1:length(c3), j in 1:length(c4))
 
         numerator = k1 + k2
-        denominator = length(c1) + length(c3)
+        denominator = length(c1) * length(c2) + length(c3) * length(c4)
         return numerator / denominator
     end
     
@@ -658,8 +659,8 @@ module astrocorr
         c3_rotated = [rotate_shear(c) for c in c3]
         c4_rotated = [rotate_shear(c) for c in c4]
 
-        k1 = sum(c1_rotated[i].tan_cross[1]*c2_rotated[i].tan_cross[1] - c1_rotated[i].tan_cross[2] for i in 1:length(c1))
-        k2 = sum(c3_rotated[i].tan_cross[1]*c4_rotated[i].tan_cross[1] - c3_rotated[i].tan_cross[2] for i in 1:length(c3))
+        k1 = sum(c1_rotated[i].tan_cross[1]*c2_rotated[j].tan_cross[1] - c1_rotated[i].tan_cross[2] for i in 1:length(c1), j in 1:length(c2))
+        k2 = sum(c3_rotated[i].tan_cross[1]*c4_rotated[j].tan_cross[1] - c3_rotated[i].tan_cross[2] for i in 1:length(c3), j in 1:length(c4))
         return (k1 + k2) / (length(c1) + length(c3))
     end
 
