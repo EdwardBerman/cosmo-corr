@@ -617,9 +617,24 @@ module astrocorr
 
         return ψ_θ
     end
-
+    
+    #c1 is galaxy 1 quantity 1, c2 is galaxy 2 quantity 2, c3 is galaxy 2 quantity 1, c4 is galaxy 1 quantity 2
+    
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
     corr_metric_default_vector_vector(c1,c2,c3,c4) = (sum(dot(v1, v2) for (v1, v2) in zip(c1, c2)) + sum(dot(v3, v4) for (v3, v4) in zip(c3, c4))) / (length(c1) + length(c3))
+    
+    function corr_metric_default_shear_shear(c1,c2,c3,c4)
+        k1 = sum(v1.gtan * v2.gtan + v1.gcross * v2.gcross for (v1, v2) in zip(c1, c2))
+        k2 = sum(v3.gtan * v4.gtan + v3.gcross * v4.gcross for (v3, v4) in zip(c3, c4))
+        return (k1 + k2) / (length(c1) + length(c3))
+    end
+    
+    function corr_metric_shear_minus(c1,c2,c3,c4)
+        k1 = sum(v1.gtan * v2.gtan - v1.gcross * v2.gcross for (v1, v2) in zip(c1, c2))
+        k2 = sum(v3.gtan * v4.gtan - v3.gcross * v4.gcross for (v3, v4) in zip(c3, c4))
+        return (k1 + k2) / (length(c1) + length(c3))
+    end
+
     function ξ_plus(c1, c2, c3, c4)
         return corr_metric_default_vector_vector(c1, c2, c3, c4)
     end
@@ -921,6 +936,39 @@ module astrocorr
             sky_metric=Vincenty_Formula,
             kmeans_metric=Vincenty,
             corr_metric=corr_metric_default_vector_vector,
+            correlator=treecorr_stack,
+            max_depth=100,
+            bin_slop=nothing,
+            verbose=false)
+        return correlator(ra, 
+                          dec, 
+                          x, 
+                          y, 
+                          θ_min, 
+                          number_bins, 
+                          θ_max, 
+                          cluster_factor=cluster_factor, 
+                          spacing=spacing, 
+                          sky_metric=sky_metric,
+                          kmeans_metric=kmeans_metric,
+                          corr_metric=corr_metric, 
+                          max_depth=max_depth,
+                          bin_slop=bin_slop,
+                          verbose=verbose)
+    end
+    
+    function corr(ra::Vector{Float64}, 
+            dec::Vector{Float64}, 
+            x::Vector{shear}, 
+            y::Vector{shear},
+            θ_min::Float64, 
+            number_bins::Int64, 
+            θ_max::Float64; 
+            cluster_factor=0.25,
+            spacing=log, 
+            sky_metric=Vincenty_Formula,
+            kmeans_metric=Vincenty,
+            corr_metric=corr_metric_default_shear_shear,
             correlator=treecorr_stack,
             max_depth=100,
             bin_slop=nothing,
