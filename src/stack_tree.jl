@@ -1,4 +1,4 @@
-module diff_tree
+module stack_tree
 
 include("metrics.jl")
 

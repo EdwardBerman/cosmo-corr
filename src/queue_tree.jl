@@ -1,4 +1,4 @@
-module kdtree 
+module queue_tree
 
 include("metrics.jl")
 using .metrics
