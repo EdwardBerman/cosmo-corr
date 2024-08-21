@@ -1,4 +1,4 @@
-module Shear
+module shear_ellipticity
     export shear
 
     struct shear
