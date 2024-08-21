@@ -196,7 +196,7 @@ for i in 1:length(number)
             # check which distances are in bin i
         end
     end
-    #calculate the correlation function in bin i
+    #calculate the correlation function in bin i using the estimator function acting on the leaves
 end
 
 println(mean([length(leaf) for leaf in output]))
