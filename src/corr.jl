@@ -619,7 +619,19 @@ module astrocorr
     #c1 is galaxy 1 quantity 1, c2 is galaxy 2 quantity 2, c3 is galaxy 2 quantity 1, c4 is galaxy 1 quantity 2
     
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
-    corr_metric_default_vector_vector(c1,c2,c3,c4) = (sum(dot(v1, v2) for (v1, v2) in zip(c1, c2)) + sum(dot(v3, v4) for (v3, v4) in zip(c3, c4))) / (length(c1) + length(c3))
+    function corr_metric_default_vector_vector(c1,c2,c3,c4) 
+        ϕ = π / 4
+        shear_tan_cross_galaxy_one = @. -exp(-2im * ϕ) * (c1 + (c2 * 1im))
+        gtan_galaxy_one, gcross_galaxy_one = @. real(shear_tan_cross_galaxy_one), imag(shear_tan_cross_galaxy_one)
+        shear_tan_cross_galaxy_two = @. -exp(-2im * ϕ) * (c3 + (c4 * 1im))
+        gtan_galaxy_two, gcross_galaxy_two = @. real(shear_tan_cross_galaxy_two), imag(shear_tan_cross_galaxy_two)
+        numerator = 0
+        for i in 1:length(c1)
+            numerator += gtan_galaxy_one[i] * gtan_galaxy_two[i] + gcross_galaxy_one[i] * gcross_galaxy_two[i]
+        end
+        denominator = length(c1)
+        return numerator / denominator
+    end
     
     function corr_metric_default_shear_shear(c1,c2,c3,c4)
         k1 = sum(v1.gtan * v2.gtan + v1.gcross * v2.gcross for (v1, v2) in zip(c1, c2))
@@ -635,6 +647,20 @@ module astrocorr
 
     function ξ_plus(c1, c2, c3, c4)
         return corr_metric_default_vector_vector(c1, c2, c3, c4)
+    end
+
+    function ξ_minus(c1, c2, c3, c4)
+        ϕ = π / 4
+        shear_tan_cross_galaxy_one = @. -exp(-2im * ϕ) * (c1 + (c2 * 1im))
+        gtan_galaxy_one, gcross_galaxy_one = @. real(shear_tan_cross_galaxy_one), imag(shear_tan_cross_galaxy_one)
+        shear_tan_cross_galaxy_two = @. -exp(-2im * ϕ) * (c3 + (c4 * 1im))
+        gtan_galaxy_two, gcross_galaxy_two = @. real(shear_tan_cross_galaxy_two), imag(shear_tan_cross_galaxy_two)
+        numerator = 0
+        for i in 1:length(c1)
+            numerator += gtan_galaxy_one[i] * gtan_galaxy_two[i] - gcross_galaxy_one[i] * gcross_galaxy_two[i]
+        end
+        denominator = length(c1)
+        return numerator / denominator
     end
     corr_metric_default_position_position(c1,c2,c3,c4) = length(c1)
 
