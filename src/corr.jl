@@ -29,6 +29,10 @@ module astrocorr
         corr2::Vector{Any}
     end
 
+    struct shear
+        tan_cross::Vector{Float64}
+    end
+
     struct Position_RA_DEC
         ra::Float64
         dec::Float64
@@ -619,29 +623,42 @@ module astrocorr
     #c1 is galaxy 1 quantity 1, c2 is galaxy 2 quantity 2, c3 is galaxy 2 quantity 1, c4 is galaxy 1 quantity 2
     
     corr_metric_default_scalar_scalar(c1,c2,c3,c4) = (sum(c1 .* c2) + sum(c3 .* c4)) / (length(c1) + length(c3))
-    function corr_metric_default_vector_vector(c1,c2,c3,c4) 
+    function corr_metric_default_vector_vector(c1,c2,c3,c4)
+        k1 = sum([dot(c1[i], c2[i]) for i in 1:length(c1)])
+        k2 = sum([dot(c3[i], c4[i]) for i in 1:length(c3)])
+        return (k1 + k2) / (length(c1) + length(c3))
+    end
+
+    function rotate_shear(shear)
         ϕ = π / 4
-        shear_tan_cross_galaxy_one = @. -exp(-2im * ϕ) * (c1 + (c2 * 1im))
-        gtan_galaxy_one, gcross_galaxy_one = @. real(shear_tan_cross_galaxy_one), imag(shear_tan_cross_galaxy_one)
-        shear_tan_cross_galaxy_two = @. -exp(-2im * ϕ) * (c3 + (c4 * 1im))
-        gtan_galaxy_two, gcross_galaxy_two = @. real(shear_tan_cross_galaxy_two), imag(shear_tan_cross_galaxy_two)
-        numerator = 0
-        for i in 1:length(c1)
-            numerator += gtan_galaxy_one[i] * gtan_galaxy_two[i] + gcross_galaxy_one[i] * gcross_galaxy_two[i]
-        end
-        denominator = length(c1)
+        shear_tan_cross_galaxy = @. -exp(-2im * ϕ) * (shear[1] + (shear[2] * 1im))
+        gtan_galaxy, gcross_galaxy = @. real(shear_tan_cross_galaxy), imag(shear_tan_cross_galaxy)
+        return [gtan_galaxy, gcross_galaxy]
+    end
+
+
+    function corr_metric_default_shear_shear(c1,c2,c3,c4) 
+        c1_rotated = [rotate_shear(c) for c in c1]
+        c2_rotated = [rotate_shear(c) for c in c2]
+        c3_rotated = [rotate_shear(c) for c in c3]
+        c4_rotated = [rotate_shear(c) for c in c4]
+
+        k1 = sum(dot(c1_rotated[i], c2_rotated[i]) for i in 1:length(c1))
+        k2 = sum(dot(c3_rotated[i], c4_rotated[i]) for i in 1:length(c3))
+
+        numerator = k1 + k2
+        denominator = length(c1) + length(c3)
         return numerator / denominator
     end
     
-    function corr_metric_default_shear_shear(c1,c2,c3,c4)
-        k1 = sum(v1.gtan * v2.gtan + v1.gcross * v2.gcross for (v1, v2) in zip(c1, c2))
-        k2 = sum(v3.gtan * v4.gtan + v3.gcross * v4.gcross for (v3, v4) in zip(c3, c4))
-        return (k1 + k2) / (length(c1) + length(c3))
-    end
-    
     function corr_metric_shear_minus(c1,c2,c3,c4)
-        k1 = sum(v1.gtan * v2.gtan - v1.gcross * v2.gcross for (v1, v2) in zip(c1, c2))
-        k2 = sum(v3.gtan * v4.gtan - v3.gcross * v4.gcross for (v3, v4) in zip(c3, c4))
+        c1_rotated = [rotate_shear(c) for c in c1]
+        c2_rotated = [rotate_shear(c) for c in c2]
+        c3_rotated = [rotate_shear(c) for c in c3]
+        c4_rotated = [rotate_shear(c) for c in c4]
+
+        k1 = sum(c1_rotated[i][1]*c2_rotated[i][1] - c1_rotated[i][2] for i in 1:length(c1))
+        k2 = sum(c3_rotated[i][1]*c4_rotated[i][1] - c3_rotated[i][2] for i in 1:length(c3))
         return (k1 + k2) / (length(c1) + length(c3))
     end
 
