@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import numpy as np
 import jax.numpy as jnp
-from jax import random, jit, grad
+from jax import random, jit, grad, value_and_grad
 
 @dataclass
 class Galaxy:
@@ -50,6 +50,23 @@ class FCM:
         self.update_membership(X)
         return jnp.argmax(self.u, axis=1)
 
+    def create_new_galaxies(self, X, quantities):
+        new_galaxies = []
+        for c in range(self.n_clusters):
+            centroid = self.cluster_centers_[c]
+            u_m = self.u[:, c] ** self.m
+            weighted_quantities = (u_m[:, None] * quantities).sum(axis=0) / u_m.sum()
+
+            new_galaxy = jnp.array([
+                centroid[0],  # ra
+                centroid[1],  # dec
+                weighted_quantities[0],  # quantity_one
+                weighted_quantities[1]   # quantity_two
+            ])
+            new_galaxies.append(new_galaxy)
+
+        return jnp.array(new_galaxies)
+
 def compute_weights(X, key):
     fcm = FCM(n_clusters=2, m=2.0, max_iter=100)
     weight_matrix = fcm.fit(X, key)
@@ -63,15 +80,27 @@ galaxies = [
     Galaxy(32.0, 42.0, 0.9, 1.0)
 ]
 
-# Extract positions (ra and dec) as input data
-positions = jnp.array([[galaxy.ra, galaxy.dec] for galaxy in galaxies], dtype=jnp.float32)
+def compute_new_galaxies(positions, quantities, key):
+    fcm = FCM(n_clusters=2, m=2.0, max_iter=100)
+    fcm.fit(positions, key)
+    new_galaxies = fcm.create_new_galaxies(positions, quantities)
+    return new_galaxies
 
-# Compute the weight matrix
+def compute_component(positions, quantities, key, idx, component_idx):
+    fcm = FCM(n_clusters=2, m=2.0, max_iter=100)
+    fcm.fit(positions, key)
+    new_galaxies = fcm.create_new_galaxies(positions, quantities)
+    return new_galaxies[idx, component_idx]
+
+# Use JAX's grad to get the derivatives
 key = random.PRNGKey(0)
-weight_matrix = compute_weights(positions, key)
+positions = jnp.array([[galaxy.ra, galaxy.dec] for galaxy in galaxies], dtype=jnp.float32)
+quantities = jnp.array([[galaxy.quantity_one, galaxy.quantity_two] for galaxy in galaxies], dtype=jnp.float32)
 
-# Compute the gradient of the weight matrix with respect to the positions
-grad_weights = grad(lambda X: jnp.sum(compute_weights(X, key)))(positions)
-
-print("Weight Matrix (Membership Matrix):\n", weight_matrix)
-print("Weight Matrix Gradient:\n", grad_weights)
+# Select a specific galaxy to compute gradients with respect to
+galaxy_idx = 0  # Index of the first galaxy
+for component_idx, component_name in enumerate(["ra", "dec", "quantity_one", "quantity_two"]):
+    grad_func = grad(lambda p, q: compute_component(p, q, key, galaxy_idx, component_idx))
+    galaxy_grads = grad_func(positions, quantities)
+    print(f"Gradients of {component_name} with respect to positions:\n", galaxy_grads[0])
+    print(f"Gradients of {component_name} with respect to quantities:\n", galaxy_grads[1])
