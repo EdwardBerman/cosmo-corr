@@ -10,6 +10,7 @@ using AbstractTrees
 using Statistics
 using Base.Threads
 using UnicodePlots
+using ProgressBars
 
 using Zygote
 using Statistics
@@ -154,7 +155,7 @@ positions = hcat(rand_ra, rand_dec)
 quantities_one = rand(length(rand_ra))  # 100 random quantities
 quantities_two = rand(length(rand_ra))  # 100 random quantities
 galaxies = [diff_Galaxy(positions[i, 1], positions[i, 2], quantities_one[i], quantities_two[i]) for i in 1:size(positions, 1)]
-hyperparams = hyperparameters(0.06, 2000000.0, 1.0)
+hyperparams = hyperparameters(0.12, 2000000.0, 1.0)
 @time begin
     output = diff_kd_tree(galaxies, hyperparams)
 end
@@ -171,10 +172,10 @@ galaxy_circles = [diff_galaxy_circle([mean([galaxy.ra for galaxy in leaf]), mean
 
 block_size = 100
 number = 5
-for i in 1:length(number)
+for i in 1:number
     bin_i = []
     for i in 1:block_size:length(galaxy_circles)
-        for j in 1:block_size:length(galaxy_circles)
+        for j in ProgressBar(1:block_size:length(galaxy_circles))
             galaxy_list_i = galaxy_circles[i:min(i+block_size-1, length(galaxy_circles))]
             galaxy_list_j = galaxy_circles[j:min(j+block_size-1, length(galaxy_circles))]
             indices_ij = [(k,l) for k in [i:min(i+block_size-1, length(galaxy_circles))] for l in [j:min(j+block_size-1, length(galaxy_circles))]]
@@ -190,8 +191,10 @@ for i in 1:length(number)
                         end
                     end
                 end
-                subblock = subblock[.!isnan.(subblock)]
+                subblock = subblock[typeof.(subblock) .!= typeof(NaN)]
                 push!(bin_i, subblock...)
+            else
+                println("All elements above diagonal")
             end
             # check which distances are in bin i
         end

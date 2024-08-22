@@ -199,7 +199,6 @@ module astrocorr
         return ψ_θ
     end
     
-    #= In progress
     function treecorr_stack(ra, 
             dec, 
             corr1, 
@@ -246,7 +245,7 @@ module astrocorr
             println("Populating KDTree")
         end
 
-        leaves = diff_kd_tree(galaxies, θ_bins, bin_size, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth, bin_slop=bin_slop) # b = Δ (ln d) 
+        tree = populate(galaxies, θ_bins, bin_size, sky_metric=sky_metric, splitter=splitter, max_depth=max_depth, bin_slop=bin_slop) # b = Δ (ln d) 
         
         if verbose
             println("Populated KDTree")
@@ -350,7 +349,6 @@ module astrocorr
        
         return ψ_θ
     end
-    =#
     
     function clustercorr(ra,
             dec, 
