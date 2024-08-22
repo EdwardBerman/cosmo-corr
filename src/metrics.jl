@@ -84,12 +84,12 @@ end
 function build_distance_matrix_subblock(galaxy_circles_a, galaxy_circles_b; metric=Vincenty_Formula)
     n = length(galaxy_circles_a)
     m = length(galaxy_circles_b)
-    distance_matrix = zeros(n, m)
+    distance_matrix = Matrix{Any}(undef, n, m)
     @threads for i in 1:n
         for j in 1:m
-            distance_matrix[i,j] = (metric((galaxy_circles_a[i].center[1], galaxy_circles_a[i].center[2]), 
-                                           (galaxy_circles_a[j].center[1], galaxy_circles_b[j].center[2])), 
-                                    galaxy_circles_a[i], galaxy_circles_b[j])
+            cood1 = (galaxy_circles_a[i].center[1], galaxy_circles_a[i].center[2])
+            cood2 = (galaxy_circles_b[j].center[1], galaxy_circles_b[j].center[2])
+            distance_matrix[i,j] = (metric(cood1, cood2), galaxy_circles_a[i], galaxy_circles_b[j])
         end
     end
     return distance_matrix

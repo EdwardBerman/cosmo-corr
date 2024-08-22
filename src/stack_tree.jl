@@ -4,7 +4,7 @@ include("metrics.jl")
 
 using .metrics
 
-export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function, diff_Galaxy_Circle, calculate_radius
+export diff_Galaxy, hyperparameters, diff_kd_tree, estimator, generate_output, combined_function, diff_galaxy_circle, calculate_radius
 
 using AbstractTrees
 using Statistics
@@ -23,8 +23,8 @@ struct diff_Galaxy
     corr2::Any
 end
 
-mutable struct diff_Galaxy_Circle{T, r, g}
-    center::Vector{T}
+mutable struct diff_galaxy_circle{t, r, g}
+    center::Vector{t}
     radius::r
     galaxies::Vector{g}
 end
@@ -162,25 +162,25 @@ end
 
 ra_leaves = [mean([galaxy.ra for galaxy in leaf]) for leaf in output]
 dec_leaves = [mean([galaxy.dec for galaxy in leaf]) for leaf in output]
-scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
-println(scatterplot_galaxies)
-println(length(output))
-println(maximum([length(leaf) for leaf in output]))
+#scatterplot_galaxies = scatterplot(ra_leaves, dec_leaves, title="Object Positions", xlabel="RA", ylabel="DEC")
+#println(scatterplot_galaxies)
+#println(length(output))
+#println(maximum([length(leaf) for leaf in output]))
 
-galaxy_circles = [diff_Galaxy_Circle([mean([galaxy.ra for galaxy in leaf]), mean([galaxy.dec for galaxy in leaf])], calculate_radius(leaf), leaf) for leaf in output]
+galaxy_circles = [diff_galaxy_circle([mean([galaxy.ra for galaxy in leaf]), mean([galaxy.dec for galaxy in leaf])], calculate_radius(leaf), leaf) for leaf in output]
 
-num_blocks = 100
-num_bins = number
+block_size = 100
+number = 5
 for i in 1:length(number)
     bin_i = []
-    for i in 1:num_blocks:length(galaxy_circles)
-        for j in 1:num_blocks:length(galaxy_circles)
-            galaxy_list_i = galaxy_circles[i:min(i+num_blocks-1, length(galaxy_circles))]
-            galaxy_list_j = galaxy_circles[j:min(j+num_blocks-1, length(galaxy_circles))]
-            indices_ij = [(k,l) for k in [i:min(i+num_blocks-1, length(galaxy_circles))] for l in [j:min(j+num_blocks-1, length(galaxy_circles))]]
+    for i in 1:block_size:length(galaxy_circles)
+        for j in 1:block_size:length(galaxy_circles)
+            galaxy_list_i = galaxy_circles[i:min(i+block_size-1, length(galaxy_circles))]
+            galaxy_list_j = galaxy_circles[j:min(j+block_size-1, length(galaxy_circles))]
+            indices_ij = [(k,l) for k in [i:min(i+block_size-1, length(galaxy_circles))] for l in [j:min(j+block_size-1, length(galaxy_circles))]]
             above_diagonal = [k >= l for (k,l) in indices_ij]
             if !all(above_diagonal)
-                subblock = build_distance_subblock(galaxy_list_i, galaxy_list_j)
+                subblock = build_distance_matrix_subblock(galaxy_list_i, galaxy_list_j)
                 for ii in 1:size(subblock, 1)
                     for jj in 1:size(subblock, 2)
                         global_i = i + ii - 1
@@ -190,9 +190,9 @@ for i in 1:length(number)
                         end
                     end
                 end
+                subblock = subblock[.!isnan.(subblock)]
+                push!(bin_i, subblock...)
             end
-            subblock = subblock[.!isnan.(subblock)]
-            push!(bin_i, subblock...)
             # check which distances are in bin i
         end
     end
