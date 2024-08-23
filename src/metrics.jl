@@ -43,6 +43,7 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     return Δσ * (180 / π) * 60 
 end
 
+
 struct Vincenty <: SemiMetric end
 
 function (d::Vincenty)(point1, point2)
@@ -73,7 +74,7 @@ function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
     n = length(ra)
     coords = [(ra[i], dec[i]) for i in 1:n]
     distance_matrix = zeros(n, n)
-    @threads for i in 1:n
+    for i in 1:n
         for j in 1:i-1
             distance_matrix[i,j] = metric(coords[i], coords[j])
         end
@@ -87,9 +88,9 @@ function build_distance_matrix_subblock(galaxy_circles_a, galaxy_circles_b; metr
     distance_matrix = Matrix{Any}(undef, n, m)
     @threads for i in 1:n
         for j in 1:m
-            cood1 = (galaxy_circles_a[i].center[1], galaxy_circles_a[i].center[2])
-            cood2 = (galaxy_circles_b[j].center[1], galaxy_circles_b[j].center[2])
-            distance_matrix[i,j] = (metric(cood1, cood2), galaxy_circles_a[i], galaxy_circles_b[j])
+            coord1 = (galaxy_circles_a[i].center[1], galaxy_circles_a[i].center[2])
+            coord2 = (galaxy_circles_b[j].center[1], galaxy_circles_b[j].center[2])
+            distance_matrix[i,j] = (metric(coord1, coord2), galaxy_circles_a[i], galaxy_circles_b[j])
         end
     end
     return distance_matrix
