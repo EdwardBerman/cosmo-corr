@@ -74,7 +74,7 @@ function build_distance_matrix(ra, dec; metric=Vincenty_Formula)
     n = length(ra)
     coords = [(ra[i], dec[i]) for i in 1:n]
     distance_matrix = zeros(n, n)
-    for i in 1:n
+    @threads for i in 1:n
         for j in 1:i-1
             distance_matrix[i,j] = metric(coords[i], coords[j])
         end
@@ -86,7 +86,7 @@ function build_distance_matrix_subblock(galaxy_circles_a, galaxy_circles_b; metr
     n = length(galaxy_circles_a)
     m = length(galaxy_circles_b)
     distance_matrix = Matrix{Any}(undef, n, m)
-    @threads for i in 1:n
+    for i in 1:n
         for j in 1:m
             coord1 = (galaxy_circles_a[i].center[1], galaxy_circles_a[i].center[2])
             coord2 = (galaxy_circles_b[j].center[1], galaxy_circles_b[j].center[2])
