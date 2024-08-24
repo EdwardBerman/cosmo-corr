@@ -192,7 +192,7 @@ for i in 1:number
                     end
                 end
                 subblock = subblock[typeof.(subblock) .!= typeof(NaN)]
-                push!(bin_i, subblock...)
+                bin_i = vcat(bin_i, subblock)
             else
                 println("All elements above diagonal")
             end
