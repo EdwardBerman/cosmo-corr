@@ -1,4 +1,5 @@
 using Zygote
+using UnicodePlots
 
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
@@ -54,7 +55,7 @@ end
 function fuzzy_c_means(data, n_clusters, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     nrows, ncols = size(data)
     centers = rand(nrows, n_clusters)
-    weights = rand(nrows, n_clusters)
+    weights = rand(ncols, n_clusters)
     current_iteration = 0
     while current_iteration < max_iter
         old_centers = copy(centers)
@@ -74,6 +75,12 @@ end
 
 data = hcat([90 .* rand(2) for i in 1:100]...)  # Each column is a data point (2x100 matrix)
 centers, weights = fuzzy_c_means(data, 3, 2.0)
+println(size(centers))
+println(size(weights))
+
+println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
+println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
+
 
 #=
 # Define the range filtering function
