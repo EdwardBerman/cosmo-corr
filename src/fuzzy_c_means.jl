@@ -39,24 +39,16 @@ end
 function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
     nrows, ncols = size(current_weights)
+    ϵ = 1e-10
     dists = [dist_metric(data[:,i], centers[:,j]) for i in 1:size(data,2), j in 1:size(centers,2)]
-    weights = [1.0 / sum((dists[i,j]/dists[i,k])^pow for k in 1:ncols) for i in 1:nrows, j in 1:ncols]
+    weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:ncols) for i in 1:nrows, j in 1:ncols]
     return weights
 end
 
 function calculate_centers(current_centers, data, weights, fuzziness)
     nrows, ncols = size(weights)
-    T = eltype(centers)
-    for j in 1:ncols
-        num = zeros(T, size(data,1))
-        den = zero(T)
-        for i in 1:nrows
-            δm = weights[i,j]^fuzziness
-            num += δm * data[:,i]
-            den += δm
-        end
-        centers[:,j] = num/den
-    end
+    centers = hcat([sum(weights[i,j]^fuzziness * data[:,i] for i in 1:nrows) / sum(weights[i,j]^fuzziness for i in 1:nrows) for j in 1:ncols]...)
+    return centers
 end
 
 function fuzzy_c_means(data, n_clusters, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
@@ -65,14 +57,23 @@ function fuzzy_c_means(data, n_clusters, fuzziness, dist_metric=Vincenty_Formula
     weights = rand(nrows, n_clusters)
     current_iteration = 0
     while current_iteration < max_iter
+        old_centers = copy(centers)
+        old_weights = copy(weights)
+        println("Iteration: ", current_iteration)
+        println("Centers: ", centers)
+        println("Weights: ", weights)
         centers = calculate_centers(centers, data, weights, fuzziness)
         weights = calculate_weights(weights, data, centers, fuzziness, dist_metric)
-        if sum(abs2, new_centers - centers) < tol
+        current_iteration += 1
+        if sum(abs2, weights - old_weights) < tol
             break
         end
+    end
     return centers, weights
 end
 
+data = hcat([90 .* rand(2) for i in 1:100]...)  # Each column is a data point (2x100 matrix)
+centers, weights = fuzzy_c_means(data, 3, 2.0)
 
 #=
 # Define the range filtering function
