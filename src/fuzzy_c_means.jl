@@ -71,7 +71,7 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
 end
 
 data = hcat([90 .* rand(2) for i in 1:100]...)  
-n_clusters = 5
+n_clusters = 20
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
@@ -81,14 +81,36 @@ centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, 
 println(size(centers))
 println(size(weights))
 
-grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
-grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
+m, n = 1, 1  
+@time begin
+    grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
+    println("Gradient with respect to data", grad_data)
+    println(size(grad_data))
+    println(size(grad_data[1]))
+end
+@time begin
+    grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
+    println("Gradient with respect to data", grad_data)
+end
 
-println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
-println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
-println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
-println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
-println([sum(weights[i,:]) for i in 1:size(weights,1)])
+
+
+#println("Gradients with respect to data for centers: ", grads_one)
+#println("Gradients with respect to data for weights: ", grads_two)
+
+    #grads_one = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
+    #grads_two = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
+#println("Gradient with respect to data[$m, $n] for centers: ", grad_center_single)
+#println("Gradient with respect to data[$m, $n] for weights: ", grad_weight_single)
+
+#grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
+#grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
+
+#println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
+#println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
+#println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
+#println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
+#println([sum(weights[i,:]) for i in 1:size(weights,1)])
 
 
 #=
