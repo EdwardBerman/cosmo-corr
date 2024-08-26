@@ -1,6 +1,6 @@
 using Zygote
 using UnicodePlots
-
+using Random
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
     ϕ2, λ2 = coord2
@@ -52,17 +52,13 @@ function calculate_centers(current_centers, data, weights, fuzziness)
     return centers
 end
 
-function fuzzy_c_means(data, n_clusters, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
-    nrows, ncols = size(data)
-    centers = rand(nrows, n_clusters)
-    weights = rand(ncols, n_clusters)
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
+    centers = initial_centers
+    weights = initial_weights
     current_iteration = 0
     while current_iteration < max_iter
         old_centers = copy(centers)
         old_weights = copy(weights)
-        println("Iteration: ", current_iteration)
-        println("Centers: ", centers)
-        println("Weights: ", weights)
         centers = calculate_centers(centers, data, weights, fuzziness)
         weights = calculate_weights(weights, data, centers, fuzziness, dist_metric)
         current_iteration += 1
@@ -73,10 +69,17 @@ function fuzzy_c_means(data, n_clusters, fuzziness, dist_metric=Vincenty_Formula
     return centers, weights
 end
 
-data = hcat([90 .* rand(2) for i in 1:100]...)  # Each column is a data point (2x100 matrix)
-centers, weights = fuzzy_c_means(data, 3, 2.0)
+data = hcat([90 .* rand(2) for i in 1:100]...)  
+n_clusters = 3
+nrows, ncols = size(data)
+initial_centers = rand(nrows, n_clusters)
+initial_weights = rand(ncols, n_clusters)
+centers, weights = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 println(size(centers))
 println(size(weights))
+
+grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
+grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
 
 println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
 println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
