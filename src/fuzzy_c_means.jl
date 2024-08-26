@@ -1,6 +1,7 @@
 using Zygote
 using UnicodePlots
 using Random
+
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
     ϕ2, λ2 = coord2
@@ -66,15 +67,17 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
             break
         end
     end
-    return centers, weights
+    return centers, weights, current_iteration
 end
 
 data = hcat([90 .* rand(2) for i in 1:100]...)  
-n_clusters = 3
+n_clusters = 5
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
-centers, weights = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
+centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
+@info "Converged in $iterations iterations"
+
 println(size(centers))
 println(size(weights))
 
@@ -83,6 +86,9 @@ grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initi
 
 println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
 println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
+println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
+println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
+println([sum(weights[i,:]) for i in 1:size(weights,1)])
 
 
 #=
