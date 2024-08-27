@@ -70,8 +70,13 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
     return centers, weights, current_iteration
 end
 
-data = hcat([90 .* rand(2) for i in 1:100]...)  
-n_clusters = 20
+
+function fuzzy_c_means_splat(n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000, data...)
+    return fuzzy_c_means(hcat(data...), n_clusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
+end
+
+data = hcat([90 .* rand(2) for i in 1:1000]...)  
+n_clusters = 5
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
@@ -85,13 +90,13 @@ m, n = 1, 1
 @time begin
     grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
     println("Gradient with respect to data", grad_data)
-    println(size(grad_data))
     println(size(grad_data[1]))
+    println(heatmap(grad_data[1]', title="Gradient with respect to data", xlabel="Longitude", ylabel="Latitude", colormap=:coolwarm))
 end
-@time begin
-    grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
-    println("Gradient with respect to data", grad_data)
-end
+#@time begin
+ #   grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
+  #  println("Gradient with respect to data", grad_data)
+#end
 
 
 
@@ -106,10 +111,10 @@ end
 #grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
 #grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
 
-#println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
-#println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
-#println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
-#println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
+println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
+println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
+println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
+println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
 #println([sum(weights[i,:]) for i in 1:size(weights,1)])
 
 
