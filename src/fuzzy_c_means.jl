@@ -72,15 +72,18 @@ end
 
 
 function fuzzy_c_means_splat(n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000, data...)
-    return fuzzy_c_means(hcat(data...), n_clusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
+    data_collected = collect(data)
+    data_reshaped = reshape(data_collected, length(data) ÷ 2, 2)'
+    return fuzzy_c_means(data_reshaped, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
 end
 
-data = hcat([90 .* rand(2) for i in 1:1000]...)  
+data = hcat([90 .* rand(2) for i in 1:100]...)  
 n_clusters = 5
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
-centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
+centers, weights, iterations = fuzzy_c_means_splat(n_clusters, initial_centers, initial_weights, 2.0, Vincenty_Formula, 1e-6, 1000, data...)
+#centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
 
 println(size(centers))
