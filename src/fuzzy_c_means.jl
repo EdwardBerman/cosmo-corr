@@ -81,20 +81,9 @@ centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, 
 println(size(centers))
 println(size(weights))
 
-function data_to_matrix(data...)
-    formatted_data = reshape(collect(data), 2, :)
-    return formatted_data
-end
-
-function combine_vectors_to_matrix(vec1::Vector, vec2::Vector, datapoint)
-    # Convert vectors to column matrices
-    mat1 = reshape(vec1, :, 1)
-    mat2 = reshape(vec2, :, 1)
-    
-    # Combine the matrices and the data point into one matrix
-    result_matrix = hcat(mat1, mat2, [datapoint])
-    
-    return result_matrix
+function combine_vectors_to_matrix(vec1, datapoint, vec2)
+    result = vcat(vec1, datapoint, vec2)
+    return result
 end
 
 
