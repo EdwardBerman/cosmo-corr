@@ -70,26 +70,26 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
     return centers, weights, current_iteration
 end
 
-
-function fuzzy_c_means_splat(n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000, data...)
-    data_collected = collect(data)
-    data_reshaped = reshape(data_collected, length(data) ÷ 2, 2)'
-    return fuzzy_c_means(data_reshaped, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-end
-
 data = hcat([90 .* rand(2) for i in 1:100]...)  
 n_clusters = 5
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
-centers, weights, iterations = fuzzy_c_means_splat(n_clusters, initial_centers, initial_weights, 2.0, Vincenty_Formula, 1e-6, 1000, data...)
-#centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
+centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
 
 println(size(centers))
 println(size(weights))
 
-m, n = 1, 1  
+m, n = 2, 3  
+
+d = vec(data)
+d_elem = d[m*2 + n]
+println(d_elem)
+d_start = d[1:m*2 + n-1]
+d_end = d[m*2 + n+1:end]
+
+
 @time begin
     grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
     println("Gradient with respect to data", grad_data)
