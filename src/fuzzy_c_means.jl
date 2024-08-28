@@ -86,7 +86,24 @@ function combine_vectors_to_matrix(vec1, datapoint, vec2)
     return result
 end
 
+function build_cluster_distance_matrix(centers, dist_metric=Vincenty_Formula)
+    nrows, ncols = size(centers)
+    dists = [i <= j ? 0 : dist_metric(centers[:,i], centers[:,j]) for i in 1:ncols, j in 1:ncols]
+    return dists
+end
 
+function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) where T
+    return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
+end
+
+function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
+    data = hcat([ra, dec]...)
+    centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
+    @info "Converged in $iterations iterations"
+    nrows, ncols = size(data)
+    dists = build_cluster_distance_matrix(centers, dist_metric)
+    return dists
+end
 
 @time begin
     grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
@@ -125,7 +142,6 @@ function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) wher
     return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
 end
 
-# Define the function that outputs sums for different increments
 function sum_intervals(matrix::AbstractMatrix{T}) where T
     return [sum(filter_in_range(matrix, min_val, min_val + 0.1)) for min_val in 0:0.1:0.9]
 end
