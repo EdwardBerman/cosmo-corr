@@ -70,6 +70,11 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
     return centers, weights, current_iteration
 end
 
+function weighted_average(data, weights)
+    nrows, ncols = size(weights)
+    return [sum(weights[i,j] * data[i] for i in 1:nrows) for j in 1:ncols]
+end
+
 data = hcat([90 .* rand(2) for i in 1:100]...)  
 n_clusters = 5
 nrows, ncols = size(data)
