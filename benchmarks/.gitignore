@@ -13,3 +13,11 @@ f115w_cosmo_corr.fits
 f150w_cosmo_corr.fits
 f277w_cosmo_corr.fits
 f444w_cosmo_corr.fits
+f115w_training_catalog.fits
+f150w_training_catalog.fits
+f277w_training_catalog.fits
+f444w_training_catalog.fits
+f115w_validation_catalog.fits
+f150w_validation_catalog.fits
+f277w_validation_catalog.fits
+f444w_validation_catalog.fits
