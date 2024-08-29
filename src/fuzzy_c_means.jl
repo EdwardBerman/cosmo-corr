@@ -76,6 +76,13 @@ function weighted_average(quantity, weights)
     return weighted_average_normalized
 end
 
+function weighted_average(quantity, weights)
+    weighted_sum = quantity' * weights  
+    sum_weights = sum(weights, dims=1)
+    weighted_average = weighted_sum ./ sum_weights
+    return weighted_average
+end
+
 data = hcat([90 .* rand(2) for i in 1:100]...)  
 n_clusters = 5
 nrows, ncols = size(data)
