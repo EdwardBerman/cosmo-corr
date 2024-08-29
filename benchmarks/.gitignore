@@ -9,3 +9,7 @@ psf_fits_f115w.fits
 psf_fits_f150w.fits
 psf_fits_f277w.fits
 psf_fits_f444w.fits
+f115w_cosmo_corr.fits
+f150w_cosmo_corr.fits
+f277w_cosmo_corr.fits
+f444w_cosmo_corr.fits
