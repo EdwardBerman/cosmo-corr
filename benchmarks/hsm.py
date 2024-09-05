@@ -19,15 +19,11 @@ class PSF_fit:
     #chi2: float
 
 
-polydeg = 1
-polydim = 2
-nparams = np.prod([polydeg+i+1 for i in range(polydim)])/polydim
-
 psf_fits = []
 
 file_names = ['f115w_validation_split_augmented_resized.fits', 'f150w_validation_split_augmented_resized.fits']
 
-fits_file_name = file_names[0]
+fits_file_name = file_names[1]
 
 f = fits.open(fits_file_name)
 
