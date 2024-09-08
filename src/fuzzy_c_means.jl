@@ -77,23 +77,23 @@ function weighted_average(quantity, weights)
     return weighted_average
 end
 
-function weighted_average(quantities_matrix, weights)
-    weighted_sum = quantities_matrix' * weights
-    sum_weights = sum(weights, dims=1)
-    weighted_average = weighted_sum ./ sum_weights
-    return weighted_average
-end
-
 data = hcat([90 .* rand(2) for i in 1:100]...)  
-n_clusters = 5
+shear_one = rand(100)
+shear_two = rand(100)
+n_clusters = 3
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
 centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
 
-println(size(centers))
-println(size(weights))
+weighted_shear_one = weighted_average(shear_one, weights)
+weighted_shear_two = weighted_average(shear_two, weights)
+
+fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:n_clusters]
+fuzzy_distances = [(fuzzy_galaxies[i], 
+                    fuzzy_galaxies[j], 
+                    Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:n_clusters, j in 1:n_clusters if i < j] 
 
 function combine_vectors_to_matrix(vec1, datapoint, vec2)
     result = vcat(vec1, datapoint, vec2)
