@@ -111,7 +111,7 @@ end
 function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     data = hcat([ra, dec]...)
     x = cos.(dec) .* cos.(ra)
-    y = cos.(dec) .* sin.(ra)
+    y = cos.(dec) .* sin.(ra) # normalize x y z?
     ϕ = [atan(y[i], x[i]) for i in 1:size(x,1)]
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
