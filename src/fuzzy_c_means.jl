@@ -167,7 +167,7 @@ function fuzzy_correlator(ra,
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
     #binned_fuzzy_distances = ...
-    correlations = [mean([fuzzy_shear_rotator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distance[i]]) for i in 1:number_bins]
+    return correlations = [mean([fuzzy_shear_rotator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distance[i]]) for i in 1:number_bins]
 end
 
 @time begin
