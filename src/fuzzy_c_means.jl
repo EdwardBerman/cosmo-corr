@@ -138,7 +138,7 @@ function fuzzy_shear_rotator(fuzzy_distance)
     return dot(shear_one, shear_two_rotated) + dot(shear_two, shear_one_rotated)
 end
 
-function correlator(ra, 
+function fuzzy_correlator(ra, 
         dec, 
         quantity_one, 
         quantity_two, 
@@ -176,56 +176,9 @@ end
     println(size(grad_data[1]))
     println(heatmap(grad_data[1]', title="Gradient with respect to data", xlabel="Longitude", ylabel="Latitude", colormap=:coolwarm))
 end
-#@time begin
- #   grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
-  #  println("Gradient with respect to data", grad_data)
-#end
-
-
-
-#println("Gradients with respect to data for centers: ", grads_one)
-#println("Gradients with respect to data for weights: ", grads_two)
-
-    #grads_one = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
-    #grads_two = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
-#println("Gradient with respect to data[$m, $n] for centers: ", grad_center_single)
-#println("Gradient with respect to data[$m, $n] for weights: ", grad_weight_single)
-
-#grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
-#grads = gradient(x -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[2]), data)
 
 println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
 println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
 println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
 println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
-#println([sum(weights[i,:]) for i in 1:size(weights,1)])
 
-
-#=
-# Define the range filtering function
-function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) where T
-    return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
-end
-
-function sum_intervals(matrix::AbstractMatrix{T}) where T
-    return [sum(filter_in_range(matrix, min_val, min_val + 0.1)) for min_val in 0:0.1:0.9]
-end
-
-# Example usage
-matrix = rand(3, 3)  # A 3x3 random matrix
-
-# Compute the sum over all intervals
-interval_sums = sum_intervals(matrix)
-println(interval_sums)
-
-# Compute the Jacobian with respect to the input matrix
-jac = Zygote.jacobian(sum_intervals, matrix)
-
-# Output
-println("Original Matrix:")
-println(matrix)
-println("\nSums for Each Interval:")
-println(interval_sums)
-println("\nJacobian of the Sums w.r.t. the Input Matrix:")
-println(jac[1])
-=#
