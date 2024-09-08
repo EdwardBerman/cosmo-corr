@@ -103,23 +103,57 @@ end
 function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) where T
     return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
 end
-
-function fuzzy_shear_estimator(fuzzy_distance)
-    return mean(dot(fuzzy_distance[1][3], fuzzy_distance[2][4]) + dot(fuzzy_distance[1][4], fuzzy_distances[2][3]))
+    
+function rotate_shear(shear::shear)
+    shear = shear.tan_cross
+    ϕ = π / 4
+    shear_tan_cross_galaxy = @. -exp(-2im * ϕ) * (shear[1] + (shear[2] * 1im))
+    gtan_galaxy, gcross_galaxy = @. real(shear_tan_cross_galaxy), imag(shear_tan_cross_galaxy)
+    return shear([gtan_galaxy, gcross_galaxy])
 end
 
-function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
-    data = hcat([ra, dec]...)
-    α_0, δ_0= mean(ra), mean(dec)
-    
-    numerator_x = cos(dec) .* cos(ra - α_0)
-    denominator_x = cos(δ_0) .* cos(dec) .* cos(ra - α_0) .+ sin(δ_0) .* sin(dec)
-    x = numerator_x ./ denominator_x
+function fuzzy_shear_rotator(fuzzy_distance)
+    ra1, dec1, ra2, dec2 = fuzzy_distance[1][1], fuzzy_distance[1][2], fuzzy_distance[2][1], fuzzy_distance[2][2]
+    x1, y1, z1 = cos(ra1) * cos(dec1), sin(ra1) * cos(dec1), sin(dec1)
+    x2, y2, z2 = cos(ra2) * cos(dec2), sin(ra2) * cos(dec2), sin(dec2)
 
-    numerator_y = sin(δ_0) .* cos(dec) .* cos(ra - α_0) .- cos(δ_0) .* sin(dec)
-    denominator_y = cos(δ_0) .* cos(dec) .* cos(ra - α_0) .+ sin(δ_0) .* sin(dec)
-    y = numerator_y ./ denominator_y
-    ϕ = [atan(y[i], x[i]) for i in 1:size(x,1)]
+    euclidean_distance_squared = (x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2
+    cosA = (z1 - z2) + 0.5 * z2 * dsq
+    sinA = y1 * x2 - x1 * y2
+    ϕ1 = Complex(sinA, -cosA) 
+    cosA = (z2 - z1) + 0.5 * z1 * dsq
+    sinA = y2 * x1 - x2 * y1
+    ϕ2 = Complex(sinA, -cosA)
+
+    shear_one = fuzzy_distance[1][3:4]
+    shear_two = fuzzy_distance[2][3:4]
+
+    shear_one_weight_one = shear_one[1]
+    shear_two_weight_two = shear_two[2]
+    shear_one_weight_two = shear_one[2]
+    shear_two_weight_one = shear_two[1]
+
+    ϕ2 =
+    shear_one_rotated = @. -exp(-2im * ϕ1) * (shear_one_weight_one + (shear_one_weight_two * 1im))
+    shear_two_rotated = @. -exp(-2im * ϕ2) * (shear_two_weight_one + (shear_two_weight_two * 1im))
+
+    return dot(shear_one, shear_two_rotated) + dot(shear_two, shear_one_rotated)
+end
+
+function correlator(ra, 
+        dec, 
+        quantity_one, 
+        quantity_two, 
+        nclusters, 
+        initial_centers, 
+        initial_weights, 
+        number_bins,
+        fuzziness=2.0, 
+        dist_metric=Vincenty_Formula, 
+        tol=1e-6, 
+        max_iter=1000)
+
+    data = hcat([ra, dec]...)
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
     weighted_shear_one = [weighted_average(quantity_one[1], weights), weighted_average(quantity_one[2], weights)]
@@ -129,7 +163,7 @@ function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_cent
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
     #binned_fuzzy_distances = ...
-    correlations = [fuzzy_shear_estimator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distances]
+    correlations = [mean([fuzzy_shear_rotator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distance[i]]) for i in 1:number_bins]
 end
 
 @time begin
