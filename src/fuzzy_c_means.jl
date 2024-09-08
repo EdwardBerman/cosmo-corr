@@ -120,10 +120,13 @@ function fuzzy_shear_rotator(fuzzy_distance)
     euclidean_distance_squared = (x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2
     cosA = (z1 - z2) + 0.5 * z2 * euclidean_distance_squared
     sinA = y1 * x2 - x1 * y2
-    ϕ1 = Complex(sinA, -cosA) 
+    r2 = Complex(sinA, -cosA) # because we are computing the direction of 2 in the frame of 1, we do r2 
+    ϕ2 = Real(conj(r2) * r2 / norm(r2)^2) # imaginary component is zero, but we cast as real regardless
+    
     cosA = (z2 - z1) + 0.5 * z1 * euclidean_distance_squared
     sinA = y2 * x1 - x2 * y1
-    ϕ2 = Complex(sinA, -cosA)
+    r1 = Complex(sinA, -cosA) 
+    ϕ1 = Real(conj(r1) * r1 / norm(r1)^2)
 
     shear_one = fuzzy_distance[1][3:4]
     shear_two = fuzzy_distance[2][3:4]
