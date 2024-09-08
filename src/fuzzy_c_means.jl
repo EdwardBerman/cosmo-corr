@@ -110,8 +110,15 @@ end
 
 function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     data = hcat([ra, dec]...)
-    x = cos.(dec) .* cos.(ra)
-    y = cos.(dec) .* sin.(ra) # normalize x y z?
+    α_0, δ_0= mean(ra), mean(dec)
+    
+    numerator_x = cos(dec) .* cos(ra - α_0)
+    denominator_x = cos(δ_0) .* cos(dec) .* cos(ra - α_0) .+ sin(δ_0) .* sin(dec)
+    x = numerator_x ./ denominator_x
+
+    numerator_y = sin(δ_0) .* cos(dec) .* cos(ra - α_0) .- cos(δ_0) .* sin(dec)
+    denominator_y = cos(δ_0) .* cos(dec) .* cos(ra - α_0) .+ sin(δ_0) .* sin(dec)
+    y = numerator_y ./ denominator_y
     ϕ = [atan(y[i], x[i]) for i in 1:size(x,1)]
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
