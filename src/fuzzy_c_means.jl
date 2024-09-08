@@ -38,6 +38,10 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     return Δσ * (180 / π) * 60 
 end
 
+struct shear
+    tan_cross::Vector{Float64}
+end
+
 function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
     nrows, ncols = size(current_weights)
@@ -150,8 +154,14 @@ function correlator(ra,
     data = hcat([ra, dec]...)
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-    weighted_shear_one = [weighted_average(quantity_one[:,1], weights), weighted_average(quantity_one[:,2], weights)]
-    weighted_shear_two = [weighted_average(quantity_two[:,1], weights), weighted_average(quantity_two[:,2], weights)]
+    
+    quantity_one_shear_one = [quantity_one.tan_cross[1] for i in 1:length(quantity_one)]
+    quantity_one_shear_two = [quantity_one.tan_cross[2] for i in 1:length(quantity_one)]
+    quantity_two_shear_one = [quantity_two.tan_cross[1] for i in 1:length(quantity_two)]
+    quantity_two_shear_two = [quantity_two.tan_cross[2] for i in 1:length(quantity_two)]
+
+    weighted_shear_one = [weighted_average(quantity_one_shear_one, weights), weighted_average(quantity_one_shear_two, weights)]
+    weighted_shear_two = [weighted_average(quantity_two_shear_one, weights), weighted_average(quantity_two_shear_two, weights)]
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
