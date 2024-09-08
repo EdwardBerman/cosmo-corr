@@ -150,8 +150,8 @@ function correlator(ra,
     data = hcat([ra, dec]...)
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-    weighted_shear_one = [weighted_average(quantity_one[1], weights), weighted_average(quantity_one[2], weights)]
-    weighted_shear_two = [weighted_average(quantity_two[1], weights), weighted_average(quantity_two[2], weights)]
+    weighted_shear_one = [weighted_average(quantity_one[:,1], weights), weighted_average(quantity_one[:,2], weights)]
+    weighted_shear_two = [weighted_average(quantity_two[:,1], weights), weighted_average(quantity_two[:,2], weights)]
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
