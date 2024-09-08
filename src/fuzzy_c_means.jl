@@ -133,7 +133,6 @@ function fuzzy_shear_rotator(fuzzy_distance)
     shear_one_weight_two = shear_one[2]
     shear_two_weight_one = shear_two[1]
 
-    ϕ2 =
     shear_one_rotated = @. -exp(-2im * ϕ1) * (shear_one_weight_one + (shear_one_weight_two * 1im))
     shear_two_rotated = @. -exp(-2im * ϕ2) * (shear_two_weight_one + (shear_two_weight_two * 1im))
 
