@@ -71,13 +71,14 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
 end
 
 function weighted_average(quantity, weights)
-    weighted_average = weights' * quantity
-    weighted_average_normalized = [weighted_average[i] / sum(weights[i,:]) for i in 1:size(weights,1)]
-    return weighted_average_normalized
+    weighted_sum = quantity' * weights  
+    sum_weights = sum(weights, dims=1)
+    weighted_average = weighted_sum ./ sum_weights
+    return weighted_average
 end
 
-function weighted_average(quantity, weights)
-    weighted_sum = quantity' * weights  
+function weighted_average(quantities_matrix, weights)
+    weighted_sum = quantities_matrix' * weights
     sum_weights = sum(weights, dims=1)
     weighted_average = weighted_sum ./ sum_weights
     return weighted_average
