@@ -104,14 +104,6 @@ function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) wher
     return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
 end
     
-function rotate_shear(shear::shear)
-    shear = shear.tan_cross
-    ϕ = π / 4
-    shear_tan_cross_galaxy = @. -exp(-2im * ϕ) * (shear[1] + (shear[2] * 1im))
-    gtan_galaxy, gcross_galaxy = @. real(shear_tan_cross_galaxy), imag(shear_tan_cross_galaxy)
-    return shear([gtan_galaxy, gcross_galaxy])
-end
-
 function fuzzy_shear_rotator(fuzzy_distance)
     ra1, dec1, ra2, dec2 = fuzzy_distance[1][1], fuzzy_distance[1][2], fuzzy_distance[2][1], fuzzy_distance[2][2]
     x1, y1, z1 = cos(ra1) * cos(dec1), sin(ra1) * cos(dec1), sin(dec1)
