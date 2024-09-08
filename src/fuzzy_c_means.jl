@@ -113,10 +113,12 @@ end
 function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     data = hcat([ra, dec]...)
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-    @info "Converged in $iterations iterations"
-    nrows, ncols = size(data)
-    dists = build_cluster_distance_matrix(centers, dist_metric)
-    return dists
+    weighted_quantity_one = weighted_average(quantity_one, weights)
+    weighted_quantity_two = weighted_average(quantity_two, weights)
+    fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_quantity_one[i], weighted_quantity_two[i]] for i in 1:nclusters]
+    fuzzy_distances = [(fuzzy_galaxies[i], 
+                        fuzzy_galaxies[j], 
+                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
 end
 
 @time begin
