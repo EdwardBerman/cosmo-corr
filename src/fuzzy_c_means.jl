@@ -100,25 +100,25 @@ function combine_vectors_to_matrix(vec1, datapoint, vec2)
     return result
 end
 
-function build_cluster_distance_matrix(centers, dist_metric=Vincenty_Formula)
-    nrows, ncols = size(centers)
-    dists = [i <= j ? 0 : dist_metric(centers[:,i], centers[:,j]) for i in 1:ncols, j in 1:ncols]
-    return dists
-end
-
 function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) where T
     return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
+end
+
+function fuzzy_shear_estimator(fuzzy_distance)
+    return mean(dot(fuzzy_distance[1][3], fuzzy_distance[2][4]) + dot(fuzzy_distance[1][4], fuzzy_distances[2][3]))
 end
 
 function correlator(ra, dec, quantity_one, quantity_two, nclusters, initial_centers, initial_weights, fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     data = hcat([ra, dec]...)
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-    weighted_quantity_one = weighted_average(quantity_one, weights)
-    weighted_quantity_two = weighted_average(quantity_two, weights)
-    fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_quantity_one[i], weighted_quantity_two[i]] for i in 1:nclusters]
+    weighted_shear_one = [weighted_average(quantity_one[1], weights), weighted_average(quantity_one[2], weights)]
+    weighted_shear_two = [weighted_average(quantity_two[1], weights), weighted_average(quantity_two[2], weights)]
+    fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
+    #binned_fuzzy_distances = ...
+    correlations = [fuzzy_shear_estimator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distances]
 end
 
 @time begin
