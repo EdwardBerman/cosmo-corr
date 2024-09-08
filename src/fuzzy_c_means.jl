@@ -118,10 +118,10 @@ function fuzzy_shear_rotator(fuzzy_distance)
     x2, y2, z2 = cos(ra2) * cos(dec2), sin(ra2) * cos(dec2), sin(dec2)
 
     euclidean_distance_squared = (x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2
-    cosA = (z1 - z2) + 0.5 * z2 * dsq
+    cosA = (z1 - z2) + 0.5 * z2 * euclidean_distance_squared
     sinA = y1 * x2 - x1 * y2
     ϕ1 = Complex(sinA, -cosA) 
-    cosA = (z2 - z1) + 0.5 * z1 * dsq
+    cosA = (z2 - z1) + 0.5 * z1 * euclidean_distance_squared
     sinA = y2 * x1 - x2 * y1
     ϕ2 = Complex(sinA, -cosA)
 
