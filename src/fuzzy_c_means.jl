@@ -107,38 +107,41 @@ end
 function filter_in_range(matrix::AbstractMatrix{T}, min_val::T, max_val::T) where T
     return map(x -> (x > min_val && x <= max_val) ? x : zero(T), matrix)
 end
+
+function calculate_direction(x_1, x_2, y_1, y_2, z_1, z_2)
+    euclidean_distance_squared = (x_2 - x_1)^2 + (y_2 - y_1)^2 + (z_2 - z_1)^2
+    cosA = (z_1 - z_2) + 0.5 * z_2 * euclidean_distance_squared
+    sinA = y_1 * x_2 - x_1 * y_2
+    r = Complex(sinA, -cosA) 
+    return r 
+end
     
 function fuzzy_shear_rotator(fuzzy_distance)
     ra1, dec1, ra2, dec2 = fuzzy_distance[1][1], fuzzy_distance[1][2], fuzzy_distance[2][1], fuzzy_distance[2][2]
     x1, y1, z1 = cos(ra1) * cos(dec1), sin(ra1) * cos(dec1), sin(dec1)
     x2, y2, z2 = cos(ra2) * cos(dec2), sin(ra2) * cos(dec2), sin(dec2)
 
-    euclidean_distance_squared = (x2 - x1)^2 + (y2 - y1)^2 + (z2 - z1)^2
-    cosA = (z1 - z2) + 0.5 * z2 * euclidean_distance_squared
-    sinA = y1 * x2 - x1 * y2
-    r2 = Complex(sinA, -cosA) # because we are computing the direction of 2 in the frame of 1, we do r2 
-    ϕ2 = real(conj(r2) * r2 / norm(r2)^2) # imaginary component is zero, but we cast as real regardless
-    
-    cosA = (z2 - z1) + 0.5 * z1 * euclidean_distance_squared
-    sinA = y2 * x1 - x2 * y1
-    r1 = Complex(sinA, -cosA) 
-    ϕ1 = real(conj(r1) * r1 / norm(r1)^2)
+    r21 = calculate_direction(x2, x1, y2, y1, z2, z1)
+    ϕ21 = real(conj(r2) * r2 / norm(r2)^2)
+
+    r12 = calculate_direction(x1, x2, y1, y2, z1, z2)
+    ϕ12 = real(conj(r1) * r1 / norm(r1)^2)
 
     object_one_shear_one = fuzzy_distance[1][3]
     object_one_shear_two = fuzzy_distance[1][4]
     object_two_shear_one = fuzzy_distance[2][3]
     object_two_shear_two = fuzzy_distance[2][4]
 
-    object_one_shear_one_rotated_factor = -exp(-2im * ϕ1) * (object_one_shear_one[1] + (object_one_shear_one[2] * 1im))
+    object_one_shear_one_rotated_factor = -exp(-2im * ϕ12) * (object_one_shear_one[1] + (object_one_shear_one[2] * 1im))
     object_one_shear_one_rotated = [real(object_one_shear_one_rotated_factor), imag(object_one_shear_one_rotated_factor)]
     
-    object_two_shear_two_rotated_factor = -exp(-2im * ϕ2) * (object_two_shear_two[1] + (object_two_shear_two[2] * 1im))
+    object_two_shear_two_rotated_factor = -exp(-2im * ϕ21) * (object_two_shear_two[1] + (object_two_shear_two[2] * 1im))
     object_two_shear_two_rotated = [real(object_two_shear_two_rotated_factor), imag(object_two_shear_two_rotated_factor)]
 
-    object_one_shear_two_rotated_factor = -exp(-2im * ϕ1) * (object_one_shear_two[1] + (object_one_shear_two[2] * 1im))
+    object_one_shear_two_rotated_factor = -exp(-2im * ϕ12) * (object_one_shear_two[1] + (object_one_shear_two[2] * 1im))
     object_one_shear_two_rotated = [real(object_one_shear_two_rotated_factor), imag(object_one_shear_two_rotated_factor)]
 
-    object_two_shear_one_rotated_factor = -exp(-2im * ϕ2) * (object_two_shear_one[1] + (object_two_shear_one[2] * 1im))
+    object_two_shear_one_rotated_factor = -exp(-2im * ϕ21) * (object_two_shear_one[1] + (object_two_shear_one[2] * 1im))
     object_two_shear_one_rotated = [real(object_two_shear_one_rotated_factor), imag(object_two_shear_one_rotated_factor)]
 
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
