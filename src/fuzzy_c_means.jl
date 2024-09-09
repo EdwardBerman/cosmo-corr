@@ -117,7 +117,7 @@ function fuzzy_shear_rotator(fuzzy_distance)
     cosA = (z1 - z2) + 0.5 * z2 * euclidean_distance_squared
     sinA = y1 * x2 - x1 * y2
     r2 = Complex(sinA, -cosA) # because we are computing the direction of 2 in the frame of 1, we do r2 
-    ϕ2 = Real(conj(r2) * r2 / norm(r2)^2) # imaginary component is zero, but we cast as real regardless
+    ϕ2 = real(conj(r2) * r2 / norm(r2)^2) # imaginary component is zero, but we cast as real regardless
     
     cosA = (z2 - z1) + 0.5 * z1 * euclidean_distance_squared
     sinA = y2 * x1 - x2 * y1
