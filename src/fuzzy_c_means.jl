@@ -122,20 +122,26 @@ function fuzzy_shear_rotator(fuzzy_distance)
     cosA = (z2 - z1) + 0.5 * z1 * euclidean_distance_squared
     sinA = y2 * x1 - x2 * y1
     r1 = Complex(sinA, -cosA) 
-    ϕ1 = Real(conj(r1) * r1 / norm(r1)^2)
+    ϕ1 = real(conj(r1) * r1 / norm(r1)^2)
 
-    shear_one = fuzzy_distance[1][3:4]
-    shear_two = fuzzy_distance[2][3:4]
+    object_one_shear_one = fuzzy_distance[1][3]
+    object_one_shear_two = fuzzy_distance[1][4]
+    object_two_shear_one = fuzzy_distance[2][3]
+    object_two_shear_two = fuzzy_distance[2][4]
 
-    shear_one_weight_one = shear_one[1]
-    shear_two_weight_two = shear_two[2]
-    shear_one_weight_two = shear_one[2]
-    shear_two_weight_one = shear_two[1]
+    object_one_shear_one_rotated_factor = -exp(-2im * ϕ1) * (object_one_shear_one[1] + (object_one_shear_one[2] * 1im))
+    object_one_shear_one_rotated = [real(object_one_shear_one_rotated_factor), imag(object_one_shear_one_rotated_factor)]
+    
+    object_two_shear_two_rotated_factor = -exp(-2im * ϕ2) * (object_two_shear_two[1] + (object_two_shear_two[2] * 1im))
+    object_two_shear_two_rotated = [real(object_two_shear_two_rotated_factor), imag(object_two_shear_two_rotated_factor)]
 
-    shear_one_rotated = @. -exp(-2im * ϕ1) * (shear_one_weight_one + (shear_one_weight_two * 1im))
-    shear_two_rotated = @. -exp(-2im * ϕ2) * (shear_two_weight_one + (shear_two_weight_two * 1im))
+    object_one_shear_two_rotated_factor = -exp(-2im * ϕ1) * (object_one_shear_two[1] + (object_one_shear_two[2] * 1im))
+    object_one_shear_two_rotated = [real(object_one_shear_two_rotated_factor), imag(object_one_shear_two_rotated_factor)]
 
-    return dot(shear_one, shear_two_rotated) + dot(shear_two, shear_one_rotated)
+    object_two_shear_one_rotated_factor = -exp(-2im * ϕ2) * (object_two_shear_one[1] + (object_two_shear_one[2] * 1im))
+    object_two_shear_one_rotated = [real(object_two_shear_one_rotated_factor), imag(object_two_shear_one_rotated_factor)]
+
+    return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
 end
 
 function fuzzy_correlator(ra, 
