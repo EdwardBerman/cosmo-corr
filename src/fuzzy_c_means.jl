@@ -116,7 +116,7 @@ function calculate_direction(x_1, x_2, y_1, y_2, z_1, z_2)
     return r 
 end
     
-function fuzzy_shear_rotator(fuzzy_distance)
+function fuzzy_shear_estimator(fuzzy_distance)
     ra1, dec1, ra2, dec2 = fuzzy_distance[1][1], fuzzy_distance[1][2], fuzzy_distance[2][1], fuzzy_distance[2][2]
     x1, y1, z1 = cos(ra1) * cos(dec1), sin(ra1) * cos(dec1), sin(dec1)
     x2, y2, z2 = cos(ra2) * cos(dec2), sin(ra2) * cos(dec2), sin(dec2)
@@ -176,7 +176,9 @@ function fuzzy_correlator(ra,
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
     #binned_fuzzy_distances = ...
-    return correlations = [mean([fuzzy_shear_rotator(fuzzy_distance) for fuzzy_distance in binned_fuzzy_distance[i]]) for i in 1:number_bins]
+    fuzzy_estimates = [[fuzzy_shear_estimator(fuzzy_distance) for fuzzy_distance in fuzzy_distance_bin] for fuzzy_distance_bin in binned_fuzzy_distances]
+    fuzzy_correlations = [sum(fuzzy_estimate)/(2*length(fuzzy_estimate)) for fuzzy_estimate in fuzzy_estimates]
+    return fuzzy_correlations
 end
 
 @time begin
