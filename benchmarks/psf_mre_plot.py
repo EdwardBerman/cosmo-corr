@@ -53,7 +53,7 @@ def extract_3_numbers(filename):
     return matches
 
 
-mre_name = "f115w_mosaic_mock_mre_psfex.png"
+mre_name = "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_mosaic_mock_mre_psfex.png"
 
 mean_relative_error_plot_psfex = ctp.mean_relative_error_plot(catalog(f115w_cat_name), epsfex(''))
 mean_relative_error_plot_psfex.preprocessing()
@@ -64,7 +64,7 @@ mean_relative_error_plot_psfex.set_titles([f'Median Star F115W', f'Median PSFex 
 mean_relative_error_plot_psfex.save_figure(outname=mre_name)
 
 
-mre_name = "f150w_mosaic_mock_mre_psfex.png"
+mre_name = "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f150w_mosaic_mock_mre_psfex.png"
 
 mean_relative_error_plot_psfex = ctp.mean_relative_error_plot(catalog(f150w_cat_name), epsfex(''))
 mean_relative_error_plot_psfex.preprocessing()

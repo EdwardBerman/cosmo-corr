@@ -122,10 +122,10 @@ function fuzzy_shear_estimator(fuzzy_distance)
     x2, y2, z2 = cos(ra2) * cos(dec2), sin(ra2) * cos(dec2), sin(dec2)
 
     r21 = calculate_direction(x2, x1, y2, y1, z2, z1)
-    ϕ21 = real(conj(r2) * r2 / norm(r2)^2)
+    ϕ21 = real(conj(r2) * r2 / norm(r2)^2) # rotating 2 in the direction of 1
 
     r12 = calculate_direction(x1, x2, y1, y2, z1, z2)
-    ϕ12 = real(conj(r1) * r1 / norm(r1)^2)
+    ϕ12 = real(conj(r1) * r1 / norm(r1)^2) # rotating 1 in the direction of 2
 
     object_one_shear_one = fuzzy_distance[1][3]
     object_one_shear_two = fuzzy_distance[1][4]
@@ -158,6 +158,7 @@ function fuzzy_correlator(ra,
         fuzziness=2.0, 
         dist_metric=Vincenty_Formula, 
         tol=1e-6, 
+        verbose=false,
         max_iter=1000)
 
     data = hcat([ra, dec]...)
