@@ -164,6 +164,10 @@ function fuzzy_correlator(ra,
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
     
+    if verbose == true
+        println("Fuzzy C Means Converged in $iterations iterations")
+    end
+    
     quantity_one_shear_one = [quantity_one.tan_cross[1] for i in 1:length(quantity_one)]
     quantity_one_shear_two = [quantity_one.tan_cross[2] for i in 1:length(quantity_one)]
     quantity_two_shear_one = [quantity_two.tan_cross[1] for i in 1:length(quantity_two)]
