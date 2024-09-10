@@ -38,8 +38,8 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     return Δσ * (180 / π) * 60 
 end
 
-struct shear
-    tan_cross::Vector{Float64}
+struct fuzzy_shear
+    shear::Vector{Float64}
 end
 
 function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
@@ -169,10 +169,10 @@ function fuzzy_correlator(ra,
         println("Fuzzy C Means Converged in $iterations iterations")
     end
     
-    quantity_one_shear_one = [quantity_one.tan_cross[1] for i in 1:length(quantity_one)]
-    quantity_one_shear_two = [quantity_one.tan_cross[2] for i in 1:length(quantity_one)]
-    quantity_two_shear_one = [quantity_two.tan_cross[1] for i in 1:length(quantity_two)]
-    quantity_two_shear_two = [quantity_two.tan_cross[2] for i in 1:length(quantity_two)]
+    quantity_one_shear_one = [quantity_one.shear[1] for i in 1:length(quantity_one)]
+    quantity_one_shear_two = [quantity_one.shear[2] for i in 1:length(quantity_one)]
+    quantity_two_shear_one = [quantity_two.shear[1] for i in 1:length(quantity_two)]
+    quantity_two_shear_two = [quantity_two.shear[2] for i in 1:length(quantity_two)]
 
     weighted_shear_one = [weighted_average(quantity_one_shear_one, weights), weighted_average(quantity_one_shear_two, weights)]
     weighted_shear_two = [weighted_average(quantity_two_shear_one, weights), weighted_average(quantity_two_shear_two, weights)]

@@ -45,7 +45,7 @@ set_rc_params(fontsize=14)
 f115w = fits.open('f115w_validation_split_augmented_resized_xy_info.fits')
 f150w = fits.open('f150w_validation_split_augmented_resized_xy_info.fits')
 
-f115w_hsm = f115w[1].data
+f115w_hsm = f150w[1].data
 
 sig_vignet = f115w_hsm['sig_vignet']
 g1_vignet = f115w_hsm['g1_vignet']
@@ -194,4 +194,4 @@ ax_divider = make_axes_locatable(ax[2])
 cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
 cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
 
-plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_hsm_quiver.png', dpi=300)
+plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f150w_hsm_quiver.png', dpi=300)
