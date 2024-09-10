@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import colors
 from matplotlib import rc
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 def set_rc_params(fontsize=None):
     '''
@@ -41,8 +42,8 @@ def set_rc_params(fontsize=None):
 
 set_rc_params(fontsize=14)
 
-f115w = fits.open('f115w_validation_split_augmented_resized_hsm_info.fits')
-f150w = fits.open('f150w_validation_split_augmented_resized_hsm_info.fits')
+f115w = fits.open('f115w_validation_split_augmented_resized_xy_info.fits')
+f150w = fits.open('f150w_validation_split_augmented_resized_xy_info.fits')
 
 f115w_hsm = f115w[1].data
 
@@ -89,9 +90,10 @@ std_residual_sigma = np.std(sig_residual)
 
 scale_units = 'width' # For quiver plots
 norm = colors.CenteredNorm(vcenter=median_sigma_vignet, halfrange=0.06)
-div_norm = colors.CenteredNorm(vcenter=vc2, halfrange=0.05)
+div_norm = colors.CenteredNorm(vcenter=0, halfrange=0.05)
 
 qkey_scale = 0.05
+scale=1
 qkey_label = r'$e_{HSM} = {%.2f}$' % qkey_scale
 fontprops = {'size':14, 'weight':'bold'}
 
@@ -130,30 +132,66 @@ psf_title = \
 resid_title = \
     'median $\sigma^{resid}_{HSM} = %.2f$ mas; $e^{resid}_{HSM} = %.5f$'\
                 % (median_residual_sigma*1000, median_residual_e)
-'''
-        for i, dc in enumerate(dicts):
-            # Set up masks for really circular objects
-            min_ellip = 0.01
 
-            # Define the minimum ellipse size and create a mask of circles
-            mask = dc.e <= min_ellip
-            round = axs[i].scatter(self.x[mask], self.y[mask], s=9,
-                        facecolor='black', edgecolors='black')
+min_ellip = 0.01
+mask = e_vignet <= min_ellip
+fig, ax = plt.subplots(1, 3, figsize=(16, 16))
+round = ax[0].scatter(f115w_hsm['x'][mask], f115w_hsm['y'][mask], s=9,
+            facecolor='black', edgecolors='black')
+mask = e_vignet > min_ellip
+q = ax[0].quiver(
+    f115w_hsm['x'][mask], f115w_hsm['y'][mask],
+    e1_vignet[mask], e2_vignet[mask], sig_vignet[mask],
+    angles=np.rad2deg(theta_vignet[mask]), **q_dict
+)
+key = ax[0].quiverkey(q, **qkey_dict)
+lx, rx = ax[0].get_xlim()
+ly, ry = ax[0].get_ylim()
+ax[0].set_xlim(lx-2000, rx+2000)
+ax[0].set_ylim(ly-500, ry+500)
+ax[0].set_title(star_title)
+ax_divider = make_axes_locatable(ax[0])
+cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
+cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
 
-            mask = dc.e > min_ellip
-            q = axs[i].quiver(
-                self.x[mask], self.y[mask],
-                dc.e1[mask], dc.e2[mask], dc.sigma[mask],
-                angles=np.rad2deg(dc.theta[mask]), **quiver_dict
-            )
-            # adjust x, y limits
-            lx, rx = axs[i].get_xlim()
-            axs[i].set_xlim(lx-2000, rx+2000)
-            ly, ry = axs[i].get_ylim()
-            axs[i].set_ylim(ly-500, ry+500)
-            key = axs[i].quiverkey(q, **qkey_dict)
-            ax_divider = make_axes_locatable(axs[i])
-            cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
-            cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
-            axs[i].set_title(titles[i])
-'''
+mask = e_psfex <= min_ellip
+ax[1].scatter(f115w_hsm['x'][mask], f115w_hsm['y'][mask], s=9,
+            facecolor='black', edgecolors='black')
+mask = e_psfex > min_ellip
+
+q = ax[1].quiver(
+    f115w_hsm['x'][mask], f115w_hsm['y'][mask],
+    e1_psfex[mask], e2_psfex[mask], sig_psfex[mask],
+    angles=np.rad2deg(theta_psfex[mask]), **q_dict
+)
+
+key = ax[1].quiverkey(q, **qkey_dict)
+lx, rx = ax[1].get_xlim()
+ly, ry = ax[1].get_ylim()
+ax[1].set_xlim(lx-2000, rx+2000)
+ax[1].set_ylim(ly-500, ry+500)
+ax[1].set_title(psf_title)
+ax_divider = make_axes_locatable(ax[1])
+cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
+cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
+
+mask = e_residual <= min_ellip
+ax[2].scatter(f115w_hsm['ra'][mask], f115w_hsm['dec'][mask], s=9,
+            facecolor='black', edgecolors='black')
+mask = e_residual > min_ellip
+q = ax[2].quiver(
+    f115w_hsm['x'][mask], f115w_hsm['y'][mask],
+    e1_residual[mask], e2_residual[mask], sig_residual[mask],
+    angles=np.rad2deg(theta_residual[mask]), **q_dict
+)
+key = ax[2].quiverkey(q, **qkey_dict)
+lx, rx = ax[2].get_xlim()
+ly, ry = ax[2].get_ylim()
+ax[2].set_xlim(lx-2000, rx+2000)
+ax[2].set_ylim(ly-500, ry+500)
+ax[2].set_title(resid_title)
+ax_divider = make_axes_locatable(ax[2])
+cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
+cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
+
+plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_hsm_quiver.png', dpi=300)
