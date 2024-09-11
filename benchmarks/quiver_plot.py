@@ -194,8 +194,10 @@ ax_divider = make_axes_locatable(ax[2])
 cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
 cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
 
-print(np.mean(g1_vignet), np.mean(g2_vignet), np.mean(sig_vignet))
-print(np.mean(g1_psfex), np.mean(g2_psfex), np.mean(sig_psfex))
+print("Vignet:")
+print(f'g1 = {np.mean(g1_vignet)} +/- {np.std(g1_vignet)}, g2 = {np.mean(g2_vignet)} +/- {np.std(g2_vignet)}, sigma = {np.mean(sig_vignet)} +/- {np.std(sig_vignet)}')
+print("PSFEx:")
+print(f'g1 = {np.mean(g1_psfex)} +/- {np.std(g1_psfex)}, g2 = {np.mean(g2_psfex)} +/- {np.std(g2_psfex)}, sigma = {np.mean(sig_psfex)} +/- {np.std(sig_psfex)}')
 
 plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f150w_hsm_quiver.png', dpi=300)
 
