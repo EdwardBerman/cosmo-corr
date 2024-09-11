@@ -113,7 +113,7 @@ function loss(p)
     final_positions_x_scaled = scale_to_360(final_positions_x)
     final_positions_y_scaled = scale_to_360(final_positions_y)
 
-    return sum(abs.(final_positions_x_normalized .- final_positions_y_normalized))
+    return sum(abs.(final_positions_x_scaled .- final_positions_y_scaled))
 end
 
 grad_diffusion_positions = gradient(loss, p)
