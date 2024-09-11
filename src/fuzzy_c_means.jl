@@ -153,8 +153,10 @@ function fuzzy_correlator(ra,
         quantity_two, 
         nclusters, 
         initial_centers, 
-        initial_weights, 
+        initial_weights,
+        θ_min,
         number_bins,
+        θ_max,
         fuzziness=2.0, 
         dist_metric=Vincenty_Formula, 
         tol=1e-6, 
@@ -180,7 +182,8 @@ function fuzzy_correlator(ra,
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
-    #binned_fuzzy_distances = ...
+    bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+    binned_fuzzy_distances = [[fuzzy_distance for fuzzy_distance in fuzzy_distances if bins[i] < fuzzy_distance[3] <= bins[i+1]] for i in 1:length(bins)-1]
     fuzzy_estimates = [[fuzzy_shear_estimator(fuzzy_distance) for fuzzy_distance in fuzzy_distance_bin] for fuzzy_distance_bin in binned_fuzzy_distances]
     fuzzy_correlations = [sum(fuzzy_estimate)/(2*length(fuzzy_estimate)) for fuzzy_estimate in fuzzy_estimates]
     return fuzzy_correlations
