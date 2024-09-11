@@ -17,22 +17,8 @@ num_walkers = 100
 walker_positions_x = rand(num_walkers) .* Lx
 walker_positions_y = rand(num_walkers) .* Ly
 
-u0_x = zeros(length(x))
-u0_y = zeros(length(y))
-
-for pos_x in walker_positions_x
-    idx_x = findfirst(x -> x > pos_x, x)
-    if !isnothing(idx_x)
-        u0_x[idx_x] += 1.0 # Adding walker at the nearest grid point in x
-    end
-end
-
-for pos_y in walker_positions_y
-    idx_y = findfirst(y -> y > pos_y, y)
-    if !isnothing(idx_y)
-        u0_y[idx_y] += 1.0 # Adding walker at the nearest grid point in y
-    end
-end
+u0_x = exp.(-100*(x .- Lx/2).^2 / (2.0))
+u0_y = exp.(-100*(y .- Ly/2).^2 / (2.0))
 
 ## Problem Parameters
 p = [1.0, 1.0]  # Diffusion coefficients for x and y
