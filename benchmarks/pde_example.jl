@@ -5,8 +5,10 @@ using SciMLSensitivity
 using DelimitedFiles, Plots
 using OrdinaryDiffEq, Zygote
 using Statistics
+using Random
+using Distributions
 
-Lx, Ly = 10.0, 10.0
+Lx, Ly = 50.0, 50.0
 x = 0.0:0.1:Lx  # Grid for x (RA)
 y = 0.0:0.1:Ly  # Grid for y (Dec)
 dx = x[2] - x[1]
@@ -62,15 +64,7 @@ function scale_to_360(data)
     (data .- x_min) ./ (x_max - x_min) .* 360
 end
 
-function reparam(μ_x, μ_y, σ_x, σ_y, ρ, n)
-    L = [σ_x^2 ρ * σ_x * σ_y;
-         ρ * σ_x * σ_y σ_y^2]
-    z = randn(n, 2)
-    μ = [μ_x, μ_y]
-    return (μ .+ L * z')'
-end
-
-function loss(p)
+function catalog_generator(p)
     prob_x = ODEProblem((u,p,t)->heat_closure(u,u,p,t)[1], u0_x, tspan, p)
     prob_y = ODEProblem((u,p,t)->heat_closure(u,u,p,t)[2], u0_y, tspan, p)
 
@@ -82,17 +76,14 @@ function loss(p)
 
     final_positions_x = sol_x[end]  # Access the final state directly
     final_positions_y = sol_y[end]  # Access the final state directly
+    
+    scaled_positions_x = scale_to_360(final_positions_x)
+    scaled_positions_y = scale_to_360(final_positions_y)
 
-    final_positions_x_scaled = scale_to_360(final_positions_x)
-    final_positions_y_scaled = scale_to_360(final_positions_y)
-
-    μ = [mean(final_positions_x_scaled), mean(final_positions_y_scaled)]
-    σ = [std(final_positions_x_scaled), std(final_positions_y_scaled)]
-
-    samples = reparam(μ[1], μ[2], σ[1], σ[2], 0.0, num_walkers)
-
-    return sum(samples[:,1] + samples[:,2])
+    samples = hcat(scaled_positions_x, scaled_positions_y)
+    return samples
 end
 
-grad_diffusion_positions = gradient(loss, p)
-
+#println(catalog_generator(p))
+println(gradient(catalog_generator, p))
+#println(grad_diffusion_positions)
