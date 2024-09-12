@@ -103,3 +103,20 @@ function loss(p)
 end
 
 grad_diffusion_positions = gradient(loss, p)
+
+function my_function(samples)
+    return sum(samples .^ 2)  
+end
+
+function reparam(mu, sigma, n)
+    z = randn(n)  
+    return mu .+ sigma .* z  
+end
+
+mu = 0.0
+sigma = 1.0
+n = 100
+
+grad_mu, grad_sigma = gradient((mu, sigma) -> my_function(reparam(mu, sigma, n)), mu, sigma)
+println(grad_mu, " ", grad_sigma)
+
