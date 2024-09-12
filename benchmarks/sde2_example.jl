@@ -26,7 +26,8 @@ function sde_solve(p)
 end
 
 # p = [μ_ra, μ_dec, μ_g1, μ_g2, σ_ra, σ_dec, σ_g1, σ_g2]
-p = [0.0, 0.0, 0.0, 0.0, 0.1, 0.1, 0.1, 0.1]  
+μ = (2 .* (0.5 .- rand(4))) ./ 1000
+p = vcat(μ, [0.1, 0.1, 0.1, 0.1])
 
 sol = sde_solve(p)
 
@@ -36,6 +37,9 @@ sol_g1 = [sol.u[i][3] for i in 1:length(sol.u)]
 sol_g2 = [sol.u[i][4] for i in 1:length(sol.u)]
 
 println(scatterplot(sol.t, sol_ra))
+println(scatterplot(sol.t, sol_dec))
+println(scatterplot(sol.t, sol_g1))
+println(scatterplot(sol.t, sol_g2))
 
 #@time begin
 #    sample(p) = [sde_solve(p) for _ in 1:500]  # Sample the solution 500 times
