@@ -2,6 +2,7 @@ using Zygote
 using Plots
 using SciMLSensitivity
 using DifferentialEquations
+using Statistics
 
 function sde_function(du, u, p, t)
     μ = p[1]
@@ -19,21 +20,14 @@ tspan = (0.0, 1.0)
 
 function sde_solve(p)
     prob = SDEProblem(sde_function, sde_noise, u0, tspan, p)
-    sol = solve(prob, SOSRI())
+    sol = solve(prob, SOSRI(), tstops=range(tspan[1], tspan[2], length=50))  # Set consistent time stops
     return sol
 end
 
 p = [0.05, 0.2]  
 
-sol = sde_solve(p)
-
-plot(sol, title="Geometric Brownian Motion", xlabel="Time", ylabel="X(t)")
-
-function loss_function(p)
-    sol = sde_solve(p)
-    return sum(sol.u)  # Example loss function: sum of solution values
+@time begin
+    sample(p) = [sde_solve(p) for _ in 1:500]  # Sample the solution 500 times
+    grads = jacobian(p -> mean([mean(sol.u[end]) for sol in sample(p)]), p)  # Compute the gradient of the mean at the final time
 end
-
-grads = jacobian(loss_function, p)
-
 println("Gradient with respect to μ and σ: ", grads)
