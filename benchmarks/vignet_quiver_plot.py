@@ -151,7 +151,8 @@ cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
 
 print("Vignet:")
 print(f'g1 = {np.mean(g1_vignet)} +/- {np.std(g1_vignet)}, g2 = {np.mean(g2_vignet)} +/- {np.std(g2_vignet)}, sigma = {np.mean(sig_vignet)} +/- {np.std(sig_vignet)}')
-
+print(f'Ra = {np.mean(f115w_hsm["ra"])} +/- {np.std(f115w_hsm["ra"])}')
+print(f'Dec = {np.mean(f115w_hsm["dec"])} +/- {np.std(f115w_hsm["dec"])}')
 plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/vignet_f115w_hsm_quiver.png', dpi=300)
 
 
