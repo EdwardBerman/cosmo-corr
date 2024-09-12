@@ -3,18 +3,19 @@ using Plots
 using SciMLSensitivity
 using DifferentialEquations
 using Statistics
+using UnicodePlots
 
 function sde_function(du, u, p, t)
-    μ = p[1]
-    du .= μ * u[1]
+    μ_ra, μ_dec, μ_g1, μ_g2 = p[1], p[2], p[3], p[4]
+    du .= μ_ra * u[1], μ_dec * u[2], μ_g1 * u[3], μ_g2 * u[4]
 end
 
 function sde_noise(du, u, p, t)
-    σ = p[2]
-    du .= σ * u[1]
+    σ_ra, σ_dec, σ_g1, σ_g2 = p[5], p[6], p[7], p[8]
+    du .= σ_ra * u[1], σ_dec * u[2], σ_g1 * u[3], σ_g2 * u[4]
 end
 
-u0 = [1.0]
+u0 = [0.01, 0.01, 0.01, 0.01]
 
 tspan = (0.0, 1.0)
 
@@ -24,10 +25,26 @@ function sde_solve(p)
     return sol
 end
 
-p = [0.05, 0.2]  
+# p = [μ_ra, μ_dec, μ_g1, μ_g2, σ_ra, σ_dec, σ_g1, σ_g2]
+p = [0.05, 0.05, 0.05, 0.05, 0.1, 0.1, 0.1, 0.1]  
 
-@time begin
-    sample(p) = [sde_solve(p) for _ in 1:500]  # Sample the solution 500 times
-    grads = jacobian(p -> mean([mean(sol.u[end]) for sol in sample(p)]), p)  # Compute the gradient of the mean at the final time
-end
-println("Gradient with respect to μ and σ: ", grads)
+sol = sde_solve(p)
+
+sol_ra = [sol.u[i][1] for i in 1:length(sol.u)]
+sol_dec = [sol.u[i][2] for i in 1:length(sol.u)]
+sol_g1 = [sol.u[i][3] for i in 1:length(sol.u)]
+sol_g2 = [sol.u[i][4] for i in 1:length(sol.u)]
+
+println(scatterplot(sol.t, sol_ra))
+println(scatterplot(sol.t, sol_dec))
+println(scatterplot(sol.t, sol_g1))
+println(scatterplot(sol.t, sol_g2))
+#scatterplot!(sol.t, sol_dec)
+#scatterplot!(sol.t, sol_g1)
+#scatterplot!(sol.t, sol_g2)
+
+#@time begin
+ #   sample(p) = [sde_solve(p) for _ in 1:500]  # Sample the solution 500 times
+  #  grads = jacobian(p -> mean([mean(sol.u[end]) for sol in sample(p)]), p)  # Compute the gradient of the mean at the final time
+#end
+#println("Gradient with respect to μ and σ: ", grads)
