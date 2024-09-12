@@ -4,6 +4,7 @@ using OrdinaryDiffEq, Zygote
 using SciMLSensitivity
 using DelimitedFiles, Plots
 using OrdinaryDiffEq, Zygote
+using Statistics
 
 Lx, Ly = 10.0, 10.0
 x = 0.0:0.1:Lx  # Grid for x (RA)
@@ -30,9 +31,6 @@ t = t0:dt:tMax;
 
 ## Definition of Auxiliary functions for 2D diffusion
 function d2dx(u, dx)
-    """
-    2nd order Central difference for 2nd degree derivative in x
-    """
     return [zero(eltype(u));
             (@view(u[3:end]) .- 2.0 .* @view(u[2:(end - 1)]) .+ @view(u[1:(end - 2)])) ./
             (dx^2)
@@ -40,22 +38,16 @@ function d2dx(u, dx)
 end
 
 function d2dy(u, dy)
-    """
-    2nd order Central difference for 2nd degree derivative in y
-    """
     return [zero(eltype(u));
             (@view(u[3:end]) .- 2.0 .* @view(u[2:(end - 1)]) .+ @view(u[1:(end - 2)])) ./
             (dy^2)
             zero(eltype(u))]
 end
 
-## ODE description of the Physics (No drift term, 2D diffusion):
 function heat2d(u_x, u_y, p, t, xtrs)
-    # Model parameters
     a1_x, a1_y = p  # Diffusion coefficients for x and y
     dx, dy, Nx, Ny = xtrs
     
-    # Diffusion equations in both x and y
     dudx2 = a1_x .* d2dx(u_x, dx)
     dudy2 = a1_y .* d2dy(u_y, dy)
     
@@ -64,23 +56,18 @@ end
 
 heat_closure(u_x, u_y, p, t) = heat2d(u_x, u_y, p, t, xtrs)
 
-# Solver for the heat equation with 100 walkers in 2D
-prob_x = ODEProblem((u,p,t)->heat_closure(u,u,p,t)[1], u0_x, tspan, p)
-prob_y = ODEProblem((u,p,t)->heat_closure(u,u,p,t)[2], u0_y, tspan, p)
-
-sol_x = solve(prob_x, Tsit5(), dt = dt, saveat = t);
-sol_y = solve(prob_y, Tsit5(), dt = dt, saveat = t);
-
-arr_sol_x = Array(sol_x)
-arr_sol_y = Array(sol_y)
-
-final_positions_x = sol_x[end]  # Access the final state directly
-final_positions_y = sol_y[end]  # Access the final state directly
-
 function scale_to_360(data)
     x_min = minimum(data)
     x_max = maximum(data)
     (data .- x_min) ./ (x_max - x_min) .* 360
+end
+
+function reparam(μ_x, μ_y, σ_x, σ_y, ρ, n)
+    L = [σ_x^2 ρ * σ_x * σ_y;
+         ρ * σ_x * σ_y σ_y^2]
+    z = randn(n, 2)
+    μ = [μ_x, μ_y]
+    return (μ .+ L * z')'
 end
 
 function loss(p)
@@ -99,24 +86,13 @@ function loss(p)
     final_positions_x_scaled = scale_to_360(final_positions_x)
     final_positions_y_scaled = scale_to_360(final_positions_y)
 
-    return sum(abs.(final_positions_x_scaled .- final_positions_y_scaled))
+    μ = [mean(final_positions_x_scaled), mean(final_positions_y_scaled)]
+    σ = [std(final_positions_x_scaled), std(final_positions_y_scaled)]
+
+    samples = reparam(μ[1], μ[2], σ[1], σ[2], 0.0, num_walkers)
+
+    return sum(samples[:,1] + samples[:,2])
 end
 
 grad_diffusion_positions = gradient(loss, p)
-
-function my_function(samples)
-    return sum(samples .^ 2)  
-end
-
-function reparam(mu, sigma, n)
-    z = randn(n)  
-    return mu .+ sigma .* z  
-end
-
-mu = 0.0
-sigma = 1.0
-n = 100
-
-grad_mu, grad_sigma = gradient((mu, sigma) -> my_function(reparam(mu, sigma, n)), mu, sigma)
-println(grad_mu, " ", grad_sigma)
 
