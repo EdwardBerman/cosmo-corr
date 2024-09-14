@@ -1,47 +1,49 @@
-using DifferentialEquations
+using DifferentialEquations, Plots
+using Zygote, SciMLSensitivity
 
-# Define the ODE function for gravitational motion
-function gravitational_ode!(du, u, p, t)
-    # State vector u: [x, y, vx, vy]
-    x, y, vx, vy = u
-    # Parameters: G (gravitational constant), M (mass of the central body)
+function gravitational_ode_3d!(du, u, p, t)
+    x, y, z, vx, vy, vz = u
     G = p[1]
-    M = p[2]  # assume mass M is 1 for simplicity, you can adjust it if needed
+    M = p[2]  
 
-    # Distance from the center
-    r = sqrt(x^2 + y^2)
+    r = sqrt(x^2 + y^2 + z^2)
 
-    # Gravitational acceleration
     ax = -G * M * x / r^3
     ay = -G * M * y / r^3
+    az = -G * M * z / r^3
 
-    # Differential equations
     du[1] = vx            # dx/dt = vx
     du[2] = vy            # dy/dt = vy
-    du[3] = ax            # dvx/dt = ax
-    du[4] = ay            # dvy/dt = ay
+    du[3] = vz            # dz/dt = vz
+    du[4] = ax            # dvx/dt = ax
+    du[5] = ay            # dvy/dt = ay
+    du[6] = az            # dvz/dt = az
 end
 
-# Initial conditions: position (x0, y0) and velocity (vx0, vy0)
-u0 = [1.0, 0.0, 0.0, 1.0]  # [x0, y0, vx0, vy0]
+u0_3d = [1.0, 0.0, 0.0, 0.0, 1.0, 0.5]  # [x0, y0, z0, vx0, vy0, vz0]
 
-# Time span for the simulation
 tspan = (0.0, 10.0)
 
-# Gravitational constant G and mass M
 G = [1.0]
 M = 1.0
-p = [G[1], M]  # Parameters [G, M]
+p = [G[1], M]  
 
-# Define the ODE problem
-prob = ODEProblem(gravitational_ode!, u0, tspan, p)
+prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
+sol_3d = solve(prob_3d)
 
-# Solve the ODE problem
-sol = solve(prob)
+function gravity_sim(p)
+    G = p[1]
+    M = p[2]
+    p = [G, M]
+    prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
+    sol_3d = solve(prob_3d)
+    end_state = sol_3d.u[end]
+    return mean(end_state)
+end
 
-# Plot the result
-using Plots
-plot(sol, vars=(1, 2), label="Trajectory", xlabel="x", ylabel="y")
-
+@time begin
+    G_gradient = gradient(gravity_sim, G)
+    println(G_gradient)
+end
 
 # Time evolve 500 particles according to the save gravitational field, say, around a blackhole
