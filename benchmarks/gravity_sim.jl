@@ -1,5 +1,7 @@
 using DifferentialEquations, Plots
 using Zygote, SciMLSensitivity
+using Statistics
+using LinearAlgebra
 
 function gravitational_ode_3d!(du, u, p, t)
     x, y, z, vx, vy, vz = u
@@ -31,19 +33,21 @@ p = [G[1], M]
 prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
 sol_3d = solve(prob_3d)
 
-function gravity_sim(p)
+function gravity_sim(p; nbodies = 500)
     G = p[1]
     M = p[2]
     p = [G, M]
     prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
-    sol_3d = solve(prob_3d)
-    end_state = sol_3d.u[end]
-    return mean(end_state)
+    solulations_3d = [solve(prob_3d) for i in 1:nbodies]
+    end_states = [sol_3d.u[end] for sol_3d in solulations_3d]
+    mean_end_state = mean(end_states)
+    norm_mean_end_state = norm(mean_end_state)
+    return norm_mean_end_state
 end
 
 @time begin
-    G_gradient = gradient(gravity_sim, G)
-    println(G_gradient)
+    G_gradients = jacobian(gravity_sim, p)
+    println(G_gradients)
 end
 
 # Time evolve 500 particles according to the save gravitational field, say, around a blackhole
