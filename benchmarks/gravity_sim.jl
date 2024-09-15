@@ -22,42 +22,36 @@ function gravitational_ode_3d!(du, u, p, t)
     du[6] = az            # dvz/dt = az
 end
 
-u0_3d = [1.0, 0.0, 0.0, 0.0, 1.0, 0.5]  # [x0, y0, z0, vx0, vy0, vz0]
+#u0_3d = [1.0, 0.0, 0.0, 0.0, 1.0, 0.5]  # [x0, y0, z0, vx0, vy0, vz0]
 
+function generate_initial_conditions(nbodies)
+    return [[randn(), randn(), randn(), randn(), randn(), randn()] for i in 1:nbodies]
+end
+
+initial_conditions = generate_initial_conditions(500)
 tspan = (0.0, 10.0)
 
 G = [1.0]
 M = 1.0
 p = [G[1], M]  
 
-prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
-sol_3d = solve(prob_3d)
-
 function xyz_to_ra_dec(x, y, z)
     r = sqrt(x^2 + y^2 + z^2)
     dec = acos(z / r) * (180 / π )
     ra = atan(y/x) * (180 / π)
-    return ra, dec
+    return [ra, dec]
 end
 
-function gravity_sim(p; nbodies = 500)
+function gravity_sim(p; u0_3d = initial_conditions, nbodies = 500)
     G = p[1]
     M = p[2]
     p = [G, M]
-    prob_3d = ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p)
-    solulations_3d = [solve(prob_3d) for i in 1:nbodies]
+    prob_3d_list = [ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p) for u0_3d in u0_3d]
+    solulations_3d = [solve(prob_3d) for prob_3d in prob_3d_list]
     end_states = [sol_3d.u[end] for sol_3d in solulations_3d]
     end_states_ra_dec = [xyz_to_ra_dec(end_state[1], end_state[2], end_state[3]) for end_state in end_states]
-    mean_ra = mean([ra for (ra, dec) in end_states_ra_dec])
-    mean_dec = mean([dec for (ra, dec) in end_states_ra_dec])
-    mean_end_state = (mean_ra, mean_dec)
-    norm_mean_end_state = norm(mean_end_state)
-    return norm_mean_end_state
+    return end_states_ra_dec
 end
 
-@time begin
-    G_gradients = jacobian(gravity_sim, p)
-    println(G_gradients)
-end
 
 # Time evolve 500 particles according to the save gravitational field, say, around a blackhole
