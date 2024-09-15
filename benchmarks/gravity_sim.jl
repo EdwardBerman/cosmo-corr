@@ -22,7 +22,7 @@ function gravitational_ode_3d!(du, u, p, t)
     du[6] = az            # dvz/dt = az
 end
 
-#u0_3d = [1.0, 0.0, 0.0, 0.0, 1.0, 0.5]  # [x0, y0, z0, vx0, vy0, vz0]
+#u0_3d = [x0, y0, z0, vx0, vy0, vz0]
 
 function generate_initial_conditions(nbodies)
     return [[randn(), randn(), randn(), randn(), randn(), randn()] for i in 1:nbodies]
@@ -46,12 +46,9 @@ function gravity_sim(p; u0_3d = initial_conditions, nbodies = 500)
     G = p[1]
     M = p[2]
     p = [G, M]
-    prob_3d_list = [ODEProblem(gravitational_ode_3d!, u0_3d, tspan, p) for u0_3d in u0_3d]
+    prob_3d_list = [ODEProblem(gravitational_ode_3d!, u0, tspan, p) for u0 in u0_3d]
     solulations_3d = [solve(prob_3d) for prob_3d in prob_3d_list]
     end_states = [sol_3d.u[end] for sol_3d in solulations_3d]
     end_states_ra_dec = [xyz_to_ra_dec(end_state[1], end_state[2], end_state[3]) for end_state in end_states]
     return end_states_ra_dec
 end
-
-
-# Time evolve 500 particles according to the save gravitational field, say, around a blackhole
