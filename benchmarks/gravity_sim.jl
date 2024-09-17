@@ -2,6 +2,43 @@ using DifferentialEquations, Plots
 using Zygote, SciMLSensitivity
 using Statistics
 using LinearAlgebra
+using UnicodePlots
+
+function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
+    ϕ1, λ1 = coord1
+    ϕ2, λ2 = coord2
+    ϕ1 *= π / 180
+    λ1 *= π / 180
+    ϕ2 *= π / 180
+    λ2 *= π / 180
+    
+    Δλ = λ2 - λ1
+    c1 = (cos(ϕ2)*sin(Δλ))^2
+    c2 = (cos(ϕ1)*sin(ϕ2) - sin(ϕ1)*cos(ϕ2)*cos(Δλ))^2
+    c3 = sin(ϕ1)*sin(ϕ2) + cos(ϕ1)*cos(ϕ2)*cos(Δλ)
+    y = sqrt(c1 + c2)
+    x = c3
+    Δσ = atan(y, x)
+    return Δσ * (180 / π) * 60
+end
+
+function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64, Float64})
+    ϕ1, λ1 = coord1
+    ϕ2, λ2 = coord2
+    ϕ1 *= π / 180
+    λ1 *= π / 180
+    ϕ2 *= π / 180
+    λ2 *= π / 180
+    
+    Δλ = λ2 - λ1
+    c1 = (cos(ϕ2)*sin(Δλ))^2
+    c2 = (cos(ϕ1)*sin(ϕ2) - sin(ϕ1)*cos(ϕ2)*cos(Δλ))^2
+    c3 = sin(ϕ1)*sin(ϕ2) + cos(ϕ1)*cos(ϕ2)*cos(Δλ)
+    y = sqrt(c1 + c2)
+    x = c3
+    Δσ = atan(y, x)
+    return Δσ * (180 / π) * 60 
+end
 
 function gravitational_ode_3d!(du, u, p, t)
     x, y, z, vx, vy, vz = u
@@ -52,3 +89,9 @@ function gravity_sim(p; u0_3d = initial_conditions, nbodies = 500)
     end_states_ra_dec = [xyz_to_ra_dec(end_state[1], end_state[2], end_state[3]) for end_state in end_states]
     return end_states_ra_dec
 end
+
+end_states_ra_dec = gravity_sim(p)
+
+distances = [Vincenty_Formula(end_states_ra_dec[i], end_states_ra_dec[j]) for i in 1:500, j in 1:500 if i < j]
+println(UnicodePlots.histogram(distances, nbins = 100))
+
