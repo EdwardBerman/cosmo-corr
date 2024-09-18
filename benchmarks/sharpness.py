@@ -24,11 +24,11 @@ for i, alpha in enumerate(alphas):
 # Add labels, title, and legend
 plt.xlabel('x')
 plt.ylabel('f(x)')
-plt.title('Two Sigmoids Facing Opposite Directions for Different Alpha Values')
+plt.title('Sharpness Sensitivity to Sigmoid Filter')
 plt.legend()
 
 # Show the plot
-plt.show()
+plt.savefig('two_sigmoids.png')
 
 # Now plot the effect of flipping the sign of alpha on one of the sigmoids
 def flipped_sigmoids(x, alpha, a=1, b=2):
