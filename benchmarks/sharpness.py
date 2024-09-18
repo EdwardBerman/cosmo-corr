@@ -23,7 +23,7 @@ for i, alpha in enumerate(alphas):
 
 # Add labels, title, and legend
 plt.xlabel('x', fontsize=18)
-plt.ylabel(r'$f(x) = \frac{1}{1 + e^{-\alpha(x - a)}} \cdot \frac{1}{1 + e^{\alpha(x - b)}}$', fontsize=18)
+plt.ylabel(r'$f(x) = \frac{1}{1 + e^{-\alpha(x - 1)}} \cdot \frac{1}{1 + e^{\alpha(x - 2)}}$', fontsize=18)
 plt.title('Sharpness Sensitivity to Sigmoid Filter', fontsize=20)
 plt.legend()
 
