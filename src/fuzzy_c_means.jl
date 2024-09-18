@@ -20,6 +20,24 @@ function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     return Δσ * (180 / π) * 60
 end
 
+function Vincenty_Formula(coord1::Vector{Any}, coord2::Vector{Any})
+    ϕ1, λ1 = coord1
+    ϕ2, λ2 = coord2
+    ϕ1 *= π / 180
+    λ1 *= π / 180
+    ϕ2 *= π / 180
+    λ2 *= π / 180
+    
+    Δλ = λ2 - λ1
+    c1 = (cos(ϕ2)*sin(Δλ))^2
+    c2 = (cos(ϕ1)*sin(ϕ2) - sin(ϕ1)*cos(ϕ2)*cos(Δλ))^2
+    c3 = sin(ϕ1)*sin(ϕ2) + cos(ϕ1)*cos(ϕ2)*cos(Δλ)
+    y = sqrt(c1 + c2)
+    x = c3
+    Δσ = atan(y, x)
+    return Δσ * (180 / π) * 60
+end
+
 function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64, Float64})
     ϕ1, λ1 = coord1
     ϕ2, λ2 = coord2
@@ -163,22 +181,10 @@ function fuzzy_correlator(ra::Vector{Float64},
     quantity_two_shear_one = [quantity_two[i].shear[1] for i in 1:length(quantity_two)]
     quantity_two_shear_two = [quantity_two[i].shear[2] for i in 1:length(quantity_two)]
 
-    weighted_shear_one = [weighted_average(quantity_one_shear_one, weights), weighted_average(quantity_one_shear_two, weights)]
-    weighted_shear_two = [weighted_average(quantity_two_shear_one, weights), weighted_average(quantity_two_shear_two, weights)]
-
-    weighted_shear_one_matrix = hcat([weighted_shear_one for i in 1:nclusters]...)
-    weighted_shear_two_matrix = hcat([weighted_shear_two for i in 1:nclusters]...)
-
-    println("centers size: ", size(centers))
-    println("weighted_shear_one size: ", size(weighted_shear_one))
-    println("weighted_shear_two size: ", size(weighted_shear_two))
-    println("weighted_shear_one_matrix size: ", size(weighted_shear_one_matrix))
-    println("weighted_shear_two_matrix size: ", size(weighted_shear_two_matrix))
-    println("nclusters: ", nclusters)
+    weighted_shear_one = [[weighted_average(quantity_one_shear_one, weights)[i], weighted_average(quantity_one_shear_two, weights)[i]] for i in 1:nclusters]
+    weighted_shear_two = [[weighted_average(quantity_two_shear_one, weights)[i], weighted_average(quantity_two_shear_two, weights)[i]] for i in 1:nclusters]
 
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
-
-    println("Fuzzy Galaxies: ", fuzzy_galaxies)
 
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
@@ -206,4 +212,4 @@ rand_dec = 90 .* rand(500)
 rand_shear_one = [fuzzy_shear(rand(2)) for i in 1:500]
 rand_shear_two = [fuzzy_shear(rand(2)) for i in 1:500]
 
-output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100.0, 0.1, 10.0, 1.0, verbose=true)
+output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100, 0.1, 10, 1.0, verbose=true)
