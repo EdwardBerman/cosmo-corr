@@ -148,8 +148,9 @@ function fuzzy_shear_estimator(fuzzy_distance)
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
 end
 
-function bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
-    return exp(-1*sharpness/ ((fuzzy_dist[3]-a)^2 * (b - fuzzy_dist[3])^2  + 1e-10  )  )
+function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
+    ϵ = 1e-10
+    return 1 / (1 + exp(-sharpness * (x - a))) * 1 / (1 + exp(sharpness * (x - b)))
 end
 
 
@@ -198,7 +199,7 @@ function fuzzy_correlator(ra::Vector{Float64},
         bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
     end
     
-    filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) 
+    filter_weights = [sigmoid_bump_function(fuzzy_distance, bins[i], bins[i+1]) 
                   for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
 
     fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * filter_weights[i, j]
