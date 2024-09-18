@@ -179,13 +179,11 @@ function fuzzy_correlator(ra::Vector{Float64},
     filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) 
                   for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
 
-    normalized_weights = filter_weights ./ sum(filter_weights, dims=2)
-    
-    fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * normalized_weights[i, j]
-                   for i in 1:size(normalized_weights, 1), j in 1:size(normalized_weights, 2)]
+    fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * filter_weights[i, j]
+                   for i in 1:size(normalized_weights, 1), j in 1:size(filter_weights, 2)]
 
-    fuzzy_correlations = [ (0.5 * sum(fuzzy_estimates[i, :])) / sum(normalized_weights[i, :])
-                          for i in 1:size(fuzzy_estimates, 1)] # 1/2 because we are doing 2 dot products per estimate
+    fuzzy_correlations = [ sum(fuzzy_estimates[i, :]) / sum(filter_weights[i, :])
+                          for i in 1:size(fuzzy_estimates, 1)] 
     return fuzzy_correlations
 end
 
