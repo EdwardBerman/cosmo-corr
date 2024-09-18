@@ -81,20 +81,13 @@ function weighted_average(quantity, weights)
     return weighted_average
 end
 
-data = hcat([90 .* rand(2) for i in 1:100]...)  
-shear_one = rand(100)
-shear_two = rand(100)
-n_clusters = 3
+data = hcat([90 .* rand(2) for i in 1:500]...)  
+shear_one = rand(500)
+shear_two = rand(500)
+n_clusters = 100
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
 initial_weights = rand(ncols, n_clusters)
-centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
-@info "Converged in $iterations iterations"
-
-function combine_vectors_to_matrix(vec1, datapoint, vec2)
-    result = vcat(vec1, datapoint, vec2)
-    return result
-end
 
 function calculate_direction(x_1, x_2, y_1, y_2, z_1, z_2)
     euclidean_distance_squared = (x_2 - x_1)^2 + (y_2 - y_1)^2 + (z_2 - z_1)^2
@@ -146,16 +139,18 @@ function fuzzy_correlator(ra::Vector{Float64},
         quantity_two::Vector{fuzzy_shear},
         initial_centers, 
         initial_weights,
+        nclusters,
         θ_min,
         number_bins,
-        θ_max,
+        θ_max;
+        spacing = "linear",
         fuzziness=2.0, 
         dist_metric=Vincenty_Formula, 
         tol=1e-6, 
         verbose=false,
         max_iter=1000)
 
-    data = hcat([ra, dec]...)
+    data = hcat([[ra[i], dec[i]] for i in 1:500]...)
 
     centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
     
@@ -163,19 +158,37 @@ function fuzzy_correlator(ra::Vector{Float64},
         println("Fuzzy C Means Converged in $iterations iterations")
     end
     
-    quantity_one_shear_one = [quantity_one.shear[1] for i in 1:length(quantity_one)]
-    quantity_one_shear_two = [quantity_one.shear[2] for i in 1:length(quantity_one)]
-    quantity_two_shear_one = [quantity_two.shear[1] for i in 1:length(quantity_two)]
-    quantity_two_shear_two = [quantity_two.shear[2] for i in 1:length(quantity_two)]
+    quantity_one_shear_one = [quantity_one[i].shear[1] for i in 1:length(quantity_one)]
+    quantity_one_shear_two = [quantity_one[i].shear[2] for i in 1:length(quantity_one)]
+    quantity_two_shear_one = [quantity_two[i].shear[1] for i in 1:length(quantity_two)]
+    quantity_two_shear_two = [quantity_two[i].shear[2] for i in 1:length(quantity_two)]
 
     weighted_shear_one = [weighted_average(quantity_one_shear_one, weights), weighted_average(quantity_one_shear_two, weights)]
     weighted_shear_two = [weighted_average(quantity_two_shear_one, weights), weighted_average(quantity_two_shear_two, weights)]
+
+    weighted_shear_one_matrix = hcat([weighted_shear_one for i in 1:nclusters]...)
+    weighted_shear_two_matrix = hcat([weighted_shear_two for i in 1:nclusters]...)
+
+    println("centers size: ", size(centers))
+    println("weighted_shear_one size: ", size(weighted_shear_one))
+    println("weighted_shear_two size: ", size(weighted_shear_two))
+    println("weighted_shear_one_matrix size: ", size(weighted_shear_one_matrix))
+    println("weighted_shear_two_matrix size: ", size(weighted_shear_two_matrix))
+    println("nclusters: ", nclusters)
+
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
+
+    println("Fuzzy Galaxies: ", fuzzy_galaxies)
+
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
 
-    bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+    if spacing == "linear"
+        bins = range(θ_min, θ_max, length=number_bins)
+    elseif spacing == "log"
+        bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+    end
     
     filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) 
                   for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
@@ -188,15 +201,9 @@ function fuzzy_correlator(ra::Vector{Float64},
     return fuzzy_correlations
 end
 
-@time begin
-    grad_data = Zygote.gradient(data -> sum(fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)[1]), data)
-    println("Gradient with respect to data", grad_data)
-    println(size(grad_data[1]))
-    println(heatmap(grad_data[1]', title="Gradient with respect to data", xlabel="Longitude", ylabel="Latitude", colormap=:coolwarm))
-end
+rand_ra = 90 .* rand(500)
+rand_dec = 90 .* rand(500)
+rand_shear_one = [fuzzy_shear(rand(2)) for i in 1:500]
+rand_shear_two = [fuzzy_shear(rand(2)) for i in 1:500]
 
-println(scatterplot(data[1,:], data[2,:], title="Data Points", xlabel="Longitude", ylabel="Latitude"))
-println(scatterplot(centers[1,:], centers[2,:], title="Cluster Centers", xlabel="Longitude", ylabel="Latitude"))
-println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:coolwarm))
-println(heatmap(weights', title="Weights", xlabel="Data Point", ylabel="Cluster", colormap=:cool))
-
+output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100.0, 0.1, 10.0, 1.0, verbose=true)
