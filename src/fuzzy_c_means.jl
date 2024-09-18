@@ -1,6 +1,8 @@
 using Zygote
 using UnicodePlots
 using Random
+using LinearAlgebra
+using Statistics
 
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
@@ -121,10 +123,10 @@ function fuzzy_shear_estimator(fuzzy_distance)
     x2, y2, z2 = cos(ra2 * π / 180) * cos(dec2 * π / 180), sin(ra2 * π / 180) * cos(dec2 * π / 180), sin(dec2 * π / 180)
 
     r21 = calculate_direction(x2, x1, y2, y1, z2, z1)
-    ϕ21 = real(conj(r2) * r2 / norm(r2)^2) # rotating 2 in the direction of 1
+    ϕ21 = real(conj(r21) * r21 / norm(r21)^2) # rotating 2 in the direction of 1
 
     r12 = calculate_direction(x1, x2, y1, y2, z1, z2)
-    ϕ12 = real(conj(r1) * r1 / norm(r1)^2) # rotating 1 in the direction of 2
+    ϕ12 = real(conj(r12) * r12 / norm(r12)^2) # rotating 1 in the direction of 2
 
     object_one_shear_one = fuzzy_distance[1][3]
     object_one_shear_two = fuzzy_distance[1][4]
@@ -147,7 +149,7 @@ function fuzzy_shear_estimator(fuzzy_distance)
 end
 
 function bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
-    return exp(-1*sharpness/ ((x[3]-a) * (b - x[3])  + 1e-10  )  )
+    return exp(-1*sharpness/ ((fuzzy_dist[3]-a) * (b - fuzzy_dist[3])  + 1e-10  )  )
 end
 
 
@@ -188,7 +190,7 @@ function fuzzy_correlator(ra::Vector{Float64},
 
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
-                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
+                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j] # check this
 
     if spacing == "linear"
         bins = range(θ_min, θ_max, length=number_bins)
@@ -213,3 +215,5 @@ rand_shear_one = [fuzzy_shear(rand(2)) for i in 1:500]
 rand_shear_two = [fuzzy_shear(rand(2)) for i in 1:500]
 
 output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100, 0.1, 10, 1.0, verbose=true)
+
+println(output)
