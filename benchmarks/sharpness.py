@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+plt.rcParams['font.family'] = 'DejaVu Sans Mono'
 x = np.linspace(0, 3, 1000)
 
 # Define the function with two sigmoids facing opposite directions
@@ -23,7 +23,7 @@ for i, alpha in enumerate(alphas):
 
 # Add labels, title, and legend
 plt.xlabel('x')
-plt.ylabel('f(x)')
+plt.ylabel(r'$f(x) = \frac{1}{1 + e^{-\alpha(x - a)}} \cdot \frac{1}{1 + e^{\alpha(x - b)}}$', fontsize=18)
 plt.title('Sharpness Sensitivity to Sigmoid Filter')
 plt.legend()
 
