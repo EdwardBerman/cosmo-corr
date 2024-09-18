@@ -135,8 +135,8 @@ function fuzzy_shear_estimator(fuzzy_distance)
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
 end
 
-function bump_function(fuzzy_dist, a, b) # assume a < x < b
-    return exp(-1/ ((x[3]-a) * (b - x[3])))
+function bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
+    return exp(-1*sharpness/ ((x[3]-a) * (b - x[3])))
 end
 
 
@@ -175,11 +175,17 @@ function fuzzy_correlator(ra::Vector{Float64},
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
     bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
-    #2d weight matrix for how likely each distance is to pass through the filter
-    filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) for i in 1:length(bins)-1 for fuzzy_distance in fuzzy_distances]
-    binned_fuzzy_distances = [filter_in_range(fuzzy_distances, bins[i], bins[i+1]) for i in 1:length(bins)-1]
-    fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distance) for fuzzy_distance_bin in binned_fuzzy_distances for fuzzy_distance in fuzzy_distance_bin]
-    fuzzy_correlations = [sum(fuzzy_estimate)/(2*length(fuzzy_estimate)) for fuzzy_estimate in fuzzy_estimates]
+    
+    filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) 
+                  for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
+
+    normalized_weights = filter_weights ./ sum(filter_weights, dims=2)
+    
+    fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * normalized_weights[i, j]
+                   for i in 1:size(normalized_weights, 1), j in 1:size(normalized_weights, 2)]
+
+    fuzzy_correlations = [ (0.5 * sum(fuzzy_estimates[i, :])) / sum(normalized_weights[i, :])
+                          for i in 1:size(fuzzy_estimates, 1)] # 1/2 because we are doing 2 dot products per estimate
     return fuzzy_correlations
 end
 
