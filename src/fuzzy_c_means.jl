@@ -149,7 +149,7 @@ function fuzzy_shear_estimator(fuzzy_distance)
 end
 
 function bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
-    return exp(-1*sharpness/ ((fuzzy_dist[3]-a) * (b - fuzzy_dist[3])  + 1e-10  )  )
+    return exp(-1*sharpness/ ((fuzzy_dist[3]-a)^2 * (b - fuzzy_dist[3])^2  + 1e-10  )  )
 end
 
 
