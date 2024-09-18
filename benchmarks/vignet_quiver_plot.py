@@ -42,7 +42,7 @@ def set_rc_params(fontsize=None):
 
 set_rc_params(fontsize=14)
 
-f115w = fits.open('f115w_validation_split_augmented_resized_xy_info.fits')
+f115w = fits.open('revised_apr_f115w_shopt_xy_info.fits')
 
 f115w_hsm = f115w[1].data
 
