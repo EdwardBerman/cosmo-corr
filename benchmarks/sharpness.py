@@ -22,9 +22,9 @@ for i, alpha in enumerate(alphas):
     plt.plot(x, y, color=colors[i], label=f'alpha={alpha}')
 
 # Add labels, title, and legend
-plt.xlabel('x')
+plt.xlabel('x', fontsize=18)
 plt.ylabel(r'$f(x) = \frac{1}{1 + e^{-\alpha(x - a)}} \cdot \frac{1}{1 + e^{\alpha(x - b)}}$', fontsize=18)
-plt.title('Sharpness Sensitivity to Sigmoid Filter')
+plt.title('Sharpness Sensitivity to Sigmoid Filter', fontsize=20)
 plt.legend()
 
 # Show the plot
