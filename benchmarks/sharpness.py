@@ -28,26 +28,4 @@ plt.title('Sharpness Sensitivity to Sigmoid Filter', fontsize=20)
 plt.legend()
 
 # Show the plot
-plt.savefig('two_sigmoids.png')
-
-# Now plot the effect of flipping the sign of alpha on one of the sigmoids
-def flipped_sigmoids(x, alpha, a=1, b=2):
-    return (1 / (1 + np.exp(-alpha * (x - a)))) * (1 / (1 + np.exp(-alpha * (x - b))))
-
-# Create a plot for the flipped sigmoid
-plt.figure(figsize=(8, 6))
-
-# Plot the function for different alpha values with the flipped sign
-for i, alpha in enumerate(alphas):
-    y_flipped = flipped_sigmoids(x, alpha, a=1, b=2)
-    plt.plot(x, y_flipped, color=colors[i], label=f'alpha={alpha} (flipped)')
-
-# Add labels, title, and legend
-plt.xlabel('x')
-plt.ylabel('f(x)')
-plt.title('Sharpness Sensitivity to Sigmoid Filter')
-plt.legend()
-
-# Show the plot
-plt.savefig('flipped_sigmoids.png')
-
+plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/two_sigmoids.png')
