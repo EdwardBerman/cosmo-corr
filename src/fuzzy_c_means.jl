@@ -174,13 +174,14 @@ function fuzzy_correlator(ra::Vector{Float64},
     fuzzy_distances = [(fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
                         Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j]
+
     bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
     
     filter_weights = [bump_function(fuzzy_distance, bins[i], bins[i+1]) 
                   for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
 
     fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * filter_weights[i, j]
-                   for i in 1:size(normalized_weights, 1), j in 1:size(filter_weights, 2)]
+                   for i in 1:size(filter_weights, 1), j in 1:size(filter_weights, 2)]
 
     fuzzy_correlations = [ sum(fuzzy_estimates[i, :]) / sum(filter_weights[i, :])
                           for i in 1:size(fuzzy_estimates, 1)] 
