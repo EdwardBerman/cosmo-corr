@@ -115,7 +115,7 @@ function calculate_centers(current_centers, data, weights, fuzziness)
     return centers
 end
 
-function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=15)
     centers = initial_centers
     weights = initial_weights
     current_iteration = 0

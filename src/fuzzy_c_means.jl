@@ -58,6 +58,8 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     return Δσ * (180 / π) * 60 
 end
 
+Zygote.@nograd Vincenty_Formula
+
 struct fuzzy_shear
     shear::Vector{Float64}
 end
@@ -77,7 +79,7 @@ function calculate_centers(current_centers, data, weights, fuzziness)
     return centers
 end
 
-function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=15)
     centers = initial_centers
     weights = initial_weights
     current_iteration = 0
@@ -210,11 +212,30 @@ function fuzzy_correlator(ra::Vector{Float64},
     return fuzzy_correlations
 end
 
+function scale_data(rand_ra, rand_dec, rand_shear_one, rand_shear_two, b)
+    scaled_ra = b .* rand_ra
+    scaled_dec = b .* rand_dec
+    scaled_shear_one = [fuzzy_shear(b .* s.shear) for s in rand_shear_one]
+    scaled_shear_two = [fuzzy_shear(b .* s.shear) for s in rand_shear_two]
+    return scaled_ra, scaled_dec, scaled_shear_one, scaled_shear_two
+end
+
+function scaled_fuzzy_correlator(b, rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights)
+    scaled_ra, scaled_dec, scaled_shear_one, scaled_shear_two = scale_data(rand_ra, rand_dec, rand_shear_one, rand_shear_two, b)
+    return fuzzy_correlator(scaled_ra, scaled_dec, scaled_shear_one, scaled_shear_two, initial_centers, initial_weights, 100, 0.1, 10, 1.0, verbose=false)[1]
+end
+
 rand_ra = 90 .* rand(500)
 rand_dec = 90 .* rand(500)
 rand_shear_one = [fuzzy_shear(rand(2)) for i in 1:500]
 rand_shear_two = [fuzzy_shear(rand(2)) for i in 1:500]
 
-output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100, 0.1, 10, 1.0, verbose=true)
+
+b = 1.0
+grad_b = Zygote.gradient(b -> scaled_fuzzy_correlator(b, rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights), b)
+
+println("Gradient w.r.t. b: ", grad_b)
+
+#output = fuzzy_correlator(rand_ra, rand_dec, rand_shear_one, rand_shear_two, initial_centers, initial_weights, 100, 0.1, 10, 1.0, verbose=true)[1]
 
 println(output)
