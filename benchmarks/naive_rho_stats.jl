@@ -54,21 +54,21 @@ fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ1 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
 
 println("Computing ρ2")
-fuzzy_shear_one = [fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
-fuzzy_shear_two = [fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
+fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
+fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ2 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
 
 println("Computing ρ3")
-fuzzy_shear_one = [fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
-fuzzy_shear_two = [fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
+fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
+fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ3 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
 
 println("Computing ρ4")
-fuzzy_shear_one = [fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
-fuzzy_shear_two = [fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
+fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
+fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ4 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
 
 println("Computing ρ5")
-fuzzy_shear_one = [fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
-fuzzy_shear_two = [fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
+fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
+fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ5 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
