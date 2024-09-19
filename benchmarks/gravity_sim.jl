@@ -6,6 +6,7 @@ using LinearAlgebra
 using UnicodePlots
 using Distances
 using StatsBase
+using Distributions
 
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
     ϕ1, λ1 = coord1
@@ -41,6 +42,20 @@ function Vincenty_Formula(coord1::Tuple{Float64, Float64}, coord2::Tuple{Float64
     x = c3
     Δσ = atan(y, x)
     return Δσ * (180 / π) * 60 
+end
+
+function kmeans_plusplus_weighted_initialization_vincenty(data, k, random_weights, weight_factor=0.5)
+    n, d = size(data)
+    centers = zeros(k, d)
+    centers[1, :] = data[rand(1:n), :]
+    for i in 2:k
+        distances = map(x -> minimum([Vincenty_Formula(collect(x), collect(center)) for center in eachrow(centers[1:i-1, :])]), eachrow(data))
+        combined_weights = weight_factor .* distances .+ (1 .- weight_factor) .* random_weights
+        probs = combined_weights / sum(combined_weights)
+        centers[i, :] = data[rand(Categorical(probs)), :]
+    end
+
+    return centers
 end
 
 function gravitational_ode_3d!(du, u, p, t)
@@ -173,8 +188,17 @@ normalized_hist = vec(normalized_hist)
 normalized_hist_centers = vec(normalized_hist_centers)
 kl_divergence = round(Distances.kl_divergence(normalized_hist, normalized_hist_centers), digits=2)
 
+kmeans_plusplus_centers = kmeans_plusplus_weighted_initialization_vincenty(data', n_clusters, weights[:, 1], 0.5)
+ra_edges_kmpp = range(minimum(kmeans_plusplus_centers[:, 1]), maximum(kmeans_plusplus_centers[:, 1]), length=10)
+dec_edges_kmpp = range(minimum(kmeans_plusplus_centers[:, 2]), maximum(kmeans_plusplus_centers[:, 2]), length=10)
+ra_dec_hist_kmpp = fit(Histogram, (kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2]), (ra_edges_kmpp, dec_edges_kmpp))
+normalized_hist_kmpp = (ra_dec_hist_kmpp.weights .+ ϵ) ./ sum(ra_dec_hist_kmpp.weights .+ ϵ)
+normalized_hist_kmpp = vec(normalized_hist_kmpp)
+
+kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
+
 scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2] for coord in end_states_ra_dec],
-    title="Simulated Points and the Fuzzy C Means Cluster Centers (KL Divergence: $kl_divergence)", 
+                                 title="Simulated Points and the Fuzzy C Means Cluster Centers \n(KL Divergence FCM: $kl_divergence, KL Divergence KMPP: $kl_divergence_kmpp)", 
     xlabel="RA", ylabel="Dec", # xlabel size 
     size=(1200, 600),  # Increase the size of the plot
     titlefont=font("Courier New", 12, weight=:bold, italic=true), guidefont=font("Courier New", 12),
@@ -185,6 +209,10 @@ scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2
 # Plot centers on top of it
 Plots.scatter!(scatter_plot, centers[1, :], centers[2, :], 
     label="Cluster Centers", markersize=5, color="#FF1493")
+
+
+Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
+    label="KMeans++ Centers", markersize=5, color="#FFD700")
 
 # Save the scatter plot with cool colorscheme
 Plots.savefig(scatter_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/end_states_and_centers_scatter.png")
