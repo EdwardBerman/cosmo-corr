@@ -3,12 +3,10 @@ using LinearAlgebra
 using Distributions
 using Plots
 
-# Helper function to calculate squared distances
 function distance_squared(x, center)
     return sum((x .- center).^2)
 end
 
-# Function to initialize centers using weighted distances and random sampling
 function kmeans_plusplus_weighted_initialization(data, k, random_weights, weight_factor=0.5)
     n, d = size(data)
     centers = zeros(k, d)

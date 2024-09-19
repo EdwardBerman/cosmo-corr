@@ -12,23 +12,6 @@ using Distributions
 
 export fuzzy_c_means, fuzzy_shear_estimator, fuzzy_correlator, fuzzy_shear, weighted_average, calculate_direction, calculate_weights, calculate_centers, kmeans_plusplus_weighted_initialization_vincenty
 
-function Vincenty_Formula(coord1::Vector{Any}, coord2::Vector{Any})
-    ϕ1, λ1 = coord1
-    ϕ2, λ2 = coord2
-    ϕ1 *= π / 180
-    λ1 *= π / 180
-    ϕ2 *= π / 180
-    λ2 *= π / 180
-    
-    Δλ = λ2 - λ1
-    c1 = (cos(ϕ2)*sin(Δλ))^2
-    c2 = (cos(ϕ1)*sin(ϕ2) - sin(ϕ1)*cos(ϕ2)*cos(Δλ))^2
-    c3 = sin(ϕ1)*sin(ϕ2) + cos(ϕ1)*cos(ϕ2)*cos(Δλ)
-    y = sqrt(c1 + c2)
-    x = c3
-    Δσ = atan(y, x)
-    return Δσ * (180 / π) * 60
-end
 function kmeans_plusplus_weighted_initialization_vincenty(data, k, random_weights, weight_factor=0.5)
     n, d = size(data)
     centers = zeros(k, d)
