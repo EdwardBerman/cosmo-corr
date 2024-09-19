@@ -51,24 +51,34 @@ initial_weights = rand(nrows, n_clusters)
 println("Computing ρ1")
 fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
-ρ1 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+ρ1, distances = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+plt = lineplot(log10.(distances), log10.(abs.(ρ1)), title="ρ1", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
 
 println("Computing ρ2")
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
-ρ2 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+ρ2, distances = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+plt = lineplot(log10.(distances), log10.(abs.(ρ2)), title="ρ2", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
 
 println("Computing ρ3")
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ3 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+ρ3, distances = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+plt = lineplot(log10.(distances), log10.(abs.(ρ3)), title="ρ3", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
 
 println("Computing ρ4")
 fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ4 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+ρ4, distances = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+plt = lineplot(log10.(distances), log10.(abs.(ρ4)), title="ρ4", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
 
 println("Computing ρ5")
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ5 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+ρ5, distances = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
+plt = lineplot(log10.(distances), log10.(abs.(ρ5)), title="ρ5", name="Correlation Function", xlabel="log10(θ)", ylabel="log10(ξ(θ))")
+println(plt)
