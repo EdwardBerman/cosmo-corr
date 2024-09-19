@@ -123,6 +123,7 @@ function diff_kd_tree(galaxies::Vector{T}, hyperparameters::hyperparameters) whe
     return leaves
 end
 
+#=
 fits = pyimport("astropy.io.fits")
 f = fits.open("../benchmarks/Aardvark.fit")
 print(f[2].data)
@@ -242,6 +243,6 @@ end
 #grads_galaxies, grads_hyperparameters = Zygote.gradient((g, h) -> combined_function(g, h), galaxies, hyperparams)
 #println(grads_galaxies)
 #println(grads_hyperparameters)
-
+=#
 
 end
