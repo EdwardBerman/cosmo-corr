@@ -45,11 +45,12 @@ n_clusters = 50
 nrows, ncols = size(ra_dec)
 
 initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec, n_clusters, rand(nrows), 0.5)
-initial_weights = rand(ncols, n_clusters)
+initial_centers = initial_centers'
+initial_weights = rand(nrows, n_clusters)
 
 println("Computing ρ1")
-fuzzy_shear_one = [fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
-fuzzy_shear_two = [fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
+fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
+fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ1 = fuzzy_correlator(ra, dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, n_clusters, 200.0*60*0.03/3600, 10, 5000.0*60*0.03/3600; spacing="log", verbose=true)
 
 println("Computing ρ2")

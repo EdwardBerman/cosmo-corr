@@ -45,7 +45,7 @@ function calculate_centers(current_centers, data, weights, fuzziness)
     return centers
 end
 
-function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=15)
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     centers = initial_centers
     weights = initial_weights
     current_iteration = 0
@@ -142,6 +142,9 @@ function fuzzy_correlator(ra::Vector{Float64},
     
     if verbose == true
         println("Fuzzy C Means Converged in $iterations iterations")
+        println("Size centers: ", size(centers))
+        println("Size weights: ", size(weights))
+        println("Size new_weights: ", size(new_weights))
     end
     
     quantity_one_shear_one = [quantity_one[i].shear[1] for i in 1:length(quantity_one)]
