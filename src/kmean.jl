@@ -3,10 +3,12 @@ module kmc
 export kmeans_clustering
 
 include("metrics.jl")
-include("kdtree.jl")
+include("queue_tree.jl")
+include("stack_tree.jl")
 
 using .metrics
-using .kdtree
+using .queue_tree 
+using .stack_tree
 
 using Distances
 using Clustering
