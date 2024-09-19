@@ -166,7 +166,7 @@ end
 
 function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
     ϵ = 1e-10
-    return 1 / (1 + exp(-sharpness * (x - a))) * 1 / (1 + exp(sharpness * (x - b)))
+    return 1 / (1 + exp(-sharpness * (fuzzy_dist[3] - a))) * 1 / (1 + exp(sharpness * (fuzzy_dist[3] - b)))
 end
 
 

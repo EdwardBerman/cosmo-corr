@@ -55,7 +55,7 @@ function kmeans_plusplus_weighted_initialization_vincenty(data, k, random_weight
         centers[i, :] = data[rand(Categorical(probs)), :]
     end
 
-    return centers
+    return centers'
 end
 
 function gravitational_ode_3d!(du, u, p, t)
