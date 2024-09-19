@@ -4,14 +4,16 @@ module astrocorr
     include("stack_tree.jl")
     include("kmean.jl")
     include("estimators.jl")
+    include("fuzzy_c_means.jl")
 
     using .metrics
     using .queue_tree 
     using .stack_tree
     using .kmc
     using .estimators
+    using .fuzzy
 
-    export corr, naivecorr, clustercorr, treecorr_queue, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock, shear, corr_metric_shear_minus, corr_metric_default_shear_shear
+    export corr, naivecorr, clustercorr, treecorr_queue, corr_metric_default_scalar_scalar, corr_metric_default_position_position, Position_RA_DEC, landy_szalay_estimator, DD, DR, RR, interpolate_to_common_bins_spline, Galaxy_Catalog, Galaxy, KD_Galaxy_Tree, Galaxy_Circle, append_left!, append_right!, initialize_circles, split_galaxy_cells!, populate, get_leaves, collect_leaves, kmeans_clustering, build_distance_matrix, metric_dict, Vincenty_Formula, Vincenty, corr_metric_default_vector_vector, ξ_plus, build_distance_matrix_subblock, shear, corr_metric_shear_minus, corr_metric_default_shear_shear, fuzzy_c_means, fuzzy_shear_estimator, fuzzy_correlator, fuzzy_shear, weighted_average, calculate_direction, calculate_weights, calculate_centers, kmeans_plusplus_weighted_initialization_vincenty
 
     using LinearAlgebra
     using Base.Threads
