@@ -130,7 +130,7 @@ function calculate_centers(current_centers, data, weights, fuzziness)
     return centers
 end
 
-function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=15)
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
     centers = initial_centers
     weights = initial_weights
     current_iteration = 0
@@ -161,6 +161,7 @@ data = hcat(data...)
 n_clusters = 100
 nrows, ncols = size(data)
 initial_centers = rand(nrows, n_clusters)
+println(size(initial_centers))
 initial_weights = rand(ncols, n_clusters)
 centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
@@ -195,10 +196,13 @@ ra_dec_hist_kmpp = fit(Histogram, (kmeans_plusplus_centers[:, 1], kmeans_plusplu
 normalized_hist_kmpp = (ra_dec_hist_kmpp.weights .+ ϵ) ./ sum(ra_dec_hist_kmpp.weights .+ ϵ)
 normalized_hist_kmpp = vec(normalized_hist_kmpp)
 
+aug_centers, weights, iterations = fuzzy_c_means(data, n_clusters, kmeans_plusplus_centers', initial_weights, 2.0)
+@info "Converged in $iterations iterations"
+
 kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
 
 scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2] for coord in end_states_ra_dec],
-                                 title="Simulated Points and the Fuzzy C Means Cluster Centers \n(KL Divergence FCM: $kl_divergence, KL Divergence KMPP: $kl_divergence_kmpp)", 
+                                 title="Simulated Points and the Cluster Centers", 
     xlabel="RA", ylabel="Dec", # xlabel size 
     size=(1200, 600),  # Increase the size of the plot
     titlefont=font("Courier New", 12, weight=:bold, italic=true), guidefont=font("Courier New", 12),
@@ -208,14 +212,31 @@ scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2
 
 # Plot centers on top of it
 Plots.scatter!(scatter_plot, centers[1, :], centers[2, :], 
-    label="Cluster Centers", markersize=5, color="#FF1493")
+    label="FCM Centers", markersize=5, color="#FF1493")
 
 
 Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
-    label="KMeans++ Centers", markersize=5, color="#FFD700")
+    label="KMPP Centers", markersize=5, color="#FFD700")
+
+scatter_plot_alt = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2] for coord in end_states_ra_dec],
+                                 title="Simulated Points and the Cluster Centers", 
+    xlabel="RA", ylabel="Dec", # xlabel size 
+    size=(1200, 600),  # Increase the size of the plot
+    titlefont=font("Courier New", 12, weight=:bold, italic=true), guidefont=font("Courier New", 12),
+    label="Simulated Points", legend=:topright,
+    markersize=3, color=:lightblue,
+    bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)  # Increase the margins
+
+# Plot centers on top of it
+Plots.scatter!(scatter_plot_alt, centers[1, :], centers[2, :], 
+    label="FCM Centers", markersize=5, color="#FF1493")
+
+Plots.scatter!(scatter_plot_alt, aug_centers[1, :], aug_centers[2, :], 
+    label="FCM + KMPP Centers", markersize=5, color="#00FF00")
 
 # Save the scatter plot with cool colorscheme
-Plots.savefig(scatter_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/end_states_and_centers_scatter.png")
+Plots.savefig(scatter_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cluster_center_scatter.png")
+Plots.savefig(scatter_plot_alt, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cluster_center_scatter_alt.png")
 
 weight_matrix_plot = Plots.heatmap(weights, title="Weight Matrix", xlabel="Cluster Center", ylabel="Galaxy", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10))
 Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
