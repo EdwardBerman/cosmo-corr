@@ -44,9 +44,7 @@ ra_dec = hcat(ra, dec)
 n_clusters = 50
 nrows, ncols = size(ra_dec)
 
-println(size(ra_dec))
-
-initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec', n_clusters, rand(length(ra_dec)), 0.5)
+initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec, n_clusters, rand(nrows), 0.5)
 initial_weights = rand(ncols, n_clusters)
 
 println("Computing ρ1")
