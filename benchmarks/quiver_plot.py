@@ -43,7 +43,7 @@ def set_rc_params(fontsize=None):
 set_rc_params(fontsize=14)
 
 f115w = fits.open('f115w_validation_split_augmented_resized_xy_info.fits')
-f150w = fits.open('f150w_validation_split_augmented_resized_xy_info.fits')
+f150w = fits.open('revised_apr_f115w_shopt_xy_info.fits')
 
 f115w_hsm = f150w[1].data
 
@@ -199,6 +199,6 @@ print(f'g1 = {np.mean(g1_vignet)} +/- {np.std(g1_vignet)}, g2 = {np.mean(g2_vign
 print("PSFEx:")
 print(f'g1 = {np.mean(g1_psfex)} +/- {np.std(g1_psfex)}, g2 = {np.mean(g2_psfex)} +/- {np.std(g2_psfex)}, sigma = {np.mean(sig_psfex)} +/- {np.std(sig_psfex)}')
 
-plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f150w_hsm_quiver.png', dpi=300)
+plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_hsm_quiver.png', dpi=300)
 
 
