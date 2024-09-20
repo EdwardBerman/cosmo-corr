@@ -80,52 +80,63 @@ fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ1_list, distances = jackknife(ra, dec, fuzzy_shear_two, fuzzy_shear_two, n_clusters)
 ρ_means, ρ_stds = mean_and_std(ρ1_list)
-println(ρ_stds)
 distances = distances[1]
-println(typeof(ρ_means))
-println(typeof(ρ_stds))
-println(typeof(distances))
-println(size(ρ_means))
-println(size(ρ_stds))
-println(size(distances))
 
 f = Figure()
-Axis(f[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ₁")
+Axis(f[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ1")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool) 
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_jackknife.png", f)
 
-#plot1 = Plots.plot(log10.(distances), log10.(abs.(ρ_means)), yerr=ρ_stds, title="ρ1", xlabel="θ", ylabel="ξ(θ)", label="", color=:cool, titlefont=font("Courier New", 20, weight=:bold, italic=true), guidefont=font("Courier New", 16) , tickfont=font("Courier New", 10), legendfont=font("Courier New", 10), lw=5, size=(1200,600), bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px, errorbarcolor=:pink)
-#Plots.savefig(plot1, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_jackknife.png")
-
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ2_list, distances2 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
-means, stds = 
-plot2 = Plots.plot(distances2, means, yerr=stds, title="ρ2", xlabel="θ", ylabel="ξ(θ)", label="", color=:cool, titlefont=font("Courier New", 20, weight=:bold, italic=true), guidefont=font("Courier New", 16) , tickfont=font("Courier New", 10), legendfont=font("Courier New", 10), lw=5, size=(1200,600), bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)
-Plots.savefig(plot2, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_jackknife.png")
-
+means, stds = mean_and_std(ρ2_list)
+distances2 = distances2[1]
+println(means)
+println(stds)
+println(distances2)
+f2 = Figure()
+Axis(f2[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ2")
+errorbars!(log10.(distances2), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+scatter!(log10.(distances2), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_jackknife.png", f2)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ3_list, distances3 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
-means, stds = 
-plot3 = Plots.plot(distances3, means, yerr=stds, title="ρ3", xlabel="θ", ylabel="ξ(θ)", label="", color=:cool, titlefont=font("Courier New", 20, weight=:bold, italic=true), guidefont=font("Courier New", 16) , tickfont=font("Courier New", 10), legendfont=font("Courier New", 10), lw=5, size=(1200,600), bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)
-Plots.savefig(plot3, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_jackknife.png")
+means, stds = mean_and_std(ρ3_list)
+distances3 = distances3[1]
+
+f3 = Figure()
+Axis(f3[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ3")
+errorbars!(log10.(distances3), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+scatter!(log10.(distances3), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_jackknife.png", f3)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ4_list, distances4 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
-means, stds = 
-plot4 = Plots.plot(distances4, means, yerr=stds, title="ρ4", xlabel="θ", ylabel="ξ(θ)", label="", color=:cool, titlefont=font("Courier New", 20, weight=:bold, italic=true), guidefont=font("Courier New", 16) , tickfont=font("Courier New", 10), legendfont=font("Courier New", 10), lw=5, size=(1200,600), bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)
-Plots.savefig(plot4, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_jackknife.png")
+means, stds = mean_and_std(ρ4_list)
+distances4 = distances4[1]
+
+f4 = Figure()
+Axis(f4[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ4")
+errorbars!(log10.(distances4), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+scatter!(log10.(distances4), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_jackknife.png", f4)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
 ρ5_list, distances5 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
-means, stds = 
-plot5 = Plots.plot(distances5, means, yerr=stds, title="ρ5", xlabel="θ", ylabel="ξ(θ)", label="", color=:cool, titlefont=font("Courier New", 20, weight=:bold, italic=true), guidefont=font("Courier New", 16) , tickfont=font("Courier New", 10), legendfont=font("Courier New", 10), lw=5, size=(1200,600), bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)
-Plots.savefig(plot5, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_jackknife.png")
+means, stds = mean_and_std(ρ5_list)
+distances5 = distances5[1]
+
+f5 = Figure()
+Axis(f5[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ5")
+errorbars!(log10.(distances5), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+scatter!(log10.(distances5), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_jackknife.png", f5)
 
 
 
