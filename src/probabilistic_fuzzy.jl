@@ -12,7 +12,7 @@ using LinearAlgebra
 using Statistics
 using Distributions
 
-export fuzzy_c_means, fuzzy_shear_estimator, fuzzy_correlator, fuzzy_shear, weighted_average, calculate_direction, calculate_weights, calculate_centers, kmeans_plusplus_weighted_initialization_vincenty
+export probabilistic_correlator
 
 function probabilistic_correlator(ra::Vector{Float64}, 
         dec::Vector{Float64},
@@ -46,9 +46,22 @@ function probabilistic_correlator(ra::Vector{Float64},
     quantity_one_shear_two = [quantity_one[i].shear[2] for i in 1:length(quantity_one)]
     quantity_two_shear_one = [quantity_two[i].shear[1] for i in 1:length(quantity_two)]
     quantity_two_shear_two = [quantity_two[i].shear[2] for i in 1:length(quantity_two)]
+    
+    assignment_matrix = zeros(size(weights))
+    for i in 1:size(weights, 1)
+        distribution = Categorical(weights[i, :])
+        sample = rand(distribution)
+        for j in 1:size(weights, 2)
+            if j == sample
+                assignment_matrix[i, j] = 1
+            else
+                assignment_matrix[i, j] = 0
+            end
+        end
+    end
 
-    weighted_shear_one = [[weighted_average(quantity_one_shear_one, new_weights)[i], weighted_average(quantity_one_shear_two, new_weights)[i]] for i in 1:nclusters]
-    weighted_shear_two = [[weighted_average(quantity_two_shear_one, new_weights)[i], weighted_average(quantity_two_shear_two, new_weights)[i]] for i in 1:nclusters]
+    weighted_shear_one = [[weighted_average(quantity_one_shear_one, assignment_matrix)[i], weighted_average(quantity_one_shear_two, assignment_matrix)[i]] for i in 1:nclusters]
+    weighted_shear_two = [[weighted_average(quantity_two_shear_one, assignment_matrix)[i], weighted_average(quantity_two_shear_two, assignment_matrix)[i]] for i in 1:nclusters]
 
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
 
