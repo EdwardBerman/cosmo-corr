@@ -41,7 +41,7 @@ def sem_with_nans(data):
             
     return sem       
 
-f115w_cat_name = 'f115w_validation_split_augmented.fits'
+f115w_cat_name = 'f115w_shopt_corr.fits'
 f115w_catalog = catalog(f115w_cat_name)
 
 f150w_cat_name = 'f150w_validation_split_augmented.fits'
@@ -53,7 +53,7 @@ def extract_3_numbers(filename):
     return matches
 
 
-mre_name = "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_mosaic_mock_mre_psfex.png"
+mre_name = "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/f115w_mosaic_mock_mre_shopt.png"
 
 mean_relative_error_plot_psfex = ctp.mean_relative_error_plot(catalog(f115w_cat_name), epsfex(''))
 mean_relative_error_plot_psfex.preprocessing()
