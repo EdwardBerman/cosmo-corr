@@ -201,7 +201,7 @@ aug_centers, weights, iterations = fuzzy_c_means(data, n_clusters, kmeans_pluspl
 
 kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
 
-scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2] for coord in end_states_ra_dec],
+scatter_plot = Plots.scatter([coord[2] for coord in end_states_ra_dec], [coord[1] for coord in end_states_ra_dec],
                                  title="Simulated Points and the Cluster Centers", 
     xlabel="RA", ylabel="Dec", # xlabel size 
     size=(1200, 600),  # Increase the size of the plot
@@ -211,14 +211,14 @@ scatter_plot = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2
     bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)  # Increase the margins
 
 # Plot centers on top of it
-Plots.scatter!(scatter_plot, centers[1, :], centers[2, :], 
+Plots.scatter!(scatter_plot, centers[2, :], centers[1, :], 
     label="FCM Centers", markersize=5, color="#FF1493")
 
 
-Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
+Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 2], kmeans_plusplus_centers[:, 1], 
     label="KMPP Centers", markersize=5, color="#FFD700")
 
-scatter_plot_alt = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coord[2] for coord in end_states_ra_dec],
+scatter_plot_alt = Plots.scatter([coord[2] for coord in end_states_ra_dec], [coord[1] for coord in end_states_ra_dec],
                                  title="Simulated Points and the Cluster Centers", 
     xlabel="RA", ylabel="Dec", # xlabel size 
     size=(1200, 600),  # Increase the size of the plot
@@ -228,10 +228,10 @@ scatter_plot_alt = Plots.scatter([coord[1] for coord in end_states_ra_dec], [coo
     bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)  # Increase the margins
 
 # Plot centers on top of it
-Plots.scatter!(scatter_plot_alt, centers[1, :], centers[2, :], 
+Plots.scatter!(scatter_plot_alt, centers[2, :], centers[1, :], 
     label="FCM Centers", markersize=5, color="#FF1493")
 
-Plots.scatter!(scatter_plot_alt, aug_centers[1, :], aug_centers[2, :], 
+Plots.scatter!(scatter_plot_alt, aug_centers[2, :], aug_centers[1, :], 
     label="FCM + KMPP Centers", markersize=5, color="#00FF00")
 
 # Save the scatter plot with cool colorscheme
