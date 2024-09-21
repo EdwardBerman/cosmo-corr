@@ -1,5 +1,5 @@
 using DifferentialEquations, Plots
-#using Plots.PlotMeasures
+using Plots.PlotMeasures
 using Zygote, SciMLSensitivity
 using Statistics
 using LinearAlgebra
@@ -253,6 +253,10 @@ Plots.savefig(entropy_histogram, "/home/eddieberman/research/mcclearygroup/Astro
 
 f = CairoMakie.Figure()
 CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Galaxy Assignment Distribution", ylabel="Frequency")
-CairoMakie.hist!([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=1000, colormap=:cool, color = :values)
+CairoMakie.hist!([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=1000, color = :lightblue)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_entropy_histogram.png", f)
 
+f2 = CairoMakie.Figure()
+CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Galaxy Assignment Distribution", ylabel="Frequency")
+CairoMakie.hist!([maximum(weights[i, :]) for i in 1:size(weights, 1)], nbins=1000, color = :pink)
+CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_max_probability_histogram.png", f2)
