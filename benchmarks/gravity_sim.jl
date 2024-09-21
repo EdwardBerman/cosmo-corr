@@ -251,12 +251,12 @@ Plots.savefig(entropy_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/
 entropy_histogram = Plots.histogram([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=100, title="Entropy of Each Galaxy Assignment Distribution", xlabel="Entropy", ylabel="Frequency", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
 Plots.savefig(entropy_histogram, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/entropy_histogram.png")
 
-f = CairoMakie.Figure()
-CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Galaxy Assignment Distribution", ylabel="Frequency")
+f = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancery"))
+CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Galaxy Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=1000, color = :lightblue)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_entropy_histogram.png", f)
 
-f2 = CairoMakie.Figure()
-CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Galaxy Assignment Distribution", ylabel="Frequency")
+f2 = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancery"))
+CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Galaxy Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([maximum(weights[i, :]) for i in 1:size(weights, 1)], nbins=1000, color = :pink)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_max_probability_histogram.png", f2)
