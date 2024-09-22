@@ -45,7 +45,7 @@ T_psf = 2.0 .* σ_psf.^2
 δ_TT = δ_T ./ T_psf
 
 ra_dec = hcat(ra, dec)
-n_clusters = 50
+n_clusters = 250
 nrows, ncols = size(ra_dec)
 
 initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec, n_clusters, rand(nrows), 0.5)
@@ -71,7 +71,7 @@ f = Figure()
 Axis(f[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ1 Sampling")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool) 
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_sampling.png", f)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_sampling_finer.png", f)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
@@ -92,7 +92,7 @@ f2 = Figure()
 Axis(f2[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ2 Sampling")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool)
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_sampling.png", f2)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_sampling_finer.png", f2)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
@@ -113,7 +113,7 @@ f3 = Figure()
 Axis(f3[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ3 Sampling")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool)
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_sampling.png", f3)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_sampling_finer.png", f3)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
@@ -134,7 +134,7 @@ f4 = Figure()
 Axis(f4[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ4 Sampling")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool)
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_sampling.png", f4)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_sampling_finer.png", f4)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
@@ -155,5 +155,5 @@ f5 = Figure()
 Axis(f5[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ5 Sampling")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool)
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_sampling.png", f5)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_sampling_finer.png", f5)
 
