@@ -3,6 +3,7 @@ using .astrocorr
 
 using PyCall
 using Statistics
+using Random
 using UnicodePlots
 using Base.Threads
 using Statistics
@@ -17,7 +18,7 @@ struct fuzzy_shear
 end
 
 
-f = FITS("revised_apr_f115w_shopt_xy_info.fits")
+f = FITS("f115w_shopt_corr_xy_info.fits")
 
 ra = read(f[2], "ra")
 dec = read(f[2], "dec")
@@ -50,12 +51,12 @@ initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec, n_clu
 initial_centers = initial_centers'
 initial_weights = rand(nrows, n_clusters)
 
-function jackknife(ra, dec, shear_one, shear_two, n_clusters, subset_size=10)
+function bootstrap(ra, dec, shear_one, shear_two, n_clusters, subset_size=50, n_iterations=10)
     nrows = length(ra)
     ρ = []
     distances = []
-    for i in 1:subset_size:nrows
-        leave_out_indices = i:min(i + subset_size - 1, nrows)
+    for _ in 1:n_iterations
+        leave_out_indices = randperm(nrows)[1:subset_size]
         subset_ra = vcat(ra[1:leave_out_indices[1] - 1], ra[leave_out_indices[end] + 1:end])
         subset_dec = vcat(dec[1:leave_out_indices[1] - 1], dec[leave_out_indices[end] + 1:end])
         subset_shear_one = vcat(shear_one[1:leave_out_indices[1] - 1], shear_one[leave_out_indices[end] + 1:end])
@@ -78,7 +79,7 @@ end
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
-ρ1_list, distances = jackknife(ra, dec, fuzzy_shear_two, fuzzy_shear_two, n_clusters)
+ρ1_list, distances = bootstrap(ra, dec, fuzzy_shear_two, fuzzy_shear_two, n_clusters)
 ρ_means, ρ_stds = mean_and_std(ρ1_list)
 distances = distances[1]
 
@@ -86,11 +87,11 @@ f = Figure()
 Axis(f[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ1")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool) 
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_jackknife.png", f)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_bootstrap.png", f)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
-ρ2_list, distances2 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
+ρ2_list, distances2 = bootstrap(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
 means, stds = mean_and_std(ρ2_list)
 distances2 = distances2[1]
 println(means)
@@ -100,11 +101,11 @@ f2 = Figure()
 Axis(f2[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ2")
 errorbars!(log10.(distances2), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances2), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_jackknife.png", f2)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_bootstrap.png", f2)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ3_list, distances3 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
+ρ3_list, distances3 = bootstrap(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
 means, stds = mean_and_std(ρ3_list)
 distances3 = distances3[1]
 
@@ -112,11 +113,11 @@ f3 = Figure()
 Axis(f3[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ3")
 errorbars!(log10.(distances3), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances3), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_jackknife.png", f3)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_bootstrap.png", f3)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ4_list, distances4 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
+ρ4_list, distances4 = bootstrap(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
 means, stds = mean_and_std(ρ4_list)
 distances4 = distances4[1]
 
@@ -124,11 +125,11 @@ f4 = Figure()
 Axis(f4[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ4")
 errorbars!(log10.(distances4), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances4), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_jackknife.png", f4)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_bootstrap.png", f4)
 
 fuzzy_shear_one = [astrocorr.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(e_psf[i] * δ_TT[i]) for i in 1:length(e_psf)]
-ρ5_list, distances5 = jackknife(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
+ρ5_list, distances5 = bootstrap(ra, dec, fuzzy_shear_one, fuzzy_shear_two, n_clusters)
 means, stds = mean_and_std(ρ5_list)
 distances5 = distances5[1]
 
@@ -136,7 +137,7 @@ f5 = Figure()
 Axis(f5[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ5")
 errorbars!(log10.(distances5), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances5), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
-save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_jackknife.png", f5)
+save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_bootstrap.png", f5)
 
 
 

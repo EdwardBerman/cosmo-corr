@@ -22,7 +22,7 @@ class PSF_fit:
 
 
 psf_fits = []
-file_names = ['../../cweb_psf/new_revised_shopt/revised_apr_f115w_shopt.fits']
+file_names = ['f115w_shopt_corr.fits']
 
 fits_file_name = file_names[0]
 
@@ -36,10 +36,10 @@ def count_nan_inf(arr):
 
 for i in range(len(f[2].data)):
     try:
-        a_vignet = f[2].data['VIGNET_CROPPED'][i]
+        a_vignet = f[2].data['VIGNET'][i]
         img_vignet = galsim.Image(a_vignet, wcs=galsim.PixelScale(0.03), xmin=0, ymin=0)
         result_vignet = img_vignet.FindAdaptiveMom(guess_sig=1.0)
-        a_psfex = f[2].data['VIGNET_SHOPT_CROPPED'][i]
+        a_psfex = f[2].data['VIGNET_SHOPT'][i]
         img_psfex = galsim.Image(a_psfex, wcs=galsim.PixelScale(0.03), xmin=0, ymin=0)
         result_psfex = img_psfex.FindAdaptiveMom(guess_sig=1)
         s_d, g1_d, g2_d = result_vignet.moments_sigma, result_vignet.observed_shape.g1, result_vignet.observed_shape.g2
