@@ -191,8 +191,8 @@ Plots.scatter!(scatter_plot, centers[1, :], centers[2, :],
     label="FCM Centers", markersize=5, color="#FF1493")
 
 
-Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
-    label="KMPP Centers", markersize=5, color="#FFD700")
+#Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
+#    label="KMPP Centers", markersize=5, color="#FFD700")
 
 scatter_plot_alt = Plots.scatter([ra_coord for ra_coord in ra], [dec_coord for dec_coord in dec],
                                  title="COSMOS Field Point Sources and the Cluster Centers", 

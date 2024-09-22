@@ -81,10 +81,11 @@ fuzzy_shear_one = [astrocorr.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
 fuzzy_shear_two = [astrocorr.fuzzy_shear(δ_e[i]) for i in 1:length(δ_e)]
 ρ1_list, distances = bootstrap(ra, dec, fuzzy_shear_two, fuzzy_shear_two, n_clusters)
 ρ_means, ρ_stds = mean_and_std(ρ1_list)
+println(size(ρ_means), size(ρ_stds))
 distances = distances[1]
 
 f = Figure()
-Axis(f[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ1")
+Axis(f[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ1 Bootstrap")
 errorbars!(log10.(distances), log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool) 
 scatter!(log10.(distances), log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_bootstrap.png", f)
@@ -98,7 +99,7 @@ println(means)
 println(stds)
 println(distances2)
 f2 = Figure()
-Axis(f2[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ2")
+Axis(f2[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ2 Bootstrap")
 errorbars!(log10.(distances2), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances2), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_bootstrap.png", f2)
@@ -110,7 +111,7 @@ means, stds = mean_and_std(ρ3_list)
 distances3 = distances3[1]
 
 f3 = Figure()
-Axis(f3[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ3")
+Axis(f3[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ3 Bootstrap")
 errorbars!(log10.(distances3), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances3), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_bootstrap.png", f3)
@@ -122,7 +123,7 @@ means, stds = mean_and_std(ρ4_list)
 distances4 = distances4[1]
 
 f4 = Figure()
-Axis(f4[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ4")
+Axis(f4[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ4 Bootstrap")
 errorbars!(log10.(distances4), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances4), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_bootstrap.png", f4)
@@ -134,7 +135,7 @@ means, stds = mean_and_std(ρ5_list)
 distances5 = distances5[1]
 
 f5 = Figure()
-Axis(f5[1, 1], xlabel="log₁₀(θ)", ylabel="log₁₀(|ξ(θ)|)", title="ρ5")
+Axis(f5[1, 1], xlabel="log₁₀(θ) [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ5 Bootstrap")
 errorbars!(log10.(distances5), log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
 scatter!(log10.(distances5), log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_bootstrap.png", f5)

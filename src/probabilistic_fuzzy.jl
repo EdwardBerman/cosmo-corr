@@ -14,6 +14,16 @@ using Distributions
 
 export probabilistic_correlator
 
+function indicator_function(x, a, b)
+    if x < a
+        return 0
+    elseif x > b
+        return 0
+    else
+        return 1
+    end
+end
+
 function probabilistic_correlator(ra::Vector{Float64}, 
         dec::Vector{Float64},
         quantity_one::Vector{fuzzy_shear},
@@ -75,7 +85,7 @@ function probabilistic_correlator(ra::Vector{Float64},
         bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
     end
     
-    filter_weights = [sigmoid_bump_function(fuzzy_distance[3], bins[i], bins[i+1]) 
+    filter_weights = [indicator_function(fuzzy_distance[3], bins[i], bins[i+1]) 
                   for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
 
     fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * filter_weights[i, j]
@@ -83,7 +93,22 @@ function probabilistic_correlator(ra::Vector{Float64},
 
     fuzzy_correlations = [ sum(fuzzy_estimates[i, :]) / (ϵ + sum(filter_weights[i, :]))
                           for i in 1:size(fuzzy_estimates, 1)] 
-    mean_weighted_distances = [sum(filter_weights[i, :]) for i in 1:size(filter_weights, 1)]
-    return fuzzy_correlations, mean_weighted_distances, bins
+    
+    mean_weighted_distances = [mean([fuzzy_distances[j][3] for j in 1:size(fuzzy_distances, 1) if filter_weights[i, j] == 1]) 
+                               for i in 1:size(filter_weights, 1)]
+
+    mean_weighted_distances = [if sum(filter_weights[i, :]) > 0
+                               mean([fuzzy_distances[j][3] for j in 1:size(fuzzy_distances, 1) if filter_weights[i, j] == 1])
+                           else
+                               NaN
+                           end for i in 1:size(filter_weights, 1)]
+
+    fuzzy_correlations = [if sum(filter_weights[i, :]) > 0
+                         fuzzy_correlations[i]
+                     else
+                         NaN
+                     end for i in 1:size(filter_weights, 1)]
+
+    return fuzzy_correlations, mean_weighted_distances
 end
 end

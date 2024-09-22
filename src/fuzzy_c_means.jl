@@ -67,7 +67,7 @@ Zygote.@nograd fuzzy_c_means
 function weighted_average(quantity, weights)
     weighted_sum = quantity' * weights  
     sum_weights = sum(weights, dims=1)
-    weighted_average = weighted_sum ./ sum_weights
+    weighted_average = weighted_sum ./ (sum_weights .+ 1e-10)
     return weighted_average
 end
 
