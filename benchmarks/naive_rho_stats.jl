@@ -67,7 +67,7 @@ function bootstrap(ra, dec, shear_one, shear_two, n_clusters, subset_size=50, n_
         ρ_now, distance = fuzzy_correlator(
             subset_ra, subset_dec, subset_shear_one, subset_shear_two, 
             initial_centers, initial_weights, n_clusters, 
-            200.0 * 60 * 0.03 / 3600, 10, 5000.0 * 60 * 0.03 / 3600;
+            200.0 * 60 * 0.03 / 3600, 5, 10 * 5000.0 * 60 * 0.03 / 3600;
             spacing="log", verbose=false
         )
         push!(ρ, ρ_now)
