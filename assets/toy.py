@@ -21,7 +21,7 @@ plt.bar(x, red_data, bottom=blue_data, color='pink', label='Binned Approximate D
 # Adding labels and title
 plt.xlabel(r'$\theta$')
 plt.ylabel(r'$DD(\theta)$')
-plt.title(r'Theoretical vs Observed $DD(\theta$)')
+plt.title(r'True vs Approximate $DD(\theta$)')
 
 # Adding a legend
 plt.legend(loc='lower right')

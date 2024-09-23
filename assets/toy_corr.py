@@ -3,8 +3,8 @@ import numpy as np
 
 # Data for the lines
 bar_count = 3
-blue_data = np.array([0.8, 0.2, 0.7])
-red_data = np.array([0.2, 0.8, 0.3])
+blue_data = np.array([0.9, 0.3, 0.8])
+red_data = np.array([0.3, 0.9, 0.4])
 
 # X positions for the data points
 x = np.arange(bar_count)
@@ -24,7 +24,7 @@ plt.legend(loc='upper right')
 # Adding labels and title
 plt.xlabel(r'$\theta$', fontsize=14)
 plt.ylabel(r'$\omega(\theta)$', fontsize=14)
-plt.title(r'Theoretical vs Observed $\omega(\theta$)', fontsize=16)
+plt.title(r'True vs Approximate $\omega(\theta$)', fontsize=16)
 
 # Show the plot
 plt.savefig('toy_line.png')
