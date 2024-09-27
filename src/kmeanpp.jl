@@ -21,12 +21,3 @@ function kmeans_plusplus_weighted_initialization(data, k, random_weights, weight
     return centers
 end
 
-data = randn(100, 2)  
-k = 5  
-random_weights = rand(100)  
-
-centers = kmeans_plusplus_weighted_initialization(data, k, random_weights)
-
-scatter(data[:, 1], data[:, 2], label="Data", title="K-means++ Initialization", xlabel="X", ylabel="Y")
-scatter!(centers[:, 1], centers[:, 2], marker=:star5, markersize=10, label="Centers", color=:red)
-

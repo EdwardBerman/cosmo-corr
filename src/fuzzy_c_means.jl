@@ -178,4 +178,7 @@ function fuzzy_correlator(ra::Vector{Float64},
     mean_weighted_distances = [sum(filter_weights[i, :]) for i in 1:size(filter_weights, 1)]
     return fuzzy_correlations, mean_weighted_distances, bins
 end
+
+
+
 end

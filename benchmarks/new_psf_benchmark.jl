@@ -1,5 +1,5 @@
 using DifferentialEquations, Plots
-using Plots.PlotMeasures
+#using Plots.PlotMeasures
 using Zygote, SciMLSensitivity
 using Statistics
 using LinearAlgebra
@@ -7,7 +7,7 @@ using UnicodePlots
 using Distances
 using StatsBase
 using Distributions
-#using CairoMakie
+using CairoMakie
 using FITSIO
 
 function Vincenty_Formula(coord1::Vector{Float64}, coord2::Vector{Float64})
@@ -174,7 +174,7 @@ normalized_hist_kmpp = vec(normalized_hist_kmpp)
 
 aug_centers, weights, iterations = fuzzy_c_means(data, n_clusters, kmeans_plusplus_centers', initial_weights, 2.0)
 @info "Converged in $iterations iterations"
-
+#=
 kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
 
 scatter_plot = Plots.scatter([ra_coord for ra_coord in ra], [dec_coord for dec_coord in dec],
@@ -213,27 +213,28 @@ Plots.scatter!(scatter_plot_alt, aug_centers[1, :], aug_centers[2, :],
 # Save the scatter plot with cool colorscheme
 Plots.savefig(scatter_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cosmos_field_cluster_scatter.png")
 Plots.savefig(scatter_plot_alt, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cosmos_field_cluster_scatter_alt.png")
+=#
 
-weight_matrix_plot = Plots.heatmap(weights, title="Weight Matrix", xlabel="Cluster Center", ylabel="Galaxy", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10))
+#=
+weight_matrix_plot = Plots.heatmap(weights, title="Weight Matrix", xlabel="Cluster Center", ylabel="Source", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10))
 Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
 
 println([maximum(weights[i, :]) for i in 1:size(weights, 1)])
 println([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)])
 
-entropy_plot = Plots.bar([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], title="Entropy of Each Galaxy Assignment Distribution", xlabel="Galaxy", ylabel="Entropy", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
+entropy_plot = Plots.bar([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], title="Entropy of Each Source Assignment Distribution", xlabel="Galaxy", ylabel="Entropy", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
 Plots.savefig(entropy_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/entropy_barplot.png")
 
 entropy_histogram = Plots.histogram([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=100, title="Entropy of Each Galaxy Assignment Distribution", xlabel="Entropy", ylabel="Frequency", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
 Plots.savefig(entropy_histogram, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/entropy_histogram.png")
 
-#=
+=#
 f = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancery"))
-CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Galaxy Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
+CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Source Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=1000, color = :lightblue)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_entropy_histogram.png", f)
 
 f2 = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancery"))
-CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Galaxy Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
+CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Source Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([maximum(weights[i, :]) for i in 1:size(weights, 1)], nbins=1000, color = :pink)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_max_probability_histogram.png", f2)
-=#

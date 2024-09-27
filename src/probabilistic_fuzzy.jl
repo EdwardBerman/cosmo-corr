@@ -49,7 +49,6 @@ function probabilistic_correlator(ra::Vector{Float64},
         println("Fuzzy C Means Converged in $iterations iterations")
         println("Size centers: ", size(centers))
         println("Size weights: ", size(weights))
-        println("Size new_weights: ", size(new_weights))
     end
     
     quantity_one_shear_one = [quantity_one[i].shear[1] for i in 1:length(quantity_one)]
@@ -59,8 +58,9 @@ function probabilistic_correlator(ra::Vector{Float64},
     
     assignment_matrix = zeros(size(weights))
     for i in 1:size(weights, 1)
-        distribution = Categorical(weights[i, :])
-        sample = rand(distribution)
+        #distribution = Categorical(weights[i, :])
+        #sample = rand(distribution)
+        sample = argmax(weights[i, :])
         for j in 1:size(weights, 2)
             if j == sample
                 assignment_matrix[i, j] = 1
@@ -83,6 +83,10 @@ function probabilistic_correlator(ra::Vector{Float64},
         bins = range(θ_min, θ_max, length=number_bins)
     elseif spacing == "log"
         bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
+    end
+
+    if verbose == true
+        println(histogram([fuzzy_distance[3] for fuzzy_distance in fuzzy_distances], nbins=10))
     end
     
     filter_weights = [indicator_function(fuzzy_distance[3], bins[i], bins[i+1]) 
