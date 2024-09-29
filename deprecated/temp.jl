@@ -33,8 +33,7 @@ end
 function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
     nrows, ncols = size(current_weights)
-    ϵ = 1e-2
-    #dists = [dist_metric(data[:,i], centers[:,j]) for i in 1:size(data,2), j in 1:size(centers,2)]
+    ϵ = 1e-10
     dists = [max(dist_metric(data[:,i], centers[:,j]), ϵ) for i in 1:size(data,2), j in 1:size(centers,2)]
     weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:ncols) for i in 1:nrows, j in 1:ncols]
     return weights
@@ -66,7 +65,7 @@ end
 function weighted_average(quantity, weights)
     weighted_sum = quantity' * weights  
     sum_weights = sum(weights, dims=1)
-    weighted_average = weighted_sum ./ (sum_weights .+ 1e-10)
+    weighted_average = weighted_sum ./ (sum_weights .+ 1e-6)
     return weighted_average
 end
 
@@ -75,9 +74,9 @@ function calculate_direction(x_1, x_2, y_1, y_2, z_1, z_2)
     cosA = (z_1 - z_2) + 0.5 * z_2 * euclidean_distance_squared
     sinA = y_1 * x_2 - x_1 * y_2
     r = Complex(sinA, -cosA) 
-    return r 
+    return real(r * conj(r) / (1e-10 + norm(r)^2))
 end
-    
+
 function fuzzy_shear_estimator(fuzzy_distance)
     ϵ = 1e-10
     ra1, dec1, ra2, dec2 = fuzzy_distance[1][1], fuzzy_distance[1][2], fuzzy_distance[2][1], fuzzy_distance[2][2]
@@ -85,10 +84,12 @@ function fuzzy_shear_estimator(fuzzy_distance)
     x2, y2, z2 = cos(ra2 * π / 180) * cos(dec2 * π / 180), sin(ra2 * π / 180) * cos(dec2 * π / 180), sin(dec2 * π / 180)
 
     r21 = calculate_direction(x2, x1, y2, y1, z2, z1)
-    ϕ21 = real(conj(r21) * r21 / (ϵ + norm(r21)^2)  ) # rotating 2 in the direction of 1
+    #ϕ21 = real(conj(r21) * r21 / (ϵ + norm(r21)^2)  ) # rotating 2 in the direction of 1
+    ϕ21 = r21
 
     r12 = calculate_direction(x1, x2, y1, y2, z1, z2)
-    ϕ12 = real(conj(r12) * r12 / (ϵ + norm(r12)^2)) # rotating 1 in the direction of 2
+    #ϕ12 = real(conj(r12) * r12 / (ϵ + norm(r12)^2)) # rotating 1 in the direction of 2
+    ϕ12 = r12
 
     object_one_shear_one = fuzzy_distance[1][3]
     object_one_shear_two = fuzzy_distance[1][4]
@@ -111,7 +112,7 @@ function fuzzy_shear_estimator(fuzzy_distance)
 end
 
 function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
-    ϵ = 1e-2
+    ϵ = 1e-10
     return (1 / (ϵ +  (1 + exp(-sharpness * (fuzzy_dist - a)))) ) * (1 / (ϵ +  (1 + exp(sharpness * (fuzzy_dist - b))) ))
 end
 
@@ -154,9 +155,9 @@ function fuzzy_correlator(ra::Vector{<:Real},
 
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
 
-    fuzzy_distances = [(fuzzy_galaxies[i], 
+    fuzzy_distances = [[fuzzy_galaxies[i], 
                         fuzzy_galaxies[j], 
-                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j] # check this
+                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])] for i in 1:nclusters, j in 1:nclusters if i < j] # check this
     ϵ = 1e-10
     if spacing == "linear"
         bins = range(θ_min, θ_max, length=number_bins)
@@ -176,28 +177,27 @@ function fuzzy_correlator(ra::Vector{<:Real},
     return fuzzy_correlations, mean_weighted_distances, bins
 end
 
-data = rand(1000, 2)
-initial_centers = kmeans_plusplus_weighted_initialization_vincenty(data, 50, rand(1000), 0.5)
-initial_weights = rand(1000, 50)
-fuzzy_shear_one = [fuzzy_shear([rand(), rand()]) for i in 1:1000]
-fuzzy_shear_two = [fuzzy_shear([rand(), rand()]) for i in 1:1000]
+data = rand(100, 2)
+initial_centers = kmeans_plusplus_weighted_initialization_vincenty(data, 3, rand(100), 0.5)
+initial_weights = rand(100, 3)
+fuzzy_shear_one = [fuzzy_shear([rand(), rand()]) for i in 1:100]
+fuzzy_shear_two = [fuzzy_shear([rand(), rand()]) for i in 1:100]
 
-#fuzzy_correlator(rand(100), rand(100), fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 10, 0.1, 10, 1.0, spacing="linear", fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)
-#
 function finite_diff(f, x, h = 1e-6)
     (f(x + h) - f(x)) / h
 end
 
-#df = ForwardDiff.derivative(x -> fuzzy_correlator(rand(1000) .^ x, x*rand(1000), fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 50, 0.1, 10, 1.0, spacing="linear", fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 100000.0)
-ra = rand(1000)
-dec = rand(1000)
-fuzzy_shear_vector = [[rand(), rand()] for i in 1:1000]
+ra = rand(100)
+dec = rand(100)
+fuzzy_shear_vector = [[rand(), rand()] for i in 1:100]
+
+println(minimum([Vincenty_Formula(collect(ra), collect(center)) for center in eachrow(initial_centers)]))
+println(maximum([Vincenty_Formula(collect(ra), collect(center)) for center in eachrow(initial_centers)]))
+
 @time begin
-    df = ForwardDiff.derivative(x -> fuzzy_correlator(rand(1000) .^ x, x*rand(1000), fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 50, 0.1, 10, 1.0, spacing="linear", fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 100000.0)
-    #fd = finite_diff(x -> fuzzy_correlator(ra * x, x*dec, [fuzzy_shear(x*shear) for shear in fuzzy_shear_vector], fuzzy_shear_two, initial_centers, initial_weights, 50, 0.1, 10, 1.0, spacing="linear", fuzziness=2.0, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 100000.0)
+    intermediate = ForwardDiff.derivative(x -> fuzzy_correlator(ra .* x .^2, x*dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 3, 10.0, 10, 100.0, spacing="linear", fuzziness=1.5, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 90.0)
 end
 
-#println(fd)
-println(df)
+println(intermediate)
 
 end
