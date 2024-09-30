@@ -1,0 +1,3 @@
+[submodule "jax-cosmo-corr"]
+	path = jax-cosmo-corr
+	url = https://github.com/EdwardBerman/jax-cosmo-corr

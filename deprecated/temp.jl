@@ -74,7 +74,7 @@ function calculate_direction(x_1, x_2, y_1, y_2, z_1, z_2)
     cosA = (z_1 - z_2) + 0.5 * z_2 * euclidean_distance_squared
     sinA = y_1 * x_2 - x_1 * y_2
     r = Complex(sinA, -cosA) 
-    return real(r * conj(r) / (1e-10 + norm(r)^2))
+    return r
 end
 
 function fuzzy_shear_estimator(fuzzy_distance)
@@ -84,12 +84,10 @@ function fuzzy_shear_estimator(fuzzy_distance)
     x2, y2, z2 = cos(ra2 * π / 180) * cos(dec2 * π / 180), sin(ra2 * π / 180) * cos(dec2 * π / 180), sin(dec2 * π / 180)
 
     r21 = calculate_direction(x2, x1, y2, y1, z2, z1)
-    #ϕ21 = real(conj(r21) * r21 / (ϵ + norm(r21)^2)  ) # rotating 2 in the direction of 1
-    ϕ21 = r21
+    ϕ21 = real(conj(r21) * r21 / (ϵ + norm(r21)^2)  ) # rotating 2 in the direction of 1
 
     r12 = calculate_direction(x1, x2, y1, y2, z1, z2)
-    #ϕ12 = real(conj(r12) * r12 / (ϵ + norm(r12)^2)) # rotating 1 in the direction of 2
-    ϕ12 = r12
+    ϕ12 = real(conj(r12) * r12 / (ϵ + norm(r12)^2)) # rotating 1 in the direction of 2
 
     object_one_shear_one = fuzzy_distance[1][3]
     object_one_shear_two = fuzzy_distance[1][4]
