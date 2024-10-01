@@ -109,7 +109,7 @@ function fuzzy_shear_estimator(fuzzy_distance)
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
 end
 
-function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=10) # assume a < x < b
+function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=1) # assume a < x < b
     ϵ = 1e-10
     return (1 / (ϵ +  (1 + exp(-sharpness * (fuzzy_dist - a)))) ) * (1 / (ϵ +  (1 + exp(sharpness * (fuzzy_dist - b))) ))
 end
