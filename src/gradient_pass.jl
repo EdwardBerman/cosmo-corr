@@ -6,6 +6,7 @@ using .metrics
 using .fuzzy
 
 using Zygote
+using DiffRules
 using UnicodePlots
 using Random
 using LinearAlgebra
@@ -165,7 +166,24 @@ function fuzzy_galaxies_correlate(ra,
     return fuzzy_correlations, mean_weighted_distances
 end
 
-function ForwardDiff.partials(f::typeof(skip_correlator), args::Tuple)
+@DiffRules.derivative skip_correlator(ra::Vector{Float64}, 
+        dec::Vector{Float64},
+        quantity_one::Vector{fuzzy_shear},
+        quantity_two::Vector{fuzzy_shear},
+        initial_centers, 
+        initial_weights,
+        nclusters,
+        θ_min,
+        number_bins,
+        θ_max;
+        spacing = "linear",
+        fuzziness=2.0, 
+        dist_metric=Vincenty_Formula, 
+        tol=1e-6, 
+        verbose=false,
+        max_iter=1000) = custom_rule
+
+function custom_rule(f::typeof(skip_correlator), args::Tuple)
     ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max = args
     
     data = hcat([[ra[i], dec[i]] for i in 1:length(ra)]...)
