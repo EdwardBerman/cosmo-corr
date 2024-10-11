@@ -166,61 +166,15 @@ function fuzzy_galaxies_correlate(ra,
     return fuzzy_correlations, mean_weighted_distances
 end
 
-@DiffRules.derivative skip_correlator(ra::Vector{Float64}, 
-        dec::Vector{Float64},
-        quantity_one::Vector{fuzzy_shear},
-        quantity_two::Vector{fuzzy_shear},
-        initial_centers, 
-        initial_weights,
-        nclusters,
-        θ_min,
-        number_bins,
-        θ_max;
-        spacing = "linear",
-        fuzziness=2.0, 
-        dist_metric=Vincenty_Formula, 
-        tol=1e-6, 
-        verbose=false,
-        max_iter=1000) = custom_rule
+DiffRules.@@define_diffrule Main.skip_correlator.derivative =: custom_rule
 
-function custom_rule(f::typeof(skip_correlator), args::Tuple)
+function custom_rule(f::typeof(skip_correlator), args::NTuple{10})
     ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max = args
     
-    data = hcat([[ra[i], dec[i]] for i in 1:length(ra)]...)
-
-    centers, weights, iterations = fuzzy_c_means(data, nclusters, initial_centers, initial_weights, fuzziness, dist_metric, tol, max_iter)
-    
-    if verbose == true
-        println("Fuzzy C Means Converged in $iterations iterations")
-        println("Size centers: ", size(centers))
-        println("Size weights: ", size(weights))
+    function fuzzy_correlation_func(ra, dec, quantity_one, quantity_two)
+        skip_correlator(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max)
     end
-    
-    quantity_one_shear_one = [quantity_one[i].shear[1] for i in 1:length(quantity_one)]
-    quantity_one_shear_two = [quantity_one[i].shear[2] for i in 1:length(quantity_one)]
-    quantity_two_shear_one = [quantity_two[i].shear[1] for i in 1:length(quantity_two)]
-    quantity_two_shear_two = [quantity_two[i].shear[2] for i in 1:length(quantity_two)]
-    
-    assignment_matrix = zeros(size(weights))
-    for i in 1:size(weights, 1)
-        sample = argmax(weights[i, :])
-        for j in 1:size(weights, 2)
-            if j == sample
-                assignment_matrix[i, j] = 1
-            else
-                assignment_matrix[i, j] = 0
-            end
-        end
-    end
-
-    weighted_shear_one = [[weighted_average(quantity_one_shear_one, assignment_matrix)[i], weighted_average(quantity_one_shear_two, assignment_matrix)[i]] for i in 1:nclusters]
-    weighted_shear_two = [[weighted_average(quantity_two_shear_one, assignment_matrix)[i], weighted_average(quantity_two_shear_two, assignment_matrix)[i]] for i in 1:nclusters]
-
-    fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
-
-    new_partials = ForwardDiff.derivative(fuzzy_galaxies_correlate, (ra, dec, weighted_quantity_one, weighted_quantity_two, θ_min, number_bins, θ_max))
-
-    return new_partials
+    ForwardDiff.gradient(x -> fuzzy_correlation_func(x...), args)
 end
 
 end
