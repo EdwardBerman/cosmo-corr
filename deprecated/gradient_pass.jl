@@ -166,15 +166,33 @@ function fuzzy_galaxies_correlate(ra,
     return fuzzy_correlations, mean_weighted_distances
 end
 
-DiffRules.@define_diffrule Main.skip_correlator(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max) = custom_rule
-
-function custom_rule(f::typeof(skip_correlator), args::NTuple{10})
+function custom_rule(args::NTuple{10})
     ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max = args
-    
-    function fuzzy_correlation_func(ra, dec, quantity_one, quantity_two)
-        skip_correlator(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max)
-    end
-    ForwardDiff.gradient(x -> fuzzy_correlation_func(x...), args)
+    gradient_ra = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(x, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max), ra)
+    gradient_dec = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, x, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max), dec)
+    gradient_quantity_one = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, x, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max), quantity_one)
+    gradient_quantity_two = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, x, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max), quantity_two)
+    gradient_centers = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, x, initial_weights, nclusters, θ_min, number_bins, θ_max), initial_centers)
+    gradient_weights = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, initial_centers, x, nclusters, θ_min, number_bins, θ_max), initial_weights)
+    gradient_nclusters = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, x, θ_min, number_bins, θ_max), nclusters)
+    gradient_θ_min = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, x, number_bins, θ_max), θ_min)
+    gradient_number_bins = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, x, θ_max), number_bins)
+    gradient_θ_max = ForwardDiff.gradient(x -> fuzzy_galaxies_correlate(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, x), θ_max)
+    gradient_vector = vcat(gradient_ra, 
+                           gradient_dec, 
+                           gradient_quantity_one, 
+                           gradient_quantity_two, 
+                           gradient_centers, 
+                           gradient_weights, 
+                           gradient_nclusters, 
+                           gradient_θ_min, 
+                           gradient_number_bins, 
+                           gradient_θ_max)
+    return gradient_vector
+end
+
+struct fuzzy_shear
+    shear::Vector{Float64}
 end
 
 num_galaxies = 100
@@ -190,8 +208,6 @@ initial_weights .= initial_weights ./ sum(initial_weights, dims=1)  # Normalize 
 θ_max = 5.0
 number_bins = 20
 
-gradient = ForwardDiff.gradient(skip_correlator, (ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max))
-print(gradient)
-
+gradient = custom_rule((ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max))
+println(gradient)
 end
-
