@@ -84,9 +84,10 @@ fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(δ_e[i]) for 
 println(size(ρ_means), size(ρ_stds))
 distances = distances[1]
 
-f = Figure()
+f = Figure(fontsize = 30)
 Axis(f[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ1 Bootstrap")
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool) 
+ylims!(current_axis(), -15, 2)
+errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
 scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_bootstrap.png", f)
 
@@ -98,9 +99,11 @@ distances2 = distances2[1]
 println(means)
 println(stds)
 println(distances2)
-f2 = Figure()
+
+f2 = Figure(fontsize = 30)
 Axis(f2[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ2 Bootstrap")
-errorbars!(distances2, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+ylims!(current_axis(), -15, 2)
+errorbars!(distances2, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
 scatter!(distances2, log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_bootstrap.png", f2)
 
@@ -110,9 +113,10 @@ fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ
 means, stds = mean_and_std(ρ3_list)
 distances3 = distances3[1]
 
-f3 = Figure()
+f3 = Figure(fontsize = 30)
 Axis(f3[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ3 Bootstrap")
-errorbars!(distances3, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+ylims!(current_axis(), -15, 2)
+errorbars!(distances3, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
 scatter!(distances3, log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_bootstrap.png", f3)
 
@@ -122,9 +126,10 @@ fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ
 means, stds = mean_and_std(ρ4_list)
 distances4 = distances4[1]
 
-f4 = Figure()
+f4 = Figure(fontsize = 30)
 Axis(f4[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ4 Bootstrap")
-errorbars!(distances4, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+ylims!(current_axis(), -15, 2)
+errorbars!(distances4, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
 scatter!(distances4, log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_bootstrap.png", f4)
 
@@ -134,9 +139,10 @@ fuzzy_shear_two = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf[i] * δ
 means, stds = mean_and_std(ρ5_list)
 distances5 = distances5[1]
 
-f5 = Figure()
+f5 = Figure(fontsize = 30)
 Axis(f5[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ5 Bootstrap")
-errorbars!(distances5, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool)
+ylims!(current_axis(), -15, 2)
+errorbars!(distances5, log10.(abs.(means)), log10.(stds), color = abs.(means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
 scatter!(distances5, log10.(abs.(means)),  color = abs.(means),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_bootstrap.png", f5)
 

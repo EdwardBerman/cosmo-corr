@@ -30,12 +30,11 @@ struct fuzzy_shear
     shear::Vector{Float64}
 end
 
-function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
+function calculate_weights(n, m, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
-    nrows, ncols = size(current_weights)
     ϵ = 1e-10
     dists = [max(dist_metric(data[:,i], centers[:,j]), ϵ) for i in 1:size(data,2), j in 1:size(centers,2)]
-    weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:ncols) for i in 1:nrows, j in 1:ncols]
+    weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:m) for i in 1:n, j in 1:ncols]
     return weights
 end
 
@@ -53,7 +52,8 @@ function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzzi
         old_centers = copy(centers)
         old_weights = copy(weights)
         centers = calculate_centers(centers, data, weights, fuzziness)
-        weights = calculate_weights(weights, data, centers, fuzziness, dist_metric)
+        n, m = size(weights)
+        weights = calculate_weights(n, m, data, centers, fuzziness, dist_metric)
         current_iteration += 1
         if sum(abs2, weights - old_weights) < tol
             break
@@ -94,16 +94,16 @@ function fuzzy_shear_estimator(fuzzy_distance)
     object_two_shear_one = fuzzy_distance[2][3]
     object_two_shear_two = fuzzy_distance[2][4]
 
-    object_one_shear_one_rotated_factor = -exp(-2im * ϕ12) * (object_one_shear_one[1] + (object_one_shear_one[2] * 1im))
+    object_one_shear_one_rotated_factor = -exp(-2im * ϕ12 + 1e-10) * (object_one_shear_one[1] + (object_one_shear_one[2] * 1im))
     object_one_shear_one_rotated = [real(object_one_shear_one_rotated_factor), imag(object_one_shear_one_rotated_factor)]
     
-    object_two_shear_two_rotated_factor = -exp(-2im * ϕ21) * (object_two_shear_two[1] + (object_two_shear_two[2] * 1im))
+    object_two_shear_two_rotated_factor = -exp(-2im * ϕ21+ 1e-10) * (object_two_shear_two[1] + (object_two_shear_two[2] * 1im))
     object_two_shear_two_rotated = [real(object_two_shear_two_rotated_factor), imag(object_two_shear_two_rotated_factor)]
 
-    object_one_shear_two_rotated_factor = -exp(-2im * ϕ12) * (object_one_shear_two[1] + (object_one_shear_two[2] * 1im))
+    object_one_shear_two_rotated_factor = -exp(-2im * ϕ12+ 1e-10) * (object_one_shear_two[1] + (object_one_shear_two[2] * 1im))
     object_one_shear_two_rotated = [real(object_one_shear_two_rotated_factor), imag(object_one_shear_two_rotated_factor)]
 
-    object_two_shear_one_rotated_factor = -exp(-2im * ϕ21) * (object_two_shear_one[1] + (object_two_shear_one[2] * 1im))
+    object_two_shear_one_rotated_factor = -exp(-2im * ϕ21+ 1e-10) * (object_two_shear_one[1] + (object_two_shear_one[2] * 1im))
     object_two_shear_one_rotated = [real(object_two_shear_one_rotated_factor), imag(object_two_shear_one_rotated_factor)]
 
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
