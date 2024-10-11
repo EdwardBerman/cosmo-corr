@@ -114,7 +114,10 @@ function skip_correlator(ra::Vector{Float64},
     return fuzzy_correlations, mean_weighted_distances
 end
 
-function fuzzy_galaxies_correlate(fuzzy_galaxies, 
+function fuzzy_galaxies_correlate(ra,
+        dec, 
+        weighted_quantity_one,
+        weighted_quantity_two,
         θ_min,
         number_bins,
         θ_max;
@@ -197,55 +200,7 @@ function ForwardDiff.partials(f::typeof(skip_correlator), args::Tuple)
 
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
 
-    fuzzy_distances = [(fuzzy_galaxies[i], 
-                        fuzzy_galaxies[j], 
-                        Vincenty_Formula(fuzzy_galaxies[i][1:2], fuzzy_galaxies[j][1:2])) for i in 1:nclusters, j in 1:nclusters if i < j] 
-    ϵ = 1e-10
-    if spacing == "linear"
-        bins = range(θ_min, θ_max, length=number_bins)
-    elseif spacing == "log"
-        bins = 10 .^ range(log10(θ_min), log10(θ_max), length=number_bins)
-    end
-
-    if verbose == true
-        println(histogram([fuzzy_distance[3] for fuzzy_distance in fuzzy_distances], nbins=10))
-    end
-    
-    filter_weights = [indicator_function(fuzzy_distance[3], bins[i], bins[i+1]) 
-                  for i in 1:length(bins)-1, fuzzy_distance in fuzzy_distances]
-
-    fuzzy_estimates = [fuzzy_shear_estimator(fuzzy_distances[j]) * filter_weights[i, j]
-                   for i in 1:size(filter_weights, 1), j in 1:size(filter_weights, 2)]
-
-    fuzzy_correlations = [ sum(fuzzy_estimates[i, :]) / (ϵ + sum(filter_weights[i, :]))
-                          for i in 1:size(fuzzy_estimates, 1)] 
-    
-    mean_weighted_distances = [mean([fuzzy_distances[j][3] for j in 1:size(fuzzy_distances, 1) if filter_weights[i, j] == 1]) 
-                               for i in 1:size(filter_weights, 1)]
-
-    mean_weighted_distances = [if sum(filter_weights[i, :]) > 0
-                               mean([fuzzy_distances[j][3] for j in 1:size(fuzzy_distances, 1) if filter_weights[i, j] == 1])
-                           else
-                               NaN
-                           end for i in 1:size(filter_weights, 1)]
-
-    fuzzy_correlations = [if sum(filter_weights[i, :]) > 0
-                         fuzzy_correlations[i]
-                     else
-                         NaN
-                     end for i in 1:size(filter_weights, 1)]
-    
-    # check the assignment_matrix, then take the gradient of the fuzzy_galaxies_correlate function
-    ra_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    dec_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    quantity_one_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    quantity_two_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    initial_centers_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    initial_weights_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    nclusters_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    θ_min_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    number_bins_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
-    θ_max_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (fuzzy_galaxies, θ_min, number_bins, θ_max))
+    new_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (ra, dec, weighted_quantity_one, weighted_quantity_two, θ_min, number_bins, θ_max))
 
     return ForwardDiff.partials(skip_correlator, args, Val(:all))
 end
