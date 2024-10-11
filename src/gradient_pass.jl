@@ -5,7 +5,7 @@ include("fuzzy_c_means.jl")
 using .metrics
 using .fuzzy
 
-using Zygote
+using ForwardDiff
 using DiffRules
 using UnicodePlots
 using Random
@@ -166,7 +166,7 @@ function fuzzy_galaxies_correlate(ra,
     return fuzzy_correlations, mean_weighted_distances
 end
 
-DiffRules.@@define_diffrule Main.skip_correlator.derivative =: custom_rule
+DiffRules.@define_diffrule Main.skip_correlator(ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max) = custom_rule
 
 function custom_rule(f::typeof(skip_correlator), args::NTuple{10})
     ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max = args
@@ -176,6 +176,22 @@ function custom_rule(f::typeof(skip_correlator), args::NTuple{10})
     end
     ForwardDiff.gradient(x -> fuzzy_correlation_func(x...), args)
 end
+
+num_galaxies = 100
+ra = rand(Uniform(0, 360), num_galaxies)  # Right Ascension values between 0 and 360 degrees
+dec = rand(Uniform(-90, 90), num_galaxies)  # Declination values between -90 and 90 degrees
+quantity_one = [fuzzy_shear([randn(), randn()]) for _ in 1:num_galaxies]
+quantity_two = [fuzzy_shear([randn(), randn()]) for _ in 1:num_galaxies]
+nclusters = 10
+initial_centers = [rand(2) for _ in 1:nclusters]  # Random centers
+initial_weights = rand(nclusters, num_galaxies)  # Random weights
+initial_weights .= initial_weights ./ sum(initial_weights, dims=1)  # Normalize weights
+θ_min = 0.01
+θ_max = 5.0
+number_bins = 20
+
+gradient = ForwardDiff.gradient(skip_correlator, (ra, dec, quantity_one, quantity_two, initial_centers, initial_weights, nclusters, θ_min, number_bins, θ_max))
+print(gradient)
 
 end
 
