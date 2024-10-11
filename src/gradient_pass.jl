@@ -200,9 +200,9 @@ function ForwardDiff.partials(f::typeof(skip_correlator), args::Tuple)
 
     fuzzy_galaxies = [[centers[1,i], centers[2,i], weighted_shear_one[i], weighted_shear_two[i]] for i in 1:nclusters]
 
-    new_partials = ForwardDiff.partials(fuzzy_galaxies_correlate, (ra, dec, weighted_quantity_one, weighted_quantity_two, θ_min, number_bins, θ_max))
+    new_partials = ForwardDiff.derivative(fuzzy_galaxies_correlate, (ra, dec, weighted_quantity_one, weighted_quantity_two, θ_min, number_bins, θ_max))
 
-    return ForwardDiff.partials(skip_correlator, args, Val(:all))
+    return new_partials
 end
 
 end
