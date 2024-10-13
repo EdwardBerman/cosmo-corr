@@ -33,6 +33,7 @@ end
 function calculate_weights(n, m, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
     ϵ = 1e-10
+    ncols = size(centers, 2)
     dists = [max(dist_metric(data[:,i], centers[:,j]), ϵ) for i in 1:size(data,2), j in 1:size(centers,2)]
     weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:m) for i in 1:n, j in 1:ncols]
     return weights
@@ -109,7 +110,7 @@ function fuzzy_shear_estimator(fuzzy_distance)
     return dot(object_one_shear_one_rotated, object_two_shear_two_rotated) + dot(object_one_shear_two_rotated, object_two_shear_one_rotated)
 end
 
-function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=1) # assume a < x < b
+function sigmoid_bump_function(fuzzy_dist, a, b; sharpness=1e-32) # assume a < x < b
     ϵ = 1e-10
     return (1 / (ϵ +  (1 + exp(-sharpness * (fuzzy_dist - a)))) ) * (1 / (ϵ +  (1 + exp(sharpness * (fuzzy_dist - b))) ))
 end
@@ -193,7 +194,7 @@ println(minimum([Vincenty_Formula(collect(ra), collect(center)) for center in ea
 println(maximum([Vincenty_Formula(collect(ra), collect(center)) for center in eachrow(initial_centers)]))
 
 @time begin
-    intermediate = ForwardDiff.derivative(x -> fuzzy_correlator(ra .* x .^2, x*dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 3, 10.0, 10, 100.0, spacing="linear", fuzziness=1.5, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 90.0)
+    intermediate = ForwardDiff.derivative(x -> fuzzy_correlator(ra .* x .^2, x*dec, fuzzy_shear_one, fuzzy_shear_two, initial_centers, initial_weights, 3, 10.0, 10, 100.0, spacing="linear", fuzziness=1.00005, dist_metric=Vincenty_Formula, tol=1e-6, verbose=false, max_iter=1000)[1], 90.0)
 end
 
 println(intermediate)
