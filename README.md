@@ -4,6 +4,8 @@ A ***Probabilistic*** and ***Differentiable*** Julia package for calculating 2 p
 
 ![image](assets/final_CC.png)
 
+Docs and project details are available [here](https://cosmo-corr.netlify.app/)
+
 If you use this code in your research, please cite
 
 ```
