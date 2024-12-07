@@ -12,6 +12,8 @@ using StatsBase
 using Distributions
 using FITSIO
 using CairoMakie
+using Plots
+using Plots.PlotMeasures
 
 function bootstrap(ra, dec, shear_one, shear_two, n_clusters, subset_size=50, n_iterations=10)
     nrows = length(ra)
@@ -92,12 +94,57 @@ distances = hcat(distances...)
 ρ_means = vec(nanmean(ρ1_list, dims=2))
 ρ_stds = vec(nanstd(ρ1_list, dims=2))
 distances = vec(nanmean(distances, dims=2))
+println(ρ_means)
+println(ρ_stds)
+
+function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
+    pow = 2.0/(fuzziness-1)
+    nrows, ncols = size(current_weights)
+    ϵ = 1e-10
+    dists = [dist_metric(data[:,i], centers[:,j]) for i in 1:size(data,2), j in 1:size(centers,2)]
+    weights = [1.0 / sum(( (dists[i,j] + ϵ) /(dists[i,k] + ϵ))^pow for k in 1:ncols) for i in 1:nrows, j in 1:ncols]
+    return weights
+end
+
+function calculate_centers(current_centers, data, weights, fuzziness)
+    nrows, ncols = size(weights)
+    centers = hcat([sum(weights[i,j]^fuzziness * data[:,i] for i in 1:nrows) / sum(weights[i,j]^fuzziness for i in 1:nrows) for j in 1:ncols]...)
+    return centers
+end
+
+function fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, fuzziness, dist_metric=Vincenty_Formula, tol=1e-6, max_iter=1000)
+    centers = initial_centers
+    weights = initial_weights
+    current_iteration = 0
+    while current_iteration < max_iter
+        old_centers = copy(centers)
+        old_weights = copy(weights)
+        centers = calculate_centers(centers, data, weights, fuzziness)
+        weights = calculate_weights(weights, data, centers, fuzziness, dist_metric)
+        current_iteration += 1
+        if sum(abs2, weights - old_weights) < tol
+            break
+        end
+    end
+    return centers, weights, current_iteration
+end
+
+#=
+initial_centers = kmeans_plusplus_weighted_initialization_vincenty(ra_dec, n_clusters, rand(nrows), 0.5)
+initial_centers = initial_centers'
+initial_weights = rand(nrows, n_clusters)
+
+centers, weights, iterations = fuzzy_c_means(ra_dec', n_clusters, initial_centers, initial_weights, 2.0, Vincenty_Formula, 1e-6, 1000)
+
+weight_matrix_plot = Plots.heatmap(weights, title="Weight Matrix", xlabel="Cluster Center", ylabel="Object", color=:cool, size=(1200, 600), titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10), aspect_ratio = :equal )
+Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
+=#
 
 f = Figure(fontsize = 30)
 Axis(f[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ1 Sampling")
-ylims!(current_axis(), -15, 2)
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
-scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool, markersize=8)
+CairoMakie.ylims!(current_axis(), -15, 2)
+CairoMakie.errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds),  colormap = :cool, linewidth=2, whiskerwidth = 10)
+CairoMakie.scatter!(distances, log10.(abs.(ρ_means)),  colormap = :cool, markersize=8)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho1_sampling.png", f)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
@@ -117,9 +164,9 @@ distances = vec(nanmean(distances, dims=2))
 
 f2 = Figure(fontsize = 30)
 Axis(f2[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ2 Sampling")
-ylims!(current_axis(), -15, 2)
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
-scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
+CairoMakie.ylims!(current_axis(), -15, 2)
+CairoMakie.errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds),  colormap = :cool, linewidth=2, whiskerwidth = 10)
+CairoMakie.scatter!(distances, log10.(abs.(ρ_means)),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho2_sampling.png", f2)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i] * δ_TT[i]) for i in 1:length(e_psf)]
@@ -139,9 +186,9 @@ distances = vec(nanmean(distances, dims=2))
 
 f3 = Figure(fontsize = 30)
 Axis(f3[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ3 Sampling")
-ylims!(current_axis(), -15, 2)
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
-scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
+CairoMakie.ylims!(current_axis(), -15, 2)
+CairoMakie.errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds),  colormap = :cool, linewidth=2, whiskerwidth = 10)
+CairoMakie.scatter!(distances, log10.(abs.(ρ_means)), colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho3_sampling.png", f3)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(δ_e_conj[i]) for i in 1:length(δ_e)]
@@ -161,9 +208,9 @@ distances = vec(nanmean(distances, dims=2))
 
 f4 = Figure(fontsize = 30)
 Axis(f4[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ4 Sampling")
-ylims!(current_axis(), -15, 2)
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
-scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
+CairoMakie.ylims!(current_axis(), -15, 2)
+CairoMakie.errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), colormap = :cool, linewidth=2, whiskerwidth = 10)
+CairoMakie.scatter!(distances, log10.(abs.(ρ_means)), colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho4_sampling.png", f4)
 
 fuzzy_shear_one = [astrocorr.probabilistic_fuzzy.fuzzy.fuzzy_shear(e_psf_conj[i]) for i in 1:length(e_psf)]
@@ -183,7 +230,7 @@ distances = vec(nanmean(distances, dims=2))
 
 f5 = Figure(fontsize = 30)
 Axis(f5[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ5 Sampling")
-ylims!(current_axis(), -15, 2)
-errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), color = abs.(ρ_means),  colormap = :cool, linewidth=2, capsize=4, whiskerwidth = 10)
-scatter!(distances, log10.(abs.(ρ_means)),  color = abs.(ρ_means),  colormap = :cool)
+CairoMakie.ylims!(current_axis(), -15, 2)
+CairoMakie.errorbars!(distances, log10.(abs.(ρ_means)), log10.(ρ_stds), colormap = :cool, linewidth=2,  whiskerwidth = 10)
+CairoMakie.scatter!(distances, log10.(abs.(ρ_means)),  colormap = :cool)
 save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/rho5_sampling.png", f5)
