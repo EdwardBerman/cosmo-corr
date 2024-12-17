@@ -1,10 +1,8 @@
 # CosmoCorr  
 
-A ***Probabilistic*** and ***Differentiable*** Julia package for calculating 2 pt correlation functions for Cosmological analysis. Uses Fuzzy C Means and sigmoid binning.
+This repository contains all code and experiments for ***On Soft Clustering for Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates***.
 
-![image](assets/final_CC.png)
-
-Docs and project details are available [here](https://cosmo-corr.netlify.app/)
+Docs and project details will be made available [here](https://cosmo-corr.netlify.app/)
 
 If you use this code in your research, please cite
 
