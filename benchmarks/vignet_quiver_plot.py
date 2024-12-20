@@ -11,7 +11,7 @@ def set_rc_params(fontsize=None):
     '''
 
     if fontsize is None:
-        fontsize=16
+        fontsize=24
     else:
         fontsize=int(fontsize)
 
@@ -19,20 +19,20 @@ def set_rc_params(fontsize=None):
     rc('text', usetex=True)
 
     #plt.rcParams.update({'figure.facecolor':'w'})
-    plt.rcParams.update({'axes.linewidth': 1.3})
+    plt.rcParams.update({'axes.linewidth': 3.9})
     plt.rcParams.update({'xtick.labelsize': fontsize})
     plt.rcParams.update({'ytick.labelsize': fontsize})
-    plt.rcParams.update({'xtick.major.size': 8})
-    plt.rcParams.update({'xtick.major.width': 1.3})
+    plt.rcParams.update({'xtick.major.size': 24})
+    plt.rcParams.update({'xtick.major.width': 3.9})
     plt.rcParams.update({'xtick.minor.visible': True})
-    plt.rcParams.update({'xtick.minor.width': 1.})
-    plt.rcParams.update({'xtick.minor.size': 6})
+    plt.rcParams.update({'xtick.minor.width': 3.})
+    plt.rcParams.update({'xtick.minor.size': 18})
     plt.rcParams.update({'xtick.direction': 'out'})
-    plt.rcParams.update({'ytick.major.width': 1.3})
-    plt.rcParams.update({'ytick.major.size': 8})
+    plt.rcParams.update({'ytick.major.width': 3.9})
+    plt.rcParams.update({'ytick.major.size': 24})
     plt.rcParams.update({'ytick.minor.visible': True})
-    plt.rcParams.update({'ytick.minor.width': 1.})
-    plt.rcParams.update({'ytick.minor.size':6})
+    plt.rcParams.update({'ytick.minor.width': 3.})
+    plt.rcParams.update({'ytick.minor.size':18})
     plt.rcParams.update({'ytick.direction':'out'})
     plt.rcParams.update({'axes.labelsize': fontsize})
     plt.rcParams.update({'axes.titlesize': fontsize})
@@ -40,7 +40,7 @@ def set_rc_params(fontsize=None):
 
     return
 
-set_rc_params(fontsize=14)
+set_rc_params(fontsize=28)
 
 f115w = fits.open('revised_apr_f115w_shopt_xy_info.fits')
 
@@ -120,7 +120,8 @@ qkey_dict = dict(
 
 plt.rcParams.update({'xtick.direction': 'out'})
 plt.rcParams.update({'ytick.direction': 'out'})
-plt.rcParams.update({'legend.fontsize': 14})
+plt.rcParams.update({'legend.fontsize': 28})
+plt.rcParams.update({'font.family': 'monospace'})
 
 star_title = \
             'F115W median $\sigma^{*}_{HSM} = %.2f$ mas; $e^{*}_{HSM} = %.5f$'\
@@ -148,10 +149,10 @@ cax = ax_divider.append_axes("bottom", size="5%", pad="7%")
 cbar = fig.colorbar(q, cax=cax, orientation="horizontal")
 
 
-print("Vignet:")
-print(f'g1 = {np.mean(g1_vignet)} +/- {np.std(g1_vignet)}, g2 = {np.mean(g2_vignet)} +/- {np.std(g2_vignet)}, sigma = {np.mean(sig_vignet)} +/- {np.std(sig_vignet)}')
-print(f'Ra = {np.mean(f115w_hsm["ra"])} +/- {np.std(f115w_hsm["ra"])}')
-print(f'Dec = {np.mean(f115w_hsm["dec"])} +/- {np.std(f115w_hsm["dec"])}')
+#print("Vignet:")
+#print(f'g1 = {np.mean(g1_vignet)} +/- {np.std(g1_vignet)}, g2 = {np.mean(g2_vignet)} +/- {np.std(g2_vignet)}, sigma = {np.mean(sig_vignet)} +/- {np.std(sig_vignet)}')
+#print(f'Ra = {np.mean(f115w_hsm["ra"])} +/- {np.std(f115w_hsm["ra"])}')
+#print(f'Dec = {np.mean(f115w_hsm["dec"])} +/- {np.std(f115w_hsm["dec"])}')
 plt.savefig('/home/eddieberman/research/mcclearygroup/AstroCorr/assets/vignet_f115w_hsm_quiver.png', dpi=300)
 
 
