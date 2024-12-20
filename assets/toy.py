@@ -34,7 +34,7 @@ plt.annotate('', xy=(0.5, 6), xytext=(0, 6),
 plt.annotate('', xy=(1.5, 6), xytext=(2, 6),
              arrowprops=dict(facecolor='black', shrink=0.05))
 
-def add_outlined_text(x, y, text, fontsize=14):
+def add_outlined_text(x, y, text, fontsize=20):
     t = plt.text(x, y, text, fontsize=fontsize, fontweight='bold', color='black',
                  verticalalignment='center', horizontalalignment='center')
     t.set_path_effects([path_effects.Stroke(linewidth=3, foreground='white'),
