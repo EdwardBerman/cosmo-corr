@@ -28,11 +28,6 @@ plt.title(r'True vs Approximate $DD(\theta$)', fontsize=14)
 # Adding a legend
 plt.legend(loc='lower right')
 
-# Adding arrows
-plt.annotate('', xy=(0.5, 6), xytext=(0, 6),
-             arrowprops=dict(facecolor='black', shrink=0.05))
-plt.annotate('', xy=(1.5, 6), xytext=(2, 6),
-             arrowprops=dict(facecolor='black', shrink=0.05))
 
 def add_outlined_text(x, y, text, fontsize=20):
     t = plt.text(x, y, text, fontsize=fontsize, fontweight='bold', color='black',
@@ -40,6 +35,20 @@ def add_outlined_text(x, y, text, fontsize=20):
     t.set_path_effects([path_effects.Stroke(linewidth=3, foreground='white'),
                         path_effects.Normal()])
     return t
+
+def add_outlined_arrow(xy, xytext):
+    arrow = plt.annotate(
+        '', xy=xy, xytext=xytext,
+        arrowprops=dict(facecolor='black', edgecolor='white', linewidth=1, shrink=0.05)
+    )
+    arrow.arrow_patch.set_path_effects([
+        path_effects.Stroke(linewidth=8, foreground='white'),
+        path_effects.Normal()
+    ])
+    return arrow
+
+add_outlined_arrow(xy=(0.5, 6), xytext=(0, 6))
+add_outlined_arrow(xy=(1.5, 6), xytext=(2, 6))
 
 add_outlined_text(0.25, 6.5, "Binning Error")
 add_outlined_text(1.75, 6.5, "Binning Error")
