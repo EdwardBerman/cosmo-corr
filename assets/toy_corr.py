@@ -10,7 +10,7 @@ red_data = np.array([0.3, 0.9, 0.4])
 x = np.arange(bar_count)
 
 # Use the xkcd plotting style
-plt.xkcd()
+#plt.xkcd()
 
 # Create a figure with a larger size
 plt.figure(figsize=(10, 6))
