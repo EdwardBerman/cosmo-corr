@@ -1,5 +1,5 @@
 using DifferentialEquations, Plots
-#using Plots.PlotMeasures
+using Plots.PlotMeasures
 using Zygote, SciMLSensitivity
 using Statistics
 using LinearAlgebra
@@ -141,6 +141,10 @@ initial_weights = rand(ncols, n_clusters)
 centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
 
+weight_matrix_plot = Plots.heatmap(weights', title="Weight Matrix", xlabel="Source", ylabel="Cluster Center", color=:cool, size=(1200, 600), titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10), margin=10mm)
+Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
+
+#=
 distances = [Vincenty_Formula(data[:,i], data[:,j]) for i in 1:length(ra), j in 1:length(ra) if i < j]
 fuzz_distances = [Vincenty_Formula(centers[:,i], centers[:,j]) for i in 1:n_clusters, j in 1:n_clusters if i < j]
 
@@ -174,6 +178,7 @@ normalized_hist_kmpp = vec(normalized_hist_kmpp)
 
 aug_centers, weights, iterations = fuzzy_c_means(data, n_clusters, kmeans_plusplus_centers', initial_weights, 2.0)
 @info "Converged in $iterations iterations"
+=#
 #=
 kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
 
@@ -228,7 +233,6 @@ Plots.savefig(entropy_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/
 entropy_histogram = Plots.histogram([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=100, title="Entropy of Each Galaxy Assignment Distribution", xlabel="Entropy", ylabel="Frequency", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
 Plots.savefig(entropy_histogram, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/entropy_histogram.png")
 
-=#
 f = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancery"))
 CairoMakie.Axis(f[1, 1], xlabel="Entropy", title="Entropy of Each Source Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], nbins=1000, color = :lightblue)
@@ -238,3 +242,4 @@ f2 = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancer
 CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Source Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([maximum(weights[i, :]) for i in 1:size(weights, 1)], nbins=1000, color = :pink)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_max_probability_histogram.png", f2)
+=#

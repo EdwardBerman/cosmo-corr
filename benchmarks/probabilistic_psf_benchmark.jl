@@ -15,6 +15,8 @@ using CairoMakie
 using Plots
 using Plots.PlotMeasures
 
+np = pyimport("numpy")
+
 function bootstrap(ra, dec, shear_one, shear_two, n_clusters, subset_size=50, n_iterations=10)
     nrows = length(ra)
     ρ = []
@@ -96,6 +98,9 @@ distances = hcat(distances...)
 distances = vec(nanmean(distances, dims=2))
 println(ρ_means)
 println(ρ_stds)
+np.save("rho1_means_sample.npy", ρ_means)
+np.save("rho1_stds_sample.npy", ρ_stds)
+np.save("rho1_distances_sample.npy", distances)
 
 function calculate_weights(current_weights, data, centers, fuzziness, dist_metric=Vincenty_Formula)
     pow = 2.0/(fuzziness-1)
@@ -161,6 +166,9 @@ distances = hcat(distances...)
 ρ_means = vec(nanmean(ρ2_list, dims=2))
 ρ_stds = vec(nanstd(ρ2_list, dims=2))
 distances = vec(nanmean(distances, dims=2))
+np.save("rho2_means_sample.npy", ρ_means)
+np.save("rho2_stds_sample.npy", ρ_stds)
+np.save("rho2_distances_sample.npy", distances)
 
 f2 = Figure(fontsize = 30)
 Axis(f2[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ2 Sampling")
@@ -183,6 +191,9 @@ distances = hcat(distances...)
 ρ_means = vec(nanmean(ρ3_list, dims=2))
 ρ_stds = vec(nanstd(ρ3_list, dims=2))
 distances = vec(nanmean(distances, dims=2))
+np.save("rho3_means_sample.npy", ρ_means)
+np.save("rho3_stds_sample.npy", ρ_stds)
+np.save("rho3_distances_sample.npy", distances)
 
 f3 = Figure(fontsize = 30)
 Axis(f3[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ3 Sampling")
@@ -205,6 +216,9 @@ distances = hcat(distances...)
 ρ_means = vec(nanmean(ρ4_list, dims=2))
 ρ_stds = vec(nanstd(ρ4_list, dims=2))
 distances = vec(nanmean(distances, dims=2))
+np.save("rho4_means_sample.npy", ρ_means)
+np.save("rho4_stds_sample.npy", ρ_stds)
+np.save("rho4_distances_sample.npy", distances)
 
 f4 = Figure(fontsize = 30)
 Axis(f4[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ4 Sampling")
@@ -227,6 +241,9 @@ distances = hcat(distances...)
 ρ_means = vec(nanmean(ρ5_list, dims=2))
 ρ_stds = vec(nanstd(ρ5_list, dims=2))
 distances = vec(nanmean(distances, dims=2))
+np.save("rho5_means_sample.npy", ρ_means)
+np.save("rho5_stds_sample.npy", ρ_stds)
+np.save("rho5_distances_sample.npy", distances)
 
 f5 = Figure(fontsize = 30)
 Axis(f5[1, 1], xlabel="θ [arcmin]", ylabel="log₁₀(|ξ(θ)|)", title="ρ5 Sampling")
