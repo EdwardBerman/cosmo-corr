@@ -1,6 +1,8 @@
-# CosmoCorr  
+# Cosmological Correlation Functions  
 
-This repository contains all code and experiments for ***On Soft Clustering for Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates***.
+This repository contains all code for the Cosmological Correlation Functions package for the in preparation package ***CosmologicalCorrelations.jl: A Julia Package for Cosmological Correlation Functions with Probabilistic Clustering Assignments***.
+
+The repository also contains the material that went into the ***American Astronomical Society Winter Session*** abstract, ***On Differentiable Correlation Functions***. An expanded version of that work is currently in preparation for submission to the ***Open Journal of Astrophysics*** with the title ***On Soft Clustering for Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates***.
 
 Docs and project details will be made available [here](https://cosmo-corr.netlify.app/)
 
