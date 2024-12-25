@@ -2,7 +2,7 @@
 
 ![image](assets/process.png)
 
-The repository contains all material that went into the ***American Astronomical Society Winter Session*** abstract, ***On Differentiable Correlation Functions***. 
+The repository contains all material that went into the ***American Astronomical Society Winter Session*** abstract, ***On Differentiable Correlation Functions*** by Edward Berman and Jacqueline McCleary. 
 
 An expanded version of that work is currently in preparation for submission to the ***Open Journal of Astrophysics*** with the title ***On Soft Clustering for Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates***.
 
