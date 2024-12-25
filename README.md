@@ -1,6 +1,6 @@
 # On Soft Clustering for Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates
 
-![image](assets/process.pdf)
+![image](assets/process.png)
 
 The repository contains all material that went into the ***American Astronomical Society Winter Session*** abstract, ***On Differentiable Correlation Functions***. 
 
