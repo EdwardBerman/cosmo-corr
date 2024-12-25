@@ -8,7 +8,9 @@ An expanded version of that work is currently in preparation for submission to t
 
 Docs and project details will be made available [here](https://cosmo-corr.netlify.app/)
 
-If you use this code in your research, please cite
+## Citation
+
+If you use this code in your research or are inspired by its ideas, please cite
 
 ```
 @misc{CosmoCorr,
