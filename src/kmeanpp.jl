@@ -8,6 +8,7 @@ function distance_squared(x, center)
 end
 
 function kmeans_plusplus_weighted_initialization(data, k, random_weights, weight_factor=0.5)
+    rng = MersenneTwister(1234)
     n, d = size(data)
     centers = zeros(k, d)
     centers[1, :] = data[rand(1:n), :]
@@ -15,7 +16,7 @@ function kmeans_plusplus_weighted_initialization(data, k, random_weights, weight
         distances = map(x -> minimum([distance_squared(x, center) for center in eachrow(centers[1:i-1, :])]), eachrow(data))
         combined_weights = weight_factor .* distances .+ (1 .- weight_factor) .* random_weights
         probs = combined_weights / sum(combined_weights)
-        centers[i, :] = data[rand(Categorical(probs)), :]
+        centers[i, :] = data[rand(rng, Categorical(probs)), :]
     end
 
     return centers
