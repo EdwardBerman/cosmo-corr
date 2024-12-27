@@ -22,5 +22,5 @@ for i in range(num_spirals):
 # Adjust plot aesthetics
 plt.axis('off')  # Remove background grid and coordinates
 #plt.title("Spirals with Random Growth and Theta Offsets", fontsize=16)
-plt.savefig('spiral.png')
+plt.savefig('spiral_transparent.png', transparent=True)
 

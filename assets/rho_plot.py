@@ -1,5 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
+plt.rcParams['font.weight'] = 'bold'
+plt.rcParams['axes.labelweight'] = 'bold'
+plt.rcParams['axes.titleweight'] = 'bold'
 
 # Define file names for rho statistics
 file_mapping = {
@@ -48,8 +51,8 @@ for rho, datasets in file_mapping.items():
     y_min_global = max(y_min_global, 1e-10)
 
     # Add buffer for axis limits
-    x_buffer = (x_max_global - x_min_global) * 0.05
-    y_buffer = (y_max_global - y_min_global) * 0.05
+    x_buffer = (x_max_global - x_min_global) * 0.1
+    y_buffer = (y_max_global - y_min_global) * 0.1
 
     # Plot each method with the same bounds
     for ax, (method, (distance_file, mean_file, std_file)) in zip(axes, datasets.items()):
@@ -57,15 +60,16 @@ for rho, datasets in file_mapping.items():
         means = np.abs(np.load(mean_file))
         stds = np.load(std_file)
 
-        ax.errorbar(distances, means, yerr=stds, fmt='o', alpha=0.7)
+        ax.errorbar(distances, means, yerr=stds, fmt='o', alpha=0.7,elinewidth=2, capsize=3, capthick=2)
         ax.set_yscale('log')
+        #ax.set_yscale('symlog', linthresh=1e-10)
         ax.set_xlim(x_min_global - x_buffer, x_max_global + x_buffer)
         ax.set_ylim(y_min_global - y_buffer, y_max_global + y_buffer)
-        ax.set_xlabel(r'$θ \ [\mathrm{arcmin}]$', fontsize=12, family='monospace')
-        ax.set_title(rf'$\rho_{{{rho[-1]}}}$ {method.capitalize()}', fontsize=12, family='monospace')
+        ax.set_xlabel(r'$θ \ [\mathrm{arcmin}]$', fontsize=24, family='monospace')
+        ax.set_title(rf'$\rho_{{{rho[-1]}}}$ {method.capitalize()}', fontsize=24, family='monospace')
         ax.grid(True, which="both", linestyle='--', linewidth=0.5)
 
     # Set shared ylabel
-    axes[0].set_ylabel(r'$\log_{10}(|\xi(\theta)|)$', fontsize=12, family='monospace')
+    axes[0].set_ylabel(r'$|\rho(\theta)|$', fontsize=24, family='monospace')
     plt.tight_layout()
-    plt.savefig(f'{rho}_plot.png')
+    plt.savefig(f'bolder_{rho}_plot.png')

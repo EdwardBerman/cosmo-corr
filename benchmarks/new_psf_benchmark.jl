@@ -54,7 +54,7 @@ function kmeans_plusplus_weighted_initialization_vincenty(data, k, random_weight
         distances = map(x -> minimum([Vincenty_Formula(collect(x), collect(center)) for center in eachrow(centers[1:i-1, :])]), eachrow(data))
         combined_weights = weight_factor .* distances .+ (1 .- weight_factor) .* random_weights
         probs = combined_weights / sum(combined_weights)
-        centers[i, :] = data[rand(Categorical(probs)), :]
+        centers[i, :] = data[rand(Distributions.Categorical(probs)), :]
     end
 
     return centers'
@@ -141,10 +141,9 @@ initial_weights = rand(ncols, n_clusters)
 centers, weights, iterations = fuzzy_c_means(data, n_clusters, initial_centers, initial_weights, 2.0)
 @info "Converged in $iterations iterations"
 
-weight_matrix_plot = Plots.heatmap(weights', title="Weight Matrix", xlabel="Source", ylabel="Cluster Center", color=:cool, size=(1200, 600), titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10), margin=10mm)
-Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
+#weight_matrix_plot = Plots.heatmap(weights', title="Weight Matrix", xlabel="Source", ylabel="Cluster Center", color=:cool, size=(1200, 600), titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10), margin=10mm)
+#Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
 
-#=
 distances = [Vincenty_Formula(data[:,i], data[:,j]) for i in 1:length(ra), j in 1:length(ra) if i < j]
 fuzz_distances = [Vincenty_Formula(centers[:,i], centers[:,j]) for i in 1:n_clusters, j in 1:n_clusters if i < j]
 
@@ -178,18 +177,19 @@ normalized_hist_kmpp = vec(normalized_hist_kmpp)
 
 aug_centers, weights, iterations = fuzzy_c_means(data, n_clusters, kmeans_plusplus_centers', initial_weights, 2.0)
 @info "Converged in $iterations iterations"
-=#
-#=
 kl_divergence_kmpp = round(Distances.kl_divergence(normalized_hist, normalized_hist_kmpp), digits=2)
 
 scatter_plot = Plots.scatter([ra_coord for ra_coord in ra], [dec_coord for dec_coord in dec],
                                  title="COSMOS Field Point Sources and the Cluster Centers", 
-    xlabel="Ra", ylabel="Dec", # xlabel size 
+    xlabel="Right Ascension", ylabel="Declination", # xlabel size 
     size=(1200, 600),  # Increase the size of the plot
-    titlefont=font("Courier New", 12, weight=:bold, italic=true), guidefont=font("Courier New", 12),
+    framestyle = :box,  # Add a box around the plot
+    titlefont=font("DejaVu Sans Mono", 18, weight=:bold, italic=true, color=:black), guidefont=font("DejaVu Sans Mono", 24, color=:black),
+    legendfont=font("DejaVu Sans Mono", 20, color=:black),
     label="COSMOS Field", legend=:topright,
     markersize=3, color=:lightblue,
-    bottom_margin=100px, left_margin=100px, right_margin=100px, top_margin=50px)  # Increase the margins
+    tickfontsize = 20,
+    margin=10mm)
 
 # Plot centers on top of it
 Plots.scatter!(scatter_plot, centers[1, :], centers[2, :], 
@@ -198,7 +198,7 @@ Plots.scatter!(scatter_plot, centers[1, :], centers[2, :],
 
 #Plots.scatter!(scatter_plot, kmeans_plusplus_centers[:, 1], kmeans_plusplus_centers[:, 2], 
 #    label="KMPP Centers", markersize=5, color="#FFD700")
-
+#=
 scatter_plot_alt = Plots.scatter([ra_coord for ra_coord in ra], [dec_coord for dec_coord in dec],
                                  title="COSMOS Field Point Sources and the Cluster Centers", 
     xlabel="RA", ylabel="Dec", # xlabel size 
@@ -214,18 +214,17 @@ Plots.scatter!(scatter_plot_alt, centers[1, :], centers[2, :],
 
 Plots.scatter!(scatter_plot_alt, aug_centers[1, :], aug_centers[2, :], 
     label="FCM + KMPP Centers", markersize=5, color="#00FF00")
+=#
 
 # Save the scatter plot with cool colorscheme
 Plots.savefig(scatter_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cosmos_field_cluster_scatter.png")
-Plots.savefig(scatter_plot_alt, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cosmos_field_cluster_scatter_alt.png")
-=#
+#Plots.savefig(scatter_plot_alt, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cosmos_field_cluster_scatter_alt.png")
 
-#=
-weight_matrix_plot = Plots.heatmap(weights, title="Weight Matrix", xlabel="Cluster Center", ylabel="Source", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10))
+weight_matrix_plot = Plots.heatmap(weights', title="Weight Matrix", xlabel="Source", ylabel="Cluster Center", color=:cool, size=(1200, 600), margin=10mm, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12), colorbar_titlefont=font("Courier New", 10))
 Plots.savefig(weight_matrix_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/weight_matrix_heatmap.png")
 
-println([maximum(weights[i, :]) for i in 1:size(weights, 1)])
-println([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)])
+#println([maximum(weights[i, :]) for i in 1:size(weights, 1)])
+#println([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)])
 
 entropy_plot = Plots.bar([sum(-1 .* weights[i, :] .* log.(weights[i, :])) for i in 1:size(weights, 1)], title="Entropy of Each Source Assignment Distribution", xlabel="Galaxy", ylabel="Entropy", color=:cool, size=(1200, 600), bottom_margin=50px, left_margin=100px, right_margin=100px, top_margin=10px, titlefont=font("Courier New", 16, weight=:bold, italic=true), guidefont=font("Courier New", 14), tickfont=font("Courier New", 12))
 Plots.savefig(entropy_plot, "/home/eddieberman/research/mcclearygroup/AstroCorr/assets/entropy_barplot.png")
@@ -242,4 +241,3 @@ f2 = CairoMakie.Figure(fonts = (; regular = "Courier New", weird = "Blackchancer
 CairoMakie.Axis(f2[1, 1], xlabel="Max Probability", title="Max Probability of Each Source Assignment Distribution", ylabel="Frequency", titlefont = "Courier New")
 CairoMakie.hist!([maximum(weights[i, :]) for i in 1:size(weights, 1)], nbins=1000, color = :pink)
 CairoMakie.save("/home/eddieberman/research/mcclearygroup/AstroCorr/assets/cairo_max_probability_histogram.png", f2)
-=#
