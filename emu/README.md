@@ -1,4 +1,4 @@
-The following scripts were written by [Sneh Pandya](https://github.com/snehjp2):
+The following scripts were written by [Sneh Pandya](https://github.com/snehjp2), with some slight modifications for this project:
 
 ```
 ├── iaemu_predict
