@@ -22,9 +22,9 @@ plt.plot(x, red_data, color='pink', marker='o', linestyle='-', linewidth=6, labe
 plt.legend(loc='upper right')
 
 # Adding labels and title
-plt.xlabel(r'$\theta$', fontsize=14)
-plt.ylabel(r'$\omega(\theta)$', fontsize=14)
-plt.title(r'True vs Approximate $\omega(\theta$)', fontsize=16)
+plt.xlabel(r'$\theta$', fontsize=28)
+plt.ylabel(r'$\omega(\theta)$', fontsize=28)
+plt.title(r'True vs Approximate $\omega(\theta$)', fontsize=28)
 
 # Show the plot
 plt.savefig('toy_line.png')
