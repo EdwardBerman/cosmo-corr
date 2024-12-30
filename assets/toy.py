@@ -21,9 +21,9 @@ plt.bar(x, blue_data, color='blue', label='True Distribution')
 plt.bar(x, red_data, bottom=blue_data, color='pink', label='Binned Approximate Distribution')
 
 # Adding labels and title
-plt.xlabel(r'$\theta$', fontsize=14)
-plt.ylabel(r'$DD(\theta)$', fontsize=14)
-plt.title(r'True vs Approximate $DD(\theta$)', fontsize=14)
+plt.xlabel(r'$\theta$', fontsize=28)
+plt.ylabel(r'$DD(\theta)$', fontsize=28)
+plt.title(r'True vs Approximate $DD(\theta$)', fontsize=28)
 
 # Adding a legend
 plt.legend(loc='lower right')
