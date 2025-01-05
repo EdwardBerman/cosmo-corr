@@ -8,9 +8,6 @@ An expanded version of that work is currently in preparation for submission to t
 
 A short summary of this work is available [here](https://cosmo-corr.netlify.app/) 
 
-![image](assets/process.png)
-
-
 ## Citation
 
 If you use this code in your research or are inspired by its ideas, please cite
