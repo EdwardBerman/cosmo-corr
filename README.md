@@ -13,12 +13,18 @@ A short summary of this work is available [here](https://cosmo-corr.netlify.app/
 If you use this code in your research or are inspired by its ideas, please cite
 
 ```
-@misc{CosmoCorr,
-  author = {Edward Berman},
-  title = {CosmoCorr: Cosmological Correlation Function Estimator},
-  year = {2024},
-  howpublished = {\url{https://github.com/EdwardBerman/CosmoCorr}},
-  note = {Accessed: 2024-09-23}
+@INPROCEEDINGS{2025AAS...24542401B,
+       author = {{Berman}, Edward and {McCleary}, Jacqueline},
+        title = "{On Differentiable Correlation Functions}",
+    booktitle = {American Astronomical Society Meeting Abstracts},
+         year = 2025,
+       series = {American Astronomical Society Meeting Abstracts},
+       volume = {245},
+        month = jan,
+          eid = {424.01},
+        pages = {424.01},
+       adsurl = {https://ui.adsabs.harvard.edu/abs/2025AAS...24542401B},
+      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
 }
 ```
 
