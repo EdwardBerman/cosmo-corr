@@ -10,7 +10,17 @@ A short summary of this work is available [here](https://cosmo-corr.netlify.app/
 
 ## Citation
 
-If you use this code in your research or are inspired by its ideas, please cite
+```
+@misc{berman2025softclusteringcorrelationestimators,
+      title={On Soft Clustering For Correlation Estimators: Model Uncertainty, Differentiability, and Surrogates}, 
+      author={Edward Berman and Sneh Pandya and Jacqueline McCleary and Marko Shuntov and Caitlin Casey and Nicole Drakos and Andreas Faisst and Steven Gillman and Ghassem Gozaliasl and Natalie Hogg and Jeyhan Kartaltepe and Anton Koekemoer and Wilfried Mercier and Diana Scognamiglio and COSMOS-Web and : and The JWST Cosmic Origins Survey},
+      year={2025},
+      eprint={2504.06174},
+      archivePrefix={arXiv},
+      primaryClass={astro-ph.IM},
+      url={https://arxiv.org/abs/2504.06174}, 
+}
+```
 
 ```
 @INPROCEEDINGS{2025AAS...24542401B,
