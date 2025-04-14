@@ -1,2 +1,5 @@
 model.zip
 iaemu_predict/data
+model/model.pt
+x_train_10x.npy
+y_train_means.npy
